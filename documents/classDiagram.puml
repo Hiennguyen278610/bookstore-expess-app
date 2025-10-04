@@ -1,0 +1,104 @@
+@startuml
+entity Roles {
+  *_id : ObjectId <<PK>>
+  name : String
+}
+
+entity Permissions {
+  *id : ObjectId
+  name : String
+}
+
+entity Roles_Permissions {
+  *roleId : ObjectId <<FK>>
+  *permissionId : ObjectId <<FK>>
+}
+
+entity Accounts {
+    * _id: ObjectId
+    username: String <<unique>>
+    hassPass: String
+    email: String
+    displayName: String
+}
+
+entity Categories {
+  *_id: ObjectId
+  name: String
+}
+
+entity Publishers {
+  *_id: ObjectId
+  name: String
+  isDelete: Boolean
+}
+
+entity Books {
+  *_id: ObjectId 
+  name: String
+  Categori_id: String
+  Publicsher_id: STring
+  price: Decimal [10, 2]
+  isDelete: Boolean
+}
+
+entity Book_
+
+entity Customers {
+  *_id: ObjectId
+  lastName: String
+  firstName: String
+  phone: String
+  bod: String
+}
+
+entity Staffs {
+  *_id: ObjectId
+  lastName: String
+  firstName: String
+  phone: String
+  bod: String
+}
+
+entity Authors {
+  *_id: ObjectId
+  lastName: String
+  firstName: String
+}
+
+entity Orders {
+  *_id: ObjectId
+  customerId: ObjectId <<FK>>
+  staffId: ObjectId <<FK>>
+  voucherId: ObjectId <<FK>>
+  payDate: date
+  totalAmount: Decimal [10, 2]
+  finalAmount: Decimal [10, 2]
+}
+
+entity Vouchers {
+  *_id: ObjectId
+  name: String
+  discount: Decimal [10, 2]
+  startDate: Date
+  endDate: Date
+  isActive: Boolean
+}
+
+entity OrderDetails {
+  *_id: ObjectId
+  orderId: ObjectId <<FK>>
+  bookId: ObjectId <<FK>>
+  price: Decimal [10, 2]
+  quantity: Int
+}
+
+entity Carts {
+  *_id: ObjectId
+  name: String
+  
+}
+
+Roles ||--o{ Roles_Permissions
+Permissions ||--o{ Roles_Permissions
+@enduml
