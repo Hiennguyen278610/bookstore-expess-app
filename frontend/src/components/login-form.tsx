@@ -3,8 +3,6 @@ import {cn} from "@/lib/utils";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
-import {GithubIcon} from "@/components/svg/github";
-import {GoogleIcon} from "@/components/svg/google";
 
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
@@ -13,6 +11,8 @@ import {setJWTtoCookie} from "@/lib/cookies";
 import {login, useUser} from "@/services/authservices";
 import {toast} from "react-toastify";
 import {Checkbox} from "@/components/ui/checkbox";
+import {GoogleIcon} from "@/components/svg/google";
+import {GithubIcon} from "@/components/svg/github";
 
 type LoginRequest = {
     username: string;
@@ -21,8 +21,9 @@ type LoginRequest = {
 
 export function LoginForm({
                               className,
+                              setMode,
                               ...props
-                          }: React.ComponentProps<"form">) {
+                          }: React.ComponentProps<"form"> & { setMode?: (mode: "login" | "register") => void }) {
     const {mutate} = useUser();
     const {
         register,
@@ -46,21 +47,30 @@ export function LoginForm({
             return;
         }
     };
+    const handleOAuthLogin = (provider: "google" | "github") => {
+        try {
+            window.location.href = `#`;
+            toast.success("Login successfully");
+        } catch (e) {
+            toast.error("OAuth login failed");
+        }
+    }
 
     return (
+        <div>
+            <Button variant="outline" className="w-full mb-4" onClick={() => handleOAuthLogin("google")}>
+                <GoogleIcon/>
+                Đăng nhập với Google
+            </Button>
+            <Button variant="outline" className="w-full mb-4" onClick={() => handleOAuthLogin("github")}>
+                <GithubIcon/>
+                Đăng nhập với Github
+            </Button>
         <form
             className={cn("flex flex-col gap-6", className)}
             {...props}
             onSubmit={handleSubmit(onSubmit)}
         >
-            <Button variant="outline" className="w-full">
-                <GoogleIcon/>
-                Đăng nhập với Google
-            </Button>
-            <Button variant="outline" className="w-full">
-                <GithubIcon/>
-                Đăng nhập với Github
-            </Button>
             <div className="grid gap-4">
                 <div
                     className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
@@ -90,9 +100,9 @@ export function LoginForm({
                 </div>
                 <div className="flex gap-3 items-center justify-between">
 
-                    <div className="flex items-start gap-2">
+                    <div className="flex items-start gap-2 cursor-pointer">
                         <Checkbox id="remember"/>
-                        <Label htmlFor="remember">Ghi nhớ đăng nhập</Label>
+                        <Label htmlFor="remember" className="cursor-pointer">Ghi nhớ đăng nhập</Label>
                     </div>
                     <a
                         href="#"
@@ -101,17 +111,18 @@ export function LoginForm({
                         Quên mật khẩu?
                     </a>
                 </div>
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full cursor-pointer">
                     Đăng nhập
                 </Button>
 
             </div>
             <div className="text-center text-sm">
                 Chưa có tài khoản?{" "}
-                <a href="#" className="underline underline-offset-4 ">
+                <a className="underline underline-offset-4 cursor-pointer" onClick={() => setMode?.("register")}>
                     Đăng ký
                 </a>
             </div>
         </form>
+        </div>
     );
 }

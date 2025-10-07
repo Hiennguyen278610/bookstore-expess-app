@@ -1,12 +1,13 @@
 "use client";
 export default function HomeLayout({
-                                       login,
+                                       auth,
                                        children,
                                    }: Readonly<{
-    login: React.ReactNode;
+    auth: React.ReactNode;
     children: React.ReactNode;
 }>) {
     return (
-        login
+        // login xong goi children ra trang chu
+        auth
     )
 }
