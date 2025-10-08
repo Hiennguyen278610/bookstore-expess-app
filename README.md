@@ -32,7 +32,7 @@ bookstore-express-app/
 │   │   ├── models/        # MongoDB models
 │   │   ├── routes/        # API routes
 │   │   ├── middlewares/   # Middleware functions
-│   │   └── index.js       # Entry point
+│   │   └── server.js       # Entry point
 │   ├── .env               # Environment variables (không commit)
 │   └── package.json
 │
