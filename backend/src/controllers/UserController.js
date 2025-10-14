@@ -1,7 +1,14 @@
 import { registerService, loginService } from '../services/AuthService.js';
+import User from '../models/User.js';
 
 export const getAll = (req, res) => {
-  res.status(200).send("Đây là trang user");
+  try {
+    const users = User.find();
+    res.status(200).json(users);
+  }
+  catch(err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
 export const getById = (req, res) => {

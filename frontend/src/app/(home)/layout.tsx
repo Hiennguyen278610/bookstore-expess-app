@@ -1,4 +1,6 @@
 "use client";
+import { useUser } from '@/services/authservices';
+
 export default function HomeLayout({
                                        auth,
                                        children,
@@ -6,8 +8,7 @@ export default function HomeLayout({
     auth: React.ReactNode;
     children: React.ReactNode;
 }>) {
-    return (
-        // login xong goi children ra trang chu
-        auth
-    )
+  const {user}= useUser();
+  if(!user) return auth
+    return children;
 }
