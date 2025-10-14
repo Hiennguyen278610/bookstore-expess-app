@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { uuidv4 } from 'zod';
 
 const userSchema = new mongoose.Schema({
   fullName: { type: String},

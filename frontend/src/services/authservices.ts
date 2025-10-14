@@ -1,5 +1,6 @@
 import axios from "axios";
 import useSWR from "swr";
+import { getJWTfromCookie } from '@/lib/cookies';
 
 type AuthResponse = {
     token: string;
@@ -10,9 +11,10 @@ type ErrorResponse = {
     code: string;
     message: string;
 }
-export function useUser() {
+export  function useUser() {
+
     const { data, error, isLoading, mutate } = useSWR(
-        `${process.env.NEXT_PUBLIC_API_URL}/users/profile`
+        `${process.env.NEXT_PUBLIC_API_URL}/users/me`,
     );
     return {
         user: data,
@@ -28,7 +30,8 @@ export async function login(data: {
 }): Promise<AuthResponse | ErrorResponse
 > {
     try {
-        const res = await axios.post<AuthResponse>(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, data);
+        const res = await axios.post<AuthResponse>(`${process.env.NEXT_PUBLIC_API_URL}/users/login`, data);
+    console.log(res.data);
         return res.data;
     } catch (err : unknown) {
         if (axios.isAxiosError(err)) {
@@ -50,7 +53,7 @@ export async function registerUser(data: {
     confirmPassword: string;
 }): Promise<AuthResponse | ErrorResponse> {
     try {
-        const res = await axios.post<AuthResponse>(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, data);
+        const res = await axios.post<AuthResponse>(`${process.env.NEXT_PUBLIC_API_URL}/users/register`, data);
         return res.data;
     }catch (err : unknown) {
         if (axios.isAxiosError(err)) {

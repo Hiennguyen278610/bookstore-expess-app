@@ -1,15 +1,26 @@
 import express from "express";
 import { envs } from "./initEnv.js";
-import userRoute from "./routes/usersRouters.js";
+import userRoute from "./routes/UserRouters.js";
+import bookRoute from "./routes/BookRouters.js";
+import cartRoute from "./routes/CartRouters.js";
 import { connectDB } from "./config/db.js";
+import cors from "cors";
+import { seedAdmin } from './utils/seedAdmin.js';
+import categoryRoute from './routes/CategoryRouters.js';
 
 const app = express();
 connectDB(envs.MONGODB_URL);
 
+app.use(cors());
+
 app.use(express.json()); // To parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 app.use(envs.API_TAG + "/users", userRoute);
-
+app.use(envs.API_TAG + "/books", bookRoute);
+app.use(envs.API_TAG + "/cart", cartRoute);
+app.use(envs.API_TAG + "/categories", categoryRoute);
 app.listen(envs.PORTBE, () => {
   console.log("Server is running on port " + envs.PORTBE);
 });
+
+await seedAdmin();

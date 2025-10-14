@@ -1,4 +1,5 @@
 import "./globals.css";
+import { SWRProvider } from '@/components/provider/swr-provider';
 
 export default function RootLayout({
                                        children,
@@ -8,7 +9,7 @@ export default function RootLayout({
     return (
         <html lang="en" className="light">
             <body>
-                {children}
+              <SWRProvider> {children}</SWRProvider>
             </body>
         </html>
     );
