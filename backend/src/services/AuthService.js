@@ -3,8 +3,6 @@ import { comparePassword, hashPassword } from '../helper/hashPassword.js';
 import { generateToken } from '../utils/jwt.js';
 import { ErrorResponse } from '../utils/error.js';
 import { toUserResponse } from '../mappers/UserMapper.js';
-import passport from '../config/passport.js';
-
 export const registerService = async (userData) => {
   const existing = await User.findOne({
     $or: [{ username: userData.username }, { email: userData.email }, { phone: userData.phone }]
@@ -35,6 +33,3 @@ export const loginService = async (username, password) => {
   const token = generateToken(UserResponse);
   return { UserResponse, token };
 };
-export const oAuth2Service = async (provider) => {
-  passport.authenticate(provider)
-}

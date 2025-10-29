@@ -8,14 +8,17 @@ import cors from "cors";
 import { seedAdmin } from './utils/seedAdmin.js';
 import categoryRoute from './routes/CategoryRouters.js';
 import orderRoute from './routes/OrderRouters.js';
+import authRoute from './routes/AuthRouters.js';
+import passport from './config/passport.js';
 
 const app = express();
 connectDB(envs.MONGODB_URL);
 
 app.use(cors());
-
+app.use(passport.initialize());
 app.use(express.json()); // To parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
+app.use(envs.API_TAG + "/auth", authRoute)
 app.use(envs.API_TAG + "/users", userRoute);
 app.use(envs.API_TAG + "/books", bookRoute);
 app.use(envs.API_TAG + "/cart", cartRoute);
