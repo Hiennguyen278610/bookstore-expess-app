@@ -7,6 +7,7 @@ import { connectDB } from "./config/db.js";
 import cors from "cors";
 import { seedAdmin } from './utils/seedAdmin.js';
 import categoryRoute from './routes/CategoryRouters.js';
+import orderRoute from './routes/OrderRouters.js';
 
 const app = express();
 connectDB(envs.MONGODB_URL);
@@ -19,6 +20,7 @@ app.use(envs.API_TAG + "/users", userRoute);
 app.use(envs.API_TAG + "/books", bookRoute);
 app.use(envs.API_TAG + "/cart", cartRoute);
 app.use(envs.API_TAG + "/categories", categoryRoute);
+app.use(envs.API_TAG + "/orders", orderRoute);
 app.listen(envs.PORTBE, () => {
   console.log("Server is running on port " + envs.PORTBE);
 });

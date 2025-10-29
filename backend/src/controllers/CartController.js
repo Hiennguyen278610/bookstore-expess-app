@@ -1,4 +1,3 @@
-import { verifyToken } from '../utils/jwt.js';
 import User from '../models/User.js';
 import { addItemToCart, clearCartService, removeItemFromCart, updateItemQuantity } from '../services/CartService.js';
 
