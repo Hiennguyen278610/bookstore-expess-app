@@ -1,15 +1,11 @@
 import express from "express";
-import { getAll, getById, loginUser, registerUser } from '../controllers/UserController.js';
+import { getAll, getById } from '../controllers/UserController.js';
 import { auth } from '../middlewares/auth.js';
 import { authorizeRoles } from '../middlewares/authorize.js';
 
 const router = express.Router();
 
 router.get("/", auth, authorizeRoles("admin"), getAll);
-
-router.post("/register", registerUser);
-
-router.post("/login", loginUser);
 
 router.get("/me", auth, async(req, res) => {
   res.status(200).json(req.user);

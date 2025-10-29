@@ -1,43 +1,52 @@
-import OAuth2Strategy from 'passport-oauth2';
-import { providers } from './providers.js';
-import axios from 'axios';
-import User from '../models/User.js';
 import passport from 'passport';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as GitHubStrategy } from 'passport-github2';
+import User from '../models/User.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const createDynamicStranger = (providerName) => {
-  const config = providers[providerName];
-  return new OAuth2Strategy({
-    authorizationURL: config.authorizationURL,
-    tokenURL: config.tokenURL,
-    clientID: config.clientID,
-    clientSecret: config.clientSecret,
-    callbackURL: `http://localhost:8080/api/v1/oauth2/callback/${providerName}`,
-    passReqToCallback: true
-  }, async (accessToken, refreshToken, params, profile, done) => {
-    try {
-      const { data } = await axios.get(config.profileURL, {
-        headers: { 'Authorization': `Bearer ${accessToken}` }
+passport.use(new GoogleStrategy({
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: process.env.GOOGLE_CLIENT_CALLBACKURL
+}, async (accessToken, refreshToken, profile, done) => {
+  try {
+    const email = profile.emails[0].value;
+    let user = await User.findOne({ email: email });
+    if (!user) {
+      user = await User.create({
+        username: email,
+        email: email,
+        fullName: profile.displayName,
+        password: null,
+        phone: null
       });
-      console.log('Data: ' + data);
-      let user = await User.findOne({ username: data.id });
-      if (!user) {
-        user = await User.create(
-          { username: data.id, email: data.email, fullName: data.name }
-        );
-      }
-      done(null, user);
-    } catch (err) {
-      done(err);
     }
-  });
-};
-Object.keys(providers).forEach(providerName => {
-  passport.use(providerName, createDynamicStranger(providerName));
-});
-// cai nay bo deo hieu
-passport.serializeUser((user, done) => done(null, user._id));
-passport.deserializeUser(async (id, done) => {
-  const user = await User.findById(id);
-  done(null, user);
-});
+    done(null, user)
+  }catch(err) {
+    done(err, null)
+  }
+}));
+passport.use(new GitHubStrategy({
+  clientID: process.env.GITHUB_CLIENT_ID,
+  clientSecret: process.env.GITHUB_CLIENT_SECRET,
+  callbackURL: process.env.GITHUB_CLIENT_CALLBACKURL
+}, async (accessToken, refreshToken, profile, done) => {
+  try {
+    const email = profile.emails[0].value;
+    let user = await User.findOne({ email: email });
+    if (!user) {
+      user = await User.create({
+        username: email,
+        email: email,
+        fullName: profile.displayName || profile.username,
+        password: null,
+        phone: null,
+      })
+    }
+    done(null, user)
+  }catch(err) {
+    done(err, null)
+  }
+}))
 export default passport;
