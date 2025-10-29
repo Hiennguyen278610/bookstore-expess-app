@@ -9,6 +9,6 @@ export default function HomeLayout({
     children: React.ReactNode;
 }>) {
   const {user}= useUser();
-  if(!user) return auth
+  if(!user) 
     return children;
 }
