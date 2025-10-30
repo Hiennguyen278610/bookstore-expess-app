@@ -12,8 +12,8 @@ export async function createCategoryService(name) {
 }
 export async function updateCategoryService(_id, newName) {
   const isAvailable = await Category.findOne({name: newName});
-  if (isAvailable) {
-    throw new Error("Category name already exists");
+  if (!isAvailable) {
+    throw new Error("Category not found");
   }
   return Category.findByIdAndUpdate(
     _id,

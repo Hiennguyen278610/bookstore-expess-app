@@ -10,6 +10,9 @@ import categoryRoute from './routes/CategoryRouters.js';
 import orderRoute from './routes/OrderRouters.js';
 import authRoute from './routes/AuthRouters.js';
 import passport from './config/passport.js';
+import authorRouter from './routes/AuthorRouters.js';
+import publisherRouter from './routes/PublisherRouters.js';
+import supplierRouter from './routes/SupplierRouters.js';
 
 const app = express();
 connectDB(envs.MONGODB_URL);
@@ -24,6 +27,9 @@ app.use(envs.API_TAG + "/books", bookRoute);
 app.use(envs.API_TAG + "/cart", cartRoute);
 app.use(envs.API_TAG + "/categories", categoryRoute);
 app.use(envs.API_TAG + "/orders", orderRoute);
+app.use(envs.API_TAG + "/authors", authorRouter);
+app.use(envs.API_TAG + "/publishers", publisherRouter)
+app.use(envs.API_TAG + "/suppliers", supplierRouter)
 app.listen(envs.PORTBE, () => {
   console.log("Server is running on port " + envs.PORTBE);
 });

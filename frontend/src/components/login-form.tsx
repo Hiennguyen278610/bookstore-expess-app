@@ -1,18 +1,18 @@
 "use client";
-import {cn} from "@/lib/utils";
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {Label} from "@/components/ui/label";
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
-import {useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {LoginRequestSchema} from "@/validation/authschemas";
-import {setJWTtoCookie} from "@/lib/cookies";
-import {login, useUser} from "@/services/authservices";
-import {toast} from "react-toastify";
-import {Checkbox} from "@/components/ui/checkbox";
-import {GoogleIcon} from "@/components/svg/google";
-import {GithubIcon} from "@/components/svg/github";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { LoginRequestSchema } from '@/validation/authschemas';
+import { setJWTtoCookie } from '@/lib/cookies';
+import { login, useUser } from '@/services/authservices';
+import { toast } from 'react-toastify';
+import { Checkbox } from '@/components/ui/checkbox';
+import { GoogleIcon } from '@/components/svg/google';
+import { GithubIcon } from '@/components/svg/github';
 
 type LoginRequest = {
     username: string;
@@ -47,15 +47,13 @@ export function LoginForm({
             return;
         }
     };
-    const handleOAuthLogin = (provider: "google" | "github") => {
-        try {
-            window.location.href = `#`;
-            toast.success("Login successfully");
-        } catch (e) {
-            toast.error("OAuth login failed");
-        }
+  const handleOAuthLogin = (provider: 'google' | 'github') => {
+    try {
+      window.location.href = `${process}`
+    }catch (error) {
+      return;
     }
-
+  };
     return (
         <div>
             <Button variant="outline" className="w-full mb-4" onClick={() => handleOAuthLogin("google")}>

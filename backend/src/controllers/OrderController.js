@@ -103,3 +103,21 @@ export async function getOrdersByStatus(req, res) {
     res.status(400).send({message: err.message});
   }
 }
+//[ lum cai id xong tim order xem cai status do co dang delivery khong thi khong cho cancel
+// export async function cancelOrder(req, res) {
+//   try {
+//     const dataUser = req.user;
+//     const user = await User.findOne({ username: dataUser.username });
+//     const {purchaseStatus} = req.body;
+//     if (purchaseStatus.toString() === "delivery") {
+//       return res.status(400).send({message: 'Cannot cancel Order, Delivering'});
+//     }
+//     const order = await updatePurchaseStatusService(req.params.id, user._id, purchaseStatus);
+//     if (!order) {
+//       return res.status(400).send({message: 'Update Purchase Status Failed'});
+//     }
+//     return res.status(200).json(order);
+//   }catch (err){
+//     res.status(400).send({message: err.message});
+//   }
+// }

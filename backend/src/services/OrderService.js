@@ -2,6 +2,7 @@ import Order from '../models/Order.js';
 import OrderDetail from '../models/OrderDetail.js';
 import Book from '../models/Book.js';
 import mongoose from 'mongoose';
+import book from '../models/Book.js';
 
 export async function createOrderService(customerId, paymentMethod, details) {
   const order = await Order.create({
@@ -12,6 +13,15 @@ export async function createOrderService(customerId, paymentMethod, details) {
     await Promise.all(
       details.map(async item => {
           const book = await Book.findById(item.bookId);
+          if (!book) {
+            throw new Error(`Book with id ${item.bookId} not found`);
+          }
+          if (item.quantity <= 0){
+            throw new Error("Quantity > 0")
+          }
+          if(book.quantity < item.quantity ){
+            throw new Error("Out of stock")
+          }
           return await OrderDetail.create({
             orderId: order._id,
             bookId: book._id,
@@ -40,13 +50,12 @@ export async function updateOrderService(orderId, customerId, paymentMethod, pur
     },
     { new: true }
   );
-  console.log(order);
   if (!order) {
     throw new Error(`Order with id ${orderId} not found`);
   }
-  await OrderDetail.deleteMany({ orderId: order._id });
   if(Array.isArray(details)) {
     await OrderDetail.deleteMany({ orderId: order._id });
+    // xu ly quantity theo paymentStatus ==> co ham duoi sua roi luoi vai l
     if (details.length > 0) {
       const newDetails = []
       for (const item of details) {
@@ -108,8 +117,30 @@ export async function updatePurchaseStatusService(orderId,customerId, purchaseSt
   if (!order) {
     throw new Error(`Order with id ${orderId} not found`);
   }
-  if (order.customerId.toString() === customerId.toString()) {
+  if (order.customerId.toString() !== customerId.toString()) {
     throw new Error(`You are not authorize to delete this order`);
+  }
+  if (order.purchaseStatus.toString() === "pending" && purchaseStatus.toString() === "processing"){
+    const orderDetail = await OrderDetail.find({orderId: order._id});
+    if (orderDetail.length === 0){
+      throw new Error(`Order details not found`);
+    }
+    for (const item of orderDetail) {
+      const book = await Book.findById(item.bookId);
+      book.quantity -= item.quantity
+      await book.save()
+    }
+  }
+  if (order.purchaseStatus.toString() === "processing" && purchaseStatus.toString() === "canceled"){
+    const orderDetail = await OrderDetail.find({orderId: order._id});
+    if(orderDetail.length === 0){
+      throw new Error(`Order details not found`);
+    }
+    for (const item of orderDetail) {
+      const book = await Book.findById(item.bookId);
+      book.quantity += item.quantity
+      await book.save()
+    }
   }
   order.purchaseStatus = purchaseStatus;
   await order.save();
