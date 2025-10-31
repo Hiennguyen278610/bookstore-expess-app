@@ -1,14 +1,20 @@
 import Book from '../models/Book.js';
 import BookAuthor from '../models/BookAuthor.js';
+import { deleteImageIntoCloudinary, uploadToCloudinary } from '../middlewares/uploadImage.js';
 
-export async function createBookService(book){
-  const { name, categoryId, publisherId, frontImage, quantity, price, authors } = book;
+export async function createBookService(book, files) {
   try {
+    let { name, categoryId, publisherId, quantity, price, authors } = book;
+    authors = JSON.parse(authors);
+    if (!name || !categoryId || !publisherId || !authors) { // chan do phai fetch len neu du lieu loi
+      throw new Error('Can\'t upload image to cloudinary!');
+    }
+    const imageUrl = await uploadToCloudinary(files);
     const newBook = await Book.create({
       name: name,
       categoryId: categoryId,
       publisherId: publisherId,
-      frontImage: frontImage,
+      imageUrl: imageUrl,
       quantity: quantity,
       price: price,
     })
@@ -32,16 +38,18 @@ export async function createBookService(book){
     throw new Error(err.message);
   }
 }
-export async function updateBookService(id, data){
-  const { name, categoryId,publisherId, frontImage, quantity, price, authors } = data;
-  const book = await Book.findByIdAndUpdate(
-      id,
-      { name: name,categoryId: categoryId,publisherId: publisherId,frontImage: frontImage,quantity: quantity,price: price },
-      { new: true }
-    );
+
+export async function updateBookService(id, data, files) {
+  const { name, categoryId, publisherId, quantity, price, authors } = data;
+  const book = await Book.findById(id);
   if (!book) {
     throw new Error(`Book with id ${id} not found`);
   }
+  book.name = name;
+  book.categoryId = categoryId;
+  book.publisherId = publisherId;
+  book.quantity = quantity;
+  book.price = price;
   if (Array.isArray(authors)) {
     await BookAuthor.deleteMany({ bookId: book._id });
     if (authors.length > 0) {
@@ -55,6 +63,10 @@ export async function updateBookService(id, data){
       await BookAuthor.insertMany(newAuthors);
     }
   }
+  await deleteImageIntoCloudinary(book.imageUrl)
+  const imageUrl = await uploadToCloudinary(files);
+  book.imageUrl = imageUrl;
+  await book.save()
   const populatedBook = await Book.findById(book._id)
     .populate('categoryId', 'name')
     .populate('publisherId', 'name')
@@ -71,9 +83,10 @@ export async function findBookService(_id){
   if (!book){
     throw new Error(`Book with id ${_id} not found`);
   }
-  book.authors = await BookAuthor.find({ bookId: book._id })
+  const authors = await BookAuthor.find({ bookId: book._id })
     .populate('authorId', 'name');
-  return Book.findById(_id);
+  book.authors = authors.map(a => a.authorId.name);
+  return book;
 }
 
 export async function deleteBookService(id){

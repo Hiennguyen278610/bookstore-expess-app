@@ -19,7 +19,7 @@ router.get('/:id', authorizeRoles('admin'), getOrderById);
 router.get('/status', getOrdersByStatus);
 router.post('/', createOrder);
 router.post('/me', getAllOrders);
-router.put('/:id', updateOrder);
+router.put('/:id',authorizeRoles("admin"), updateOrder);
 router.put('/status/:id', updateStatus);
 router.delete('/:id', deleteOrder);
 
