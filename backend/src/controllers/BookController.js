@@ -2,7 +2,7 @@ import { createBookService, deleteBookService, findBookService, updateBookServic
 
 export const createBook = async (req, res) => {
   try {
-    const Book = await createBookService(req.body);
+    const Book = await createBookService(req.body, req.files);
     res.status(201).json(Book);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -10,7 +10,7 @@ export const createBook = async (req, res) => {
 };
 export const updateBook = async (req, res) => {
   try {
-    const updateBook =await updateBookService(req.params.id, req.body);
+    const updateBook =await updateBookService(req.params.id, req.body, req.files);
     res.status(201).json(updateBook);
   } catch (err) {
     res.status(400).json({ message: err.message });
