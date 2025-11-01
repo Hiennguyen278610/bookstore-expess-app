@@ -7,11 +7,13 @@ import {
   getPublisherById,
   updatePublisher
 } from '../controllers/PublisherController.js';
+import { checkEmptyBody } from '../middlewares/checkEmptyBody.js';
 
 const router = express.Router();
 
 router.use(auth)
 router.use(authorizeRoles("admin"))
+router.use(checkEmptyBody)
 
 router.post("/", createPublisher);
 router.put("/:id", updatePublisher);
