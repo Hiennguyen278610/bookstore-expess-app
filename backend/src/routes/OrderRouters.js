@@ -10,10 +10,12 @@ import {
 } from '../controllers/OrderController.js';
 import { auth } from '../middlewares/auth.js';
 import { authorizeRoles } from '../middlewares/authorize.js';
+import { checkEmptyBody } from '../middlewares/checkEmptyBody.js';
 
 const router = express.Router();
 
 router.use(auth);
+router.use(checkEmptyBody)
 
 router.get('/:id', authorizeRoles('admin'), getOrderById);
 router.get('/status', getOrdersByStatus);

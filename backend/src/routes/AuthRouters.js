@@ -4,13 +4,14 @@ import { generateToken } from '../utils/jwt.js';
 import { toUserResponse } from '../mappers/UserMapper.js';
 import express from 'express';
 import dotenv from 'dotenv';
+import { checkEmptyBody } from '../middlewares/checkEmptyBody.js';
 dotenv.config();
 
 const router = express.Router();
 
-router.post('/register', registerUser);
+router.post('/register',checkEmptyBody, registerUser);
 
-router.post('/login', loginUser);
+router.post('/login',checkEmptyBody, loginUser);
 
 router.post('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 router.post('/github', passport.authenticate('github', { scope: ['user:email'] }));

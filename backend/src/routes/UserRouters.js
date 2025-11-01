@@ -5,11 +5,12 @@ import { authorizeRoles } from '../middlewares/authorize.js';
 
 const router = express.Router();
 
-router.get("/", auth, authorizeRoles("admin"), getAll);
-
+router.get("/",  getAll);
+// auth, authorizeRoles("admin"),
 router.get("/me", auth, async(req, res) => {
   res.status(200).json(req.user);
 })
 router.get("/:id", getById);
+
 
 export default router;

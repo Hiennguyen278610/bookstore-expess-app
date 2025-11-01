@@ -3,9 +3,11 @@ import { createBook, deleteBook, findBook, updateBook } from '../controllers/Boo
 import { auth } from '../middlewares/auth.js';
 import { authorizeRoles } from '../middlewares/authorize.js';
 import { uploadImage } from '../middlewares/uploadImage.js';
+import { checkEmptyBody } from '../middlewares/checkEmptyBody.js';
 
 const router = express.Router();
 
+router.use(checkEmptyBody)
 router.post("/",auth, authorizeRoles("admin"),uploadImage.array("images", 10), createBook);
 router.put("/:id",auth, authorizeRoles("admin"),uploadImage.array("images", 10), updateBook);
 router.get("/:id", findBook);

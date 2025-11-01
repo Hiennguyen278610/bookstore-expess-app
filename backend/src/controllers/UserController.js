@@ -1,9 +1,9 @@
 import { registerService, loginService } from '../services/AuthService.js';
 import User from '../models/User.js';
 
-export const getAll = (req, res) => {
+export const getAll = async (req, res) => {
   try {
-    const users = User.find();
+    const users = await User.find();
     res.status(200).json(users);
   }
   catch(err) {
