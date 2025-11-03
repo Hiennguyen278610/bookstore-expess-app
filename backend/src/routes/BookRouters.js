@@ -7,9 +7,8 @@ import { checkEmptyBody } from '../middlewares/checkEmptyBody.js';
 
 const router = express.Router();
 
-router.use(checkEmptyBody)
-router.post("/",auth, authorizeRoles("admin"),uploadImage.array("images", 10), createBook);
-router.put("/:id",auth, authorizeRoles("admin"),uploadImage.array("images", 10), updateBook);
+router.post("/",auth, authorizeRoles("admin"),uploadImage.array("images", 10), checkEmptyBody, createBook);
+router.put("/:id",auth, authorizeRoles("admin"),uploadImage.array("images", 10), checkEmptyBody, updateBook);
 router.get("/:id", findBook);
 router.delete("/:id",auth, authorizeRoles("admin"), deleteBook);
 
