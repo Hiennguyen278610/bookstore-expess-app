@@ -95,3 +95,13 @@ export const testCardBooks= [
     imgSrc: "/images/test1.webp",
   },
 ];
+
+export const brandLogos = [
+  "/images/brands/brand_01.webp",
+  "/images/brands/brand_02.webp",
+  "/images/brands/brand_03.webp",
+  "/images/brands/brand_04.webp",
+  "/images/brands/brand_05.webp",
+  "/images/brands/brand_06.webp",
+  "/images/brands/brand_07.webp",
+]

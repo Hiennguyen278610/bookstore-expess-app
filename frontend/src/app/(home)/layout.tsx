@@ -3,6 +3,7 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import Navbar from "./components/Navbar";
 import { AppSidebar } from "./components/AppSideBar";
+import Footer from "./components/Footer";
 
 
 export default function HomeLayout({
@@ -17,7 +18,8 @@ export default function HomeLayout({
         </div>
       <div className="w-full flex flex-col">
         <Navbar />
-        <main className="mt-20 flex justify-center w-full overflow-hidden">{children}</main>
+        <main className="mt-25 flex justify-center w-full overflow-hidden">{children}</main>
+        <Footer />
       </div>
     </SidebarProvider>
   );
