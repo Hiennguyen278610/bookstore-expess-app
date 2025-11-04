@@ -19,7 +19,7 @@ export default function UserNavbar() {
               <SidebarTrigger className="size-9" />
             </div>
             {/* Logo */}
-            <div className="flex justify-center">
+            <Link className="flex justify-center" href="/">
               <Image
                 src="/images/logo.webp"
                 alt="Logo"
@@ -27,7 +27,7 @@ export default function UserNavbar() {
                 height={120}
                 className="cursor-pointer"
               />
-            </div>
+            </Link>
           </div>
 
           {/* Icons */}
@@ -47,7 +47,7 @@ export default function UserNavbar() {
 
       {/**Desktop */}
       <div className="hidden lg:flex justify-center items-center md:gap-6 lg:gap-12 py-4 w-full px-4">
-        <div className="flex justify-center">
+        <Link href="/" className="flex justify-center">
           <Image
             src="/images/logo.webp"
             alt="Logo"
@@ -55,7 +55,7 @@ export default function UserNavbar() {
             height={150}
             className="cursor-pointer w-32 lg:w-36 h-auto"
           />
-        </div>
+        </Link>
 
         <SearchInput />
 
@@ -64,7 +64,7 @@ export default function UserNavbar() {
             href="about"
             className="flex flex-col justify-center items-center gap-[1px] pl-5 border-l border-gray-300 text-gray-800 hover:text-primary transition-colors"
           >
-            <Star size={20} className="text-gray-700" /> 
+            <Star size={20} className="text-gray-700" />
             <h3 className="text-lg">Giới thiệu</h3>
           </Link>
 
@@ -72,7 +72,7 @@ export default function UserNavbar() {
             href="account"
             className="flex flex-col justify-center items-center gap-[1px] pl-5 border-l border-gray-300 text-gray-800 hover:text-primary transition-colors"
           >
-            <User2 size={20} className="text-gray-700" /> 
+            <User2 size={20} className="text-gray-700" />
             <h3 className="text-lg">Tài khoản</h3>
           </Link>
 
