@@ -1,10 +1,11 @@
 import { hashPassword } from '../helper/hashPassword.js';
 import User from '../models/User.js';
-
+import dotenv from 'dotenv'
+dotenv.config()
 export async function seedAdmin(){
   const username = "admin";
   const password = await hashPassword("admin36");
-  const email = "admin@example.com";
+  const email = process.env.MAIL_ADMIN;
   const phone = "0329997881";
   const existingAdmin = await User.findOne({ username: username });
   if (existingAdmin) {

@@ -8,6 +8,7 @@ const orderSchema = new mongoose.Schema({
   paymentStatus: {type: String, enum: ['unpaid', 'paid', 'failed', 'refunded'], default: 'unpaid'},
   totalAmount: {type: Number},
   paymentLink: {type: String},
+  paymentLinkId: {type: String},
   payosOrderId: {type: Number},
 }, { timestamps: true });
 
