@@ -16,6 +16,7 @@ import supplierRouter from './routes/SupplierRouters.js';
 import receiptRouter from './routes/ReceiptRouters.js';
 import { setup } from './utils/hosting.js';
 import paymentRouter from './routes/PaymentRouters.js';
+import { errorHandler } from './middlewares/errorHandle.js';
 
 const app = express();
 connectDB(envs.MONGODB_URL);
@@ -42,3 +43,4 @@ app.listen(envs.PORTBE, async () => {
 
 await seedAdmin();
 
+app.use(errorHandler)
