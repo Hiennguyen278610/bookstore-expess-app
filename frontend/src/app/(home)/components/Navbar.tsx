@@ -11,7 +11,7 @@ export default function UserNavbar() {
   return (
     <nav className="fixed z-50 w-full border-b border-amber-50 shadow-sm bg-white">
       {/* Mobile */}
-      <div className="w-full flex justify-center p-2 md:hidden">
+      <div className="w-full flex justify-center p-4 lg:hidden">
         <div className="w-full grid grid-cols-[2fr_1fr] gap-2 items-center">
           <div className="flex gap-3">
             {/* Sidebar trigger */}
@@ -46,7 +46,7 @@ export default function UserNavbar() {
       </div>
 
       {/**Desktop */}
-      <div className="hidden md:flex justify-center items-center md:gap-6 lg:gap-12 py-4 w-full px-4">
+      <div className="hidden lg:flex justify-center items-center md:gap-6 lg:gap-12 py-4 w-full px-4">
         <div className="flex justify-center">
           <Image
             src="/images/logo.png"
