@@ -91,7 +91,7 @@ const FilterSidebar = () => {
     state.publishers.length > 0 || state.selectedPriceRanges.length > 0;
 
   return (
-    <div className="h-full flex flex-col overflow-y-auto lg:max-h-[1200px]">
+    <div className="h-full flex flex-col overflow-y-auto max-h-[900px]">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 flex-1 flex flex-col">
         {/* Header - Chỉ hiển thị trên desktop */}
         <div className="hidden lg:flex items-center justify-between p-6 border-b border-gray-100 bg-gradient-to-r from-green-500 to-emerald-600 rounded-t-xl flex-shrink-0">

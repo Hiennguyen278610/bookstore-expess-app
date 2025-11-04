@@ -17,6 +17,7 @@ export async function seedAdmin(){
     password: password,
     email: email,
     phone: phone,
-    role: 'admin'
+    role: 'admin',
+    isVerified: true
   })
 }

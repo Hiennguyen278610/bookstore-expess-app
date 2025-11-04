@@ -11,7 +11,7 @@ export interface ProductCardProps {
 
 const ProductCard = ({ name, price, imgSrc }: ProductCardProps) => {
   return (
-    <div className="border border-green-200 relative bg-gradient-to-br from-green-50 to-white p-3 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group cursor-pointer flex flex-col">
+    <div className="border border-green-200 relative bg-white p-3 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group cursor-pointer flex flex-col">
       <div className="px-3 py-2">
         <Image
           src={imgSrc}
