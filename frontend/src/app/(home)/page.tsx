@@ -5,6 +5,7 @@ import BannerSlider from "./components/Homepage/Banner";
 import BookShowCase from "./components/Homepage/BookShowCase";
 import CategoryCarousel from "./components/Homepage/CategoryCarousel";
 import CategorySidebar from "./components/Homepage/CategorySidebar";
+import BrandCarousel from "./components/Homepage/BrandCarousel";
 
 export default function HomePage() {
   return (
@@ -19,9 +20,10 @@ export default function HomePage() {
         books={testCardBooks}
       />
       <BookShowCase 
-        title="Sách vừa nhập"
+        title="Sách mới"
         books={testCardBooks}
       />
+      <BrandCarousel />
     </div>
   );
 }

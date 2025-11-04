@@ -21,10 +21,10 @@ export default function UserNavbar() {
             {/* Logo */}
             <div className="flex justify-center">
               <Image
-                src="/images/logo.png"
+                src="/images/logo.webp"
                 alt="Logo"
-                width={150}
-                height={150}
+                width={120}
+                height={120}
                 className="cursor-pointer"
               />
             </div>
@@ -49,10 +49,10 @@ export default function UserNavbar() {
       <div className="hidden lg:flex justify-center items-center md:gap-6 lg:gap-12 py-4 w-full px-4">
         <div className="flex justify-center">
           <Image
-            src="/images/logo.png"
+            src="/images/logo.webp"
             alt="Logo"
-            width={200}
-            height={200}
+            width={150}
+            height={150}
             className="cursor-pointer w-32 lg:w-36 h-auto"
           />
         </div>
