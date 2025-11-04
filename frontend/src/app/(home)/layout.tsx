@@ -1,14 +1,24 @@
 "use client";
-import { useUser } from '@/services/authservices';
+
+import { SidebarProvider } from "@/components/ui/sidebar";
+import Navbar from "./components/Navbar";
+import { AppSidebar } from "./components/AppSideBar";
+
 
 export default function HomeLayout({
-                                       auth,
-                                       children,
-                                   }: Readonly<{
-    auth: React.ReactNode;
-    children: React.ReactNode;
-}>) {
-  const {user}= useUser();
-  if(!user) 
-    return children;
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <SidebarProvider>
+      <div className="md:hidden">
+          <AppSidebar />
+        </div>
+      <div className="w-full flex flex-col">
+        <Navbar />
+        <main className="mt-20 flex justify-center w-full overflow-hidden">{children}</main>
+      </div>
+    </SidebarProvider>
+  );
 }
