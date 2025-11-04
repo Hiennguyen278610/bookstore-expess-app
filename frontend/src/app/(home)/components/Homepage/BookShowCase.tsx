@@ -17,7 +17,7 @@ const BookShowCase = ({title, books}: BookShowCaseProps) => {
       </div>
 
       {/* Book Grid */}
-      <div className='grid lg:grid-cols-5 grid-cols-2 md:grid-cols-4 px-2'>
+      <div className='grid lg:grid-cols-5 grid-cols-2 md:grid-cols-4 gap-1 px-2'>
         {books.map((book, index) =>(
             <ProductCard 
                 key={index}

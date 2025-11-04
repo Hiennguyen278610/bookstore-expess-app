@@ -77,7 +77,7 @@ export default function UserNavbar() {
           </Link>
 
           <Link
-            href="cart"
+            href="/cart"
             className="flex flex-col justify-center items-center gap-[1px] pl-5 border-l border-gray-300 text-gray-800 hover:text-primary transition-colors"
           >
             <CartIcon />

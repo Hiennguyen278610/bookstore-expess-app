@@ -21,7 +21,7 @@ const ProductCard = ({ name, price, imgSrc }: ProductCardProps) => {
           className="w-full h-auto max-h-[290px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
         />
       </div>
-      <div className="mt-4 flex flex-col flex-grow min-h-[60px]">
+      <div className="mt-4 flex flex-col flex-grow min-h-[95px]">
         <h1 className="text-base text-gray-800 line-clamp-2 flex-grow group-hover:text-green-700 transition-colors duration-300">
           {name}
         </h1>

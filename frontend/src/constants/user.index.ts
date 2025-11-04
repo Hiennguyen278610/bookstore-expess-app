@@ -1,28 +1,55 @@
 
-import {
-  BookOpen,
-  BookMarked,
-  Book,
-  LineChart,
-  ClipboardCheck,
-  FileText,
-  Music,
-  Baby,
-  Languages,
-  Globe,
-} from "lucide-react";
+import { Book, LineChart, ClipboardCheck, FileText, Music, Baby, Languages, Globe, LucideIcon } from "lucide-react";
 
-export const categories = [
-  { icon: BookOpen, label: "Sách Bán Chạy" },
-  { icon: BookMarked, label: "Sách Mới Về" },
-  { icon: Book, label: "Văn Học" },
-  { icon: LineChart, label: "Kinh Tế" },
-  { icon: ClipboardCheck, label: "Kĩ Năng Sống" },
-  { icon: FileText, label: "Lịch Sử, Văn Hóa, Xã Hội" },
-  { icon: Music, label: "Sách Truyện Thiếu Nhi" },
-  { icon: Baby, label: "Nuôi Dạy Con" },
-  { icon: Languages, label: "Sách Học Ngoại Ngữ" },
-  { icon: Globe, label: "Sách Ngoại Văn" },
+export interface Category {
+  label: string;
+  image: string;
+  icon: LucideIcon;
+  slug?: string;
+}
+
+export const categories: Category[] = [
+  { 
+    label: "Văn Học", 
+    image: "/images/banners/cat_card_3.webp", 
+    icon: Book,
+    slug: "van-hoc"
+  },
+  { 
+    label: "Kinh Tế", 
+    image: "/images/banners/cat_card_4.webp", 
+    icon: LineChart 
+  },
+  { 
+    label: "Kĩ Năng Sống", 
+    image: "/images/banners/cat_card_5.webp", 
+    icon: ClipboardCheck 
+  },
+  {
+    label: "Lịch Sử, Văn Hóa, Xã Hội",
+    image: "/images/banners/cat_card_6.webp",
+    icon: FileText
+  },
+  { 
+    label: "Sách Truyện Thiếu Nhi", 
+    image: "/images/banners/cat_card_7.webp", 
+    icon: Music 
+  },
+  { 
+    label: "Nuôi Dạy Con", 
+    image: "/images/banners/cat_card_8.jpg", 
+    icon: Baby 
+  },
+  { 
+    label: "Sách Học Ngoại Ngữ", 
+    image: "/images/banners/cat_card_9.webp", 
+    icon: Languages 
+  },
+  { 
+    label: "Sách Ngoại Văn", 
+    image: "/images/banners/cat_card_2.webp", 
+    icon: Globe 
+  },
 ];
 
 export const bannerImages = [
@@ -105,3 +132,55 @@ export const brandLogos = [
   "/images/brands/brand_06.webp",
   "/images/brands/brand_07.webp",
 ]
+
+export const products: ProductCardProps[] = [
+  // Under 50k
+  {
+    name: "Truyện Tranh Thiếu Nhi",
+    price: 45000,
+    imgSrc: "/images/test1.webp",
+  },
+  { name: "Sách Tô Màu Cho Bé", price: 35000, imgSrc: "/images/test1.webp" },
+  { name: "Truyện Cổ Tích Ngắn 12 32 12312312312312332321424124123123123", price: 42000, imgSrc: "/images/test1.webp" },
+
+  // 50k-100k
+  { name: "Kỹ Năng Sống Cơ Bản", price: 75000, imgSrc: "/images/test1.webp" },
+  { name: "Tiểu Thuyết Ngắn", price: 68000, imgSrc: "/images/test1.webp" },
+  { name: "Sách Học Tiếng Anh", price: 89000, imgSrc: "/images/test1.webp" },
+  { name: "Văn Học Việt Nam", price: 92000, imgSrc: "/images/test1.webp" },
+
+  // 100k-150k
+  { name: "Kinh Tế Ứng Dụng", price: 125000, imgSrc: "/images/test1.webp" },
+  {
+    name: "Sách Phát Triển Bản Thân",
+    price: 118000,
+    imgSrc: "/images/test1.webp",
+  },
+  { name: "Lịch Sử Thế Giới", price: 135000, imgSrc: "/images/test1.webp" },
+  {
+    name: "Nuôi Dạy Con Hiện Đại",
+    price: 142000,
+    imgSrc: "/images/test1.webp",
+  },
+  { name: "Tiếng Trung Cơ Bản", price: 128000, imgSrc: "/images/test1.webp" },
+
+  // 150k-200k
+  { name: "Sách Chuyên Ngành IT", price: 178000, imgSrc: "/images/test1.webp" },
+  { name: "Tâm Lý Học Ứng Dụng", price: 165000, imgSrc: "/images/test1.webp" },
+  {
+    name: "Sách Y Học Thường Thức",
+    price: 192000,
+    imgSrc: "/images/test1.webp",
+  },
+  { name: "Kinh Doanh Quốc Tế", price: 185000, imgSrc: "/images/test1.webp" },
+
+  // Over 200k
+  { name: "Bộ Sách Chuyên Sâu", price: 256000, imgSrc: "/images/test1.webp" },
+  {
+    name: "Sách Ngoại Văn Original",
+    price: 289000,
+    imgSrc: "/images/test1.webp",
+  },
+  { name: "Bách Khoa Toàn Thư", price: 320000, imgSrc: "/images/test1.webp" },
+  { name: "Sách Limited Edition", price: 450000, imgSrc: "/images/test1.webp" },
+];

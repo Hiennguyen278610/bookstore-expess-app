@@ -2,6 +2,7 @@
 
 import { categories } from "@/constants/user.index";
 import { SquareMenu } from "lucide-react";
+import Link from "next/link";
 
 export default function CategorySidebar() {
   return (
@@ -17,13 +18,14 @@ export default function CategorySidebar() {
         {categories.map((item, index) => {
           const Icon = item.icon;
           return (
-            <li
+            <Link
+              href={`/collections/${item.slug || ''}`}
               key={index}
-              className="flex items-center gap-3 px-4 py-2 hover:bg-green-50 cursor-pointer text-clamp-1"
+              className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:text-green-600 hover:bg-green-50 transition-colors duration-200 no-underline"
             >
-              <Icon size={24} className="text-green-600"/>
+              <Icon size={24} className="text-green-600" />
               <span className="text-sm line-clamp-1">{item.label}</span>
-            </li>
+            </Link>
           );
         })}
       </ul>
