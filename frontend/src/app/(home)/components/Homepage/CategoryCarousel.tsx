@@ -9,20 +9,7 @@ import "swiper/swiper.css";
 import "swiper/css/navigation";
 
 import { Navigation } from "swiper/modules";
-
-const categories = [
-  { label: "Văn Học", image: "/images/banners/cat_card_3.webp" },
-  { label: "Kinh Tế", image: "/images/banners/cat_card_4.webp" },
-  { label: "Kĩ Năng Sống", image: "/images/banners/cat_card_5.webp" },
-  {
-    label: "Lịch Sử, Văn Hóa, Xã Hội",
-    image: "/images/banners/cat_card_6.webp",
-  },
-  { label: "Sách Truyện Thiếu Nhi", image: "/images/banners/cat_card_7.webp" },
-  { label: "Nuôi Dạy Con", image: "/images/banners/cat_card_8.jpg" },
-  { label: "Sách Học Ngoại Ngữ", image: "/images/banners/cat_card_9.webp" },
-  { label: "Sách Ngoại Văn", image: "/images/banners/cat_card_2.webp" },
-];
+import { categories } from "@/constants/user.index";
 
 const CategoryCarousel = () => {
   const prevRef = useRef(null);
@@ -74,28 +61,28 @@ const CategoryCarousel = () => {
             nextEl: nextRef.current,
           }}
           breakpoints={{
-            320: { 
-              slidesPerView: 3, 
+            320: {
+              slidesPerView: 3,
               spaceBetween: 16,
             },
-            480: { 
-              slidesPerView: 4, 
+            480: {
+              slidesPerView: 4,
               spaceBetween: 16,
             },
-            640: { 
-              slidesPerView: 4, 
+            640: {
+              slidesPerView: 4,
               spaceBetween: 16,
             },
-            768: { 
-              slidesPerView: 5, 
+            768: {
+              slidesPerView: 5,
               spaceBetween: 16,
             },
-            1024: { 
-              slidesPerView: 6, 
+            1024: {
+              slidesPerView: 6,
               spaceBetween: 20,
             },
-            1280: { 
-              slidesPerView: 8, 
+            1280: {
+              slidesPerView: 8,
               spaceBetween: 20,
             },
           }}
