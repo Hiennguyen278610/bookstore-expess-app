@@ -5,7 +5,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 // Swiper styles
-import "swiper/swiper.css";
+import "swiper/css";  // Thay vì "swiper/swiper.css"
 import "swiper/css/navigation";
 
 import { Navigation } from "swiper/modules";
