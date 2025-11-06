@@ -2,7 +2,7 @@
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
-import "swiper/swiper.css";
+import "swiper/css";  // Thay vì "swiper/swiper.css"
 import "swiper/css/navigation";
 import Image from "next/image";
 import { useRef } from "react";

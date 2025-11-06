@@ -5,7 +5,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 
 // Swiper styles
-import "swiper/swiper.css";
+import "swiper/css";  // Thay vì "swiper/swiper.css"
 import { brandLogos } from "@/constants/user.index";
 
 const BrandCarousel = () => {

@@ -8,7 +8,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" className="light">
-            <body>
+            <body suppressHydrationWarning>
               <SWRProvider> {children}</SWRProvider>
             </body>
         </html>
