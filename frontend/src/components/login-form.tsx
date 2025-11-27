@@ -13,6 +13,8 @@ import { toast } from 'react-toastify';
 import { Checkbox } from '@/components/ui/checkbox';
 import { GoogleIcon } from '@/components/svg/google';
 import { GithubIcon } from '@/components/svg/github';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { ButtonLoginGoogle } from '@/components/button/button-google-login';
 
 type LoginRequest = {
     username: string;
@@ -23,7 +25,9 @@ export function LoginForm({
                               className,
                               setMode,
                               ...props
-                          }: React.ComponentProps<"form"> & { setMode?: (mode: "login" | "register") => void }) {
+                          }: React.ComponentProps<'form'> & {
+  setMode?: (mode: 'login' | 'register' | 'reset-password') => void
+}) {
     const {mutate} = useUser();
     const {
         register,
@@ -33,6 +37,7 @@ export function LoginForm({
     } = useForm<LoginRequest>({
         defaultValues: {username: "", password: ""},
         resolver: zodResolver(LoginRequestSchema),
+      mode: 'onChange'
     });
     const onSubmit = async (data: LoginRequest) => {
         const res = await login(data);
@@ -56,10 +61,9 @@ export function LoginForm({
   };
     return (
         <div>
-            <Button variant="outline" className="w-full mb-4" onClick={() => handleOAuthLogin("google")}>
-                <GoogleIcon/>
-                Đăng nhập với Google
-            </Button>
+          <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
+            <ButtonLoginGoogle/>
+          </GoogleOAuthProvider>
             <Button variant="outline" className="w-full mb-4" onClick={() => handleOAuthLogin("github")}>
                 <GithubIcon/>
                 Đăng nhập với Github
@@ -103,8 +107,8 @@ export function LoginForm({
                         <Label htmlFor="remember" className="cursor-pointer">Ghi nhớ đăng nhập</Label>
                     </div>
                     <a
-                        href="#"
-                        className="text-sm underline underline-offset-4 text-sky-600"
+                      onClick={() => setMode?.('reset-password')}
+                      className="text-sm underline underline-offset-4 text-sky-600 cursor-pointer"
                     >
                         Quên mật khẩu?
                     </a>

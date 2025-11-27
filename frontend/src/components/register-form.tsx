@@ -9,7 +9,7 @@ import {Button} from "@/components/ui/button";
 import {registerUser} from "@/services/authservices";
 
 type RegisterRequest = {
-    fullname: string;
+    fullName: string;
     username: string;
     phone: string;
     email: string;
@@ -24,6 +24,8 @@ export function RegisterForm({className,setMode, ...props}: React.ComponentProps
         setError,
     } = useForm<RegisterRequest>({
         resolver: zodResolver(RegisterRequestSchema),
+        mode: "onChange"
+
     });
     const onSubmit = async (data: RegisterRequest) => {
         const res = await registerUser(data);
@@ -35,10 +37,10 @@ export function RegisterForm({className,setMode, ...props}: React.ComponentProps
             onSubmit={handleSubmit(onSubmit)}
         >
             <div className="grid gap-3">
-                <Input id="fullname" type="text" {...register("fullname")} placeholder="Họ và tên..." />
+                <Input id="fullname" type="text" {...register("fullName")} placeholder="Họ và tên..." />
                 <div>
-                    {errors.fullname && (
-                        <p className="text-red-600 text-sm">{errors.fullname.message}</p>
+                    {errors.fullName && (
+                        <p className="text-red-600 text-sm">{errors.fullName.message}</p>
                     )}
                 </div>
             </div>
