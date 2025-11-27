@@ -1,6 +1,6 @@
 import {
   changePasswordService,
-  forgotPasswordService, getProfileService,
+  forgotPasswordService, getProfileService, googleLoginService,
   loginService,
   registerService, resendVerificationService,
   resetPasswordService, updateProfileService,
@@ -116,7 +116,7 @@ export const changePassword = async (req, res, next) => {
 //lum profile  len
 export const getProfile = async (req, res, next) => {
   try {
-    const result = await getProfileService(req.user.id);
+    const result = await getProfileService(req.user.username);
     res.json({
       success: true,
       data: result
@@ -138,3 +138,17 @@ export const updateProfile = async (req, res, next) => {
     next(error);
   }
 };
+//login google
+export const googleLogin = async (req, res, next) => {
+  try {
+    const {code} = req.body;
+    const result = await googleLoginService(code);
+    res.json({
+      success: true,
+      message: 'Login successful',
+      data: result
+    });
+  }catch (error){
+    next(error);
+  }
+}

@@ -4,17 +4,15 @@ import {
   generateEmailVerificationToken,
   generatePasswordResetToken,
   generateToken,
-  verifyEmailToken, verifyPasswordResetToken
+  verifyEmailToken,
+  verifyPasswordResetToken
 } from '../utils/jwt.js';
 import { ErrorResponse } from '../utils/error.js';
 import { toUserResponse } from '../mappers/UserMapper.js';
-import {
-  sendMail,
-  sendPasswordResetEmail,
-  sendPasswordResetSuccessEmail,
-  sendVerificationEmail
-} from './mail.service.js';
-import { buildVerificationEmail } from '../utils/MailTemplate.js';
+import { sendPasswordResetEmail, sendPasswordResetSuccessEmail, sendVerificationEmail } from './mail.service.js';
+import { client } from '../config/clientgoogle.config.js';
+import { v4 as uuidv4 } from 'uuid';
+
 export const registerService = async (userData) => {
   const existing = await User.findOne({
     $or: [{ username: userData.username }, { email: userData.email }, { phone: userData.phone }]
@@ -139,8 +137,8 @@ export const changePasswordService = async (userId, oldPassword, newPassword) =>
   await user.save();
   return {  success: true}
 }
-export const getProfileService = async (userId) => {
-  const user = await User.findById(userId);
+export const getProfileService = async (username) => {
+  const user = await User.findOne({username: username});
   if (!user) {
     throw new ErrorResponse('User not found', 404);
   }
@@ -189,3 +187,28 @@ export const updateProfileService = async (userId, updateData) => {
   return { UserResponse };
 }
 
+export const googleLoginService = async (code) => {
+  const { tokens } = await client.getToken(code);
+  const ticket = await client.verifyIdToken({
+    idToken: tokens.id_token,
+    audience: process.env.GOOGLE_CLIENT_ID
+  });
+  const payload = await ticket.getPayload();
+  let user = await User.findOne({ email: payload.email });
+  const username = await uuidv4();
+  const password = await hashPassword(uuidv4());
+  if (!user) {
+    user = new User({
+      fullName: payload.name,
+      username: username,
+      email: payload.email,
+      isVerified: payload.email_verified,
+      phone: null,
+      password: password
+    });
+    await user.save();
+  }
+  const UserResponse = toUserResponse(user);
+  const token = generateToken(toUserResponse(user));
+  return { UserResponse, token };
+};

@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import { AppSidebar } from "./components/AppSideBar";
 import Footer from "./components/Footer";
 import { CartProvider } from "./context/CartContext";
+import { Toaster } from '@/components/ui/sonner';
 
 export default function HomeLayout({
   children,
@@ -22,6 +23,7 @@ export default function HomeLayout({
           <main className="mt-24 w-full max-w-[1200px] mx-auto px-4">
             {children}
           </main>
+          <Toaster />
           <Footer />
         </div>
       </SidebarProvider>
