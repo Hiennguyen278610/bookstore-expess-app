@@ -11,10 +11,8 @@ import order from '../models/Order.js';
 
 export async function createOrder(req, res) {
   try {
-    const dataUser = req.user;
-    const user = await User.findOne({ username: dataUser.username });
     const {details, paymentMethod} = req.body;
-    const order = await createOrderService(user._id, paymentMethod, details);
+    const order = await createOrderService(req.user.id, paymentMethod, details);
     if (!order) {
       return res.status(400).send({message: 'Error creating Order'});
     }
@@ -25,9 +23,7 @@ export async function createOrder(req, res) {
 }
 export async function getAllOrders(req, res) {
   try {
-    const dataUser = req.user;
-    const user = await User.findOne({ username: dataUser.username });
-    const order = await getAllOrdersByCustomerId(user._id);
+    const order = await getAllOrdersByCustomerId(req.user.id);
     if (!order) {
       return res.status(400).send({message: 'Error getting all orders'});
     }
@@ -38,10 +34,8 @@ export async function getAllOrders(req, res) {
 }
 export async function updateOrder(req, res) {
   try {
-    const dataUser = req.user;
-    const user = await User.findOne({ username: dataUser.username });
     const {paymentMethod,paymentStatus, paymentDate, details} = req.body;
-    const order = await updateOrderService(req.params.id, user._id, paymentMethod,paymentStatus, paymentDate, details);
+    const order = await updateOrderService(req.params.id, req.user.id, paymentMethod,paymentStatus, paymentDate, details);
     console.log(order);
     if (!order) {
       return res.status(400).send({message: 'Error updating order'});
@@ -53,9 +47,7 @@ export async function updateOrder(req, res) {
 }
 export async function deleteOrder(req, res) {
   try {
-    const dataUser = req.user;
-    const user = await User.findOne({ username: dataUser.username });
-    const order = await deleteOrderService(req.params.id, user._id);
+    const order = await deleteOrderService(req.params.id, req.user.id);
     if (!order) {
       return res.status(400).send({message: 'Error deleting order'});
     }
@@ -77,10 +69,8 @@ export async function getOrderById(req, res) {
 }
 export async function updateStatus(req, res) {
   try {
-    const dataUser = req.user;
-    const user = await User.findOne({ username: dataUser.username });
     const {purchaseStatus} = req.body;
-    const order = await updatePurchaseStatusService(req.params.id, user._id, purchaseStatus);
+    const order = await updatePurchaseStatusService(req.params.id, req.user.id, purchaseStatus);
     if (!order) {
       return res.status(400).send({message: 'Update Purchase Status Failed'});
     }
@@ -91,10 +81,8 @@ export async function updateStatus(req, res) {
 }
 export async function getOrdersByStatus(req, res) {
   try {
-    const dataUser = req.user;
-    const user = await User.findOne({ username: dataUser.username });
     const {purchaseStatus} = req.body;
-    const order = await getOrderByStatusAndCustomerId(user._id, purchaseStatus);
+    const order = await getOrderByStatusAndCustomerId(req.user.id, purchaseStatus);
     if (!order) {
       return res.status(400).send({message: 'Get Order By Status Failed'});
     }
@@ -106,13 +94,11 @@ export async function getOrdersByStatus(req, res) {
 //[ lum cai id xong tim order xem cai status do co dang delivery khong thi khong cho cancel
 // export async function cancelOrder(req, res) {
 //   try {
-//     const dataUser = req.user;
-//     const user = await User.findOne({ username: dataUser.username });
 //     const {purchaseStatus} = req.body;
 //     if (purchaseStatus.toString() === "delivery") {
 //       return res.status(400).send({message: 'Cannot cancel Order, Delivering'});
 //     }
-//     const order = await updatePurchaseStatusService(req.params.id, user._id, purchaseStatus);
+//     const order = await updatePurchaseStatusService(req.params.id, req.user.id, purchaseStatus);
 //     if (!order) {
 //       return res.status(400).send({message: 'Update Purchase Status Failed'});
 //     }
