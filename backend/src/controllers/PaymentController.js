@@ -22,9 +22,7 @@ export async function webhookController(req, res){
 }
 export async function cancelPayment(req, res){
   try {
-    const dataUser = req.user;
-    const user = await User.findOne({username: dataUser.username});
-    const order = await cancelPaymentService(req.params.id, user._id);
+    const order = await cancelPaymentService(req.params.id, req.user.id);
     return res.status(200).json(order);
   }catch (err){
     res.status(400).json({message: err.message});

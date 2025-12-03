@@ -7,10 +7,8 @@ import {
 
 export async function createReceipt(req, res) {
   try {
-    const dataUser = req.user;
-    const user = await User.findOne({ username: dataUser.username });
-    const {details, supplierId, } = req.body;
-    const receipt = await createSupplyReceiptService(user._id, supplierId, details);
+    const {details, supplierId} = req.body;
+    const receipt = await createSupplyReceiptService(req.user.id, supplierId, details);
     if (!receipt) {
       return res.status(400).send({message: 'Error creating Suplly Receipt'});
     }
@@ -21,9 +19,7 @@ export async function createReceipt(req, res) {
 }
 export async function getAllReceipts(req, res) {
   try {
-    const dataUser = req.user;
-    const user = await User.findOne({ username: dataUser.username });
-    const receipt = await getAllReceiptsByAdminId(user._id);
+    const receipt = await getAllReceiptsByAdminId(req.user.id);
     if (!receipt) {
       return res.status(400).send({message: 'Error getting all receipts'});
     }
@@ -34,10 +30,8 @@ export async function getAllReceipts(req, res) {
 }
 export async function updateReceipt(req, res) {
   try {
-    const dataUser = req.user;
-    const user = await User.findOne({ username: dataUser.username });
     const {supplierId,paymentStatus, supplyDate, details} = req.body;
-    const receipt = await updateSupplyReceiptService(req.params.id, user._id, supplierId,paymentStatus, supplyDate, details);
+    const receipt = await updateSupplyReceiptService(req.params.id, req.user.id, supplierId,paymentStatus, supplyDate, details);
     if (!receipt) {
       return res.status(400).send({message: 'Error updating receipt'});
     }
@@ -70,10 +64,8 @@ export async function getReceiptById(req, res) {
 }
 export async function updateStatus(req, res) {
   try {
-    const dataUser = req.user;
-    const user = await User.findOne({ username: dataUser.username });
     const {purchaseStatus} = req.body;
-    const receipt = await updatePurchaseStatusService(req.params.id, user._id, purchaseStatus);
+    const receipt = await updatePurchaseStatusService(req.params.id, req.user.id, purchaseStatus);
     if (!receipt) {
       return res.status(400).send({message: 'Update Purchase Status Failed'});
     }

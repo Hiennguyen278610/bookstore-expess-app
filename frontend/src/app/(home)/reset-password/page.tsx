@@ -11,8 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import axios from "axios";
+import { Suspense } from "react"; // Next.js yêu cầu bọc useSearchParams trong Suspense
 
-// Zod schema validate
 const schema = z.object({
   password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
   confirmPassword: z.string(),
@@ -23,11 +23,10 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-export default function ResetPasswordPage() {
+function ResetPasswordFormContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-
-  const token = searchParams.get("token"); // ?token=abcxyz
+  const token = searchParams.get("token");
 
   const {
     register,
@@ -61,50 +60,68 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="flex items-center justify-center h-[500px]">
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className={cn("flex flex-col gap-6 w-full max-w-md")}
-      >
-        <div className="grid gap-2 text-center">
-          <h1 className="font-mono bold text-2xl">Tạo mật khẩu mới</h1>
-          <p className="text-sm text-muted-foreground">
-            Mật khẩu mới không được trùng với mật khẩu cũ của bạn.
+    <div className="flex items-center justify-center min-h-[500px] w-full p-4">
+      <div className="w-full max-w-md space-y-6">
+        {/* Header Section */}
+        <div className="flex flex-col space-y-2 text-center">
+          <h1 className="text-2xl font-semibold tracking-tight">Tạo mật khẩu mới</h1>
+          <p className="text-sm text-muted-foreground text-balance">
+            Vui lòng nhập mật khẩu mới cho tài khoản của bạn.
           </p>
         </div>
 
-        <div className="grid gap-3">
-          <Label htmlFor="password">Mật khẩu mới</Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="Mật khẩu mới"
-            {...register("password")}
-          />
-          {errors.password && (
-            <p className="text-red-500 text-sm">{errors.password.message}</p>
-          )}
-        </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="password" className={cn(errors.password && "text-red-500")}>
+              Mật khẩu mới
+            </Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              {...register("password")}
+              className={cn(errors.password && "border-red-500 focus-visible:ring-red-500")}
+            />
+            {errors.password && (
+              <p className="text-red-500 text-xs font-medium animate-in fade-in-50 slide-in-from-top-1">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
 
-        <div className="grid gap-3">
-          <Label htmlFor="confirmPassword">Nhập lại mật khẩu mới</Label>
-          <Input
-            id="confirmPassword"
-            type="password"
-            placeholder="Nhập lại mật khẩu mới"
-            {...register("confirmPassword")}
-          />
-          {errors.confirmPassword && (
-            <p className="text-red-500 text-sm">
-              {errors.confirmPassword.message}
-            </p>
-          )}
-        </div>
+          {/* Nhập lại mật khẩu */}
+          <div className="grid gap-2">
+            <Label htmlFor="confirmPassword" className={cn(errors.confirmPassword && "text-red-500")}>
+              Xác nhận mật khẩu
+            </Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="••••••••"
+              {...register("confirmPassword")}
+              className={cn(errors.confirmPassword && "border-red-500 focus-visible:ring-red-500")}
+            />
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-xs font-medium animate-in fade-in-50 slide-in-from-top-1">
+                {errors.confirmPassword.message}
+              </p>
+            )}
+          </div>
 
-        <Button type="submit" className="w-full mt-1 cursor-pointer" disabled={isSubmitting}>
-          {isSubmitting ? "Đang đổi..." : "Đổi mật khẩu"}
-        </Button>
-      </form>
+          <Button type="submit" className="w-full mt-2 cursor-pointer" disabled={isSubmitting}>
+            {isSubmitting ? "Đang xử lý..." : "Lưu mật khẩu mới"}
+          </Button>
+        </form>
+      </div>
     </div>
   );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    // Cần Suspense vì useSearchParams hoạt động ở client side và phụ thuộc vào URL query
+    <Suspense fallback={<div className="flex justify-center p-10">Đang tải...</div>}>
+      <ResetPasswordFormContent />
+    </Suspense>
+  )
 }
