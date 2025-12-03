@@ -1,56 +1,111 @@
 "use client";
 
-import Image from "next/image";
-import { SearchIcon, Star, User2 } from "lucide-react";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import CartIcon from "./common/CartIcon";
-import SearchInput from "./common/SearchInput";
-import Link from "next/link";
-import { AuthDialog } from "@/components/auth-dialog";
+import Image from 'next/image';
+import { LogOut, Star, User2 } from 'lucide-react';
+import { SidebarTrigger } from '@/components/ui/sidebar';
+import CartIcon from './common/CartIcon';
+import SearchInput from './common/SearchInput';
+import Link from 'next/link';
+import { AuthDialog } from '@/components/auth-dialog';
+import { useUser } from '@/services/authservices';
+import { removeJWTfromCookie } from '@/lib/cookies';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
 export default function UserNavbar() {
+  const { user, mutate } = useUser();
+  console.log("User: ", user)
+
+  const handleLogout = async () => {
+    await removeJWTfromCookie();
+    await mutate(null, false);
+    toast.success("Đăng xuất thành công");
+  };
+
   return (
-    <nav className="fixed z-50 w-full border-b border-amber-50 shadow-sm bg-white">
-      {/* Mobile */}
-      <div className="w-full flex justify-center p-4 lg:hidden">
-        <div className="w-full grid grid-cols-[2fr_1fr] gap-2 items-center">
-          <div className="flex gap-3">
-            {/* Sidebar trigger */}
-            <div className="flex justify-start items-center ml-2">
-              <SidebarTrigger className="size-9" />
-            </div>
-            {/* Logo */}
-            <Link className="flex justify-center" href="/">
+    <nav className="sticky top-0 z-50 w-full border-b border-gray-100 shadow-sm bg-white">
+
+      {/* --- MOBILE LAYOUT (Hiển thị dưới 1024px) --- */}
+      <div className="lg:hidden flex flex-col w-full bg-white pb-3">
+        {/* Dòng 1: Logo + Actions */}
+        <div className="flex items-center justify-between px-4 py-3">
+          {/* Trái: Menu + Logo */}
+          <div className="flex items-center gap-3">
+            <SidebarTrigger className="size-9" />
+            <Link href="/" className="flex-shrink-0">
               <Image
                 src="/images/logo.webp"
                 alt="Logo"
-                width={120}
-                height={120}
-                className="cursor-pointer"
+                width={100}
+                height={100}
+                className="w-24 h-auto"
               />
             </Link>
           </div>
 
-          {/* Icons */}
-          <div className="flex justify-end items-center gap-3 mr-2">
-            <div>
-              <SearchIcon size={24} />
-            </div>
+          {/* Phải: Cart + User */}
+          <div className="flex items-center gap-4">
+            <Link href="/cart">
+              <CartIcon />
+            </Link>
 
-            <div className="border-x-1 px-2 py-2 border-gray-300">
-                <AuthDialog>
-                    <User2 size={24} />
-                </AuthDialog>
-            </div>
+            {/* Mobile User Dropdown - Bỏ các border bao quanh */}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="size-9 rounded-full bg-gray-100 flex items-center justify-center cursor-pointer text-primary">
+                    <User2 size={20} />
 
-            <CartIcon />
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none truncate">{user.data.fullName}</p>
+                      <p className="text-xs leading-none text-muted-foreground truncate">{user.data.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="cursor-pointer">
+                    Hồ sơ cá nhân
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer">
+                    Đơn mua
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Đăng xuất</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <AuthDialog>
+                <User2 size={24} className="cursor-pointer text-gray-700" />
+              </AuthDialog>
+            )}
           </div>
+        </div>
+
+        {/* Dòng 2: Search Input Full Width */}
+        <div className="px-4 w-full">
+          {/* Tái sử dụng SearchInput bạn vừa sửa, nó sẽ tự full width */}
+          <SearchInput className="h-10 text-sm" />
         </div>
       </div>
 
-      {/**Desktop */}
-      <div className="hidden lg:flex justify-center items-center md:gap-6 lg:gap-12 py-4 w-full px-4">
-        <Link href="/" className="flex justify-center">
+
+      {/* --- DESKTOP LAYOUT (Giữ nguyên như cũ) --- */}
+      <div className="hidden lg:flex justify-between items-center py-4 w-full px-6 max-w-[1400px] mx-auto gap-8">
+        <Link href="/" className="flex-shrink-0">
           <Image
             src="/images/logo.webp"
             alt="Logo"
@@ -60,33 +115,57 @@ export default function UserNavbar() {
           />
         </Link>
 
-        <SearchInput />
+        <div className="flex-1 max-w-xl">
+          <SearchInput />
+        </div>
 
-        <div className="flex gap-x-5">
-          <Link
-            href="about"
-            className="flex flex-col justify-center items-center gap-[1px] pl-5 border-l border-gray-300 text-gray-800 hover:text-primary transition-colors"
-          >
-            <Star size={20} className="text-gray-700" />
-            <h3 className="text-lg">Giới thiệu</h3>
-          </Link>
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-6 border-r border-gray-200 pr-6 h-8">
+            <Link href="about" className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors font-medium text-sm uppercase tracking-wide">
+              <Star size={18} />
+              <span>Giới thiệu</span>
+            </Link>
 
-          <AuthDialog>
-              <div
-                className="flex flex-col justify-center items-center gap-[1px] pl-5 border-l border-gray-300 text-gray-800 hover:text-primary transition-colors cursor-pointer"
-              >
-                <User2 size={20} className="text-gray-700" />
-                <h3 className="text-lg">Tài khoản</h3>
-              </div>
-          </AuthDialog>
+            <Link href="/cart" className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors font-medium text-sm uppercase tracking-wide">
+              <CartIcon />
+              <span>Giỏ hàng</span>
+            </Link>
+          </div>
 
-          <Link
-            href="/cart"
-            className="flex flex-col justify-center items-center gap-[1px] pl-5 border-l border-gray-300 text-gray-800 hover:text-primary transition-colors"
-          >
-            <CartIcon />
-            <h3 className="text-lg">Giỏ hàng</h3>
-          </Link>
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="gap-2 rounded-full border-primary/20 hover:bg-primary/5 hover:text-primary px-4 h-10">
+                  <User2 size={18} />
+                  <span className="font-semibold max-w-[120px] truncate">
+                        {user.data.fullName}
+                    </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 mt-2">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{user.data.fullName}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{user.data.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="cursor-pointer">Hồ sơ cá nhân</DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">Đơn mua</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Đăng xuất</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <AuthDialog>
+              <Button className="rounded-full px-6 font-semibold shadow-md">
+                Đăng nhập
+              </Button>
+            </AuthDialog>
+          )}
         </div>
       </div>
     </nav>

@@ -51,14 +51,18 @@ export function AuthDialog({ children }: { children: React.ReactNode }) {
 
   }, { scope: containerRef, dependencies: [mode, open] }); // Chạy lại khi mode hoặc open thay đổi
 
+  const handleSuccess = () => {
+    setOpen(false);
+  };
+
   const renderForm = () => {
     switch (mode) {
       case 'login':
-        return <LoginForm setMode={setMode} />;
+        return <LoginForm setMode={setMode} onSuccess={handleSuccess} />;
       case 'register':
-        return <RegisterForm setMode={setMode} />;
+        return <RegisterForm setMode={setMode} onSuccess={handleSuccess}/>;
       case 'reset-password':
-        return <ForgotPasswordForm setMode={setMode} />;
+        return <ForgotPasswordForm setMode={setMode} onSuccess={handleSuccess}/>;
       default:
         return null;
     }
@@ -91,25 +95,19 @@ export function AuthDialog({ children }: { children: React.ReactNode }) {
       {/* Container chính */}
       <DialogContent className="sm:max-w-[850px] p-0 overflow-hidden gap-0">
 
-        {/* Gắn ref vào đây để GSAP tìm các class con bên trong */}
         <div ref={containerRef} className="grid grid-cols-1 md:grid-cols-2 h-full min-h-[500px]">
 
-          {/* CỘT TRÁI: HÌNH ẢNH */}
           <div className="relative hidden md:block bg-muted overflow-hidden">
             <img
-              ref={imageRef} // Gắn ref cho hình
+              ref={imageRef}
               src="/images/sidebarlogin.png"
               alt="Login Visual"
               className="absolute inset-0 h-full w-full object-cover"
             />
-            {/* Một lớp phủ tối nhẹ để tách biệt hình và nền trắng nếu cần */}
-            {/* <div className="absolute inset-0 bg-black/10" /> */}
           </div>
 
-          {/* CỘT PHẢI: FORM */}
           <div className="flex flex-col justify-center p-6 md:p-10 bg-background">
             <DialogHeader className="mb-6">
-              {/* Thêm class 'anim-element' để GSAP nhận diện */}
               <DialogTitle className="anim-element text-2xl font-bold tracking-tight">
                 {getTitle()}
               </DialogTitle>
@@ -120,7 +118,6 @@ export function AuthDialog({ children }: { children: React.ReactNode }) {
               </div>
             </DialogHeader>
 
-            {/* Wrapper cho form cũng thêm 'anim-element' */}
             <div className="anim-element">
               {renderForm()}
             </div>

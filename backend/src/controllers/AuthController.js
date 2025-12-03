@@ -7,6 +7,7 @@ import {
   verifyEmailService
 } from '../services/AuthService.js';
 import User from '../models/User.js';
+import { ErrorResponse } from '../utils/error.js';
 
 export const getAll = async (req, res) => {
   try {
@@ -26,10 +27,18 @@ export const registerUser = async (req, res, next) => {
     const result = await registerService(req.body);
     res.status(201).json({
       success: true,
-      message: 'Register successful. Please check your email to verification',
+      message: 'Register successful',
       data: result
     });
   } catch (err) {
+    if (err instanceof ErrorResponse) {
+      res.status(err.statusCode || 400).json({
+        success: false,
+        code: err.code,
+        errors: err.errors
+      });
+      return;
+    }
     next(err);
   }
 };
@@ -45,6 +54,14 @@ export const loginUser = async (req, res, next) => {
       data: result
     });
   } catch (err) {
+    if (err instanceof ErrorResponse) {
+      res.status(err.statusCode || 401).json({
+        success: false,
+        code: err.code,
+        message: err.message
+      });
+      return;
+    }
     next(err)
   }
 };

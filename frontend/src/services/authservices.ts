@@ -1,17 +1,7 @@
 import axios from 'axios';
 import useSWR from 'swr';
 import { toast } from 'sonner';
-import { fetcher } from '@/lib/utils';
 
-type AuthResponse = {
-    token: string;
-    code?: string;
-    message?: string;
-}
-type ErrorResponse = {
-    code: string;
-    message: string;
-}
 export function useUser() {
     const { data, error, isLoading, mutate } = useSWR(
         `${process.env.NEXT_PUBLIC_API_URL}/auth/profile`,
@@ -24,21 +14,17 @@ export function useUser() {
     };
 }
 
-export async function login(data: {
-    username: string;
-    password: string;
-}): Promise<AuthResponse | ErrorResponse
-> {
+export async function login(data: { username: string; password: string }) {
     try {
-        const res = await axios.post<AuthResponse>(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, data);
-    console.log(res.data);
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, data);
         return res.data;
-    } catch (err : unknown) {
+    } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
+            const errorData = err.response?.data;
             return {
-                code: err.response?.data.code || "AXIOS_ERROR",
-                message: err.response?.data.message || err.message,
-            }
+                code: errorData?.code || "AXIOS_ERROR",
+                message: errorData?.message || err.message,
+            };
         }
         return { code: "UNKNOWN_ERROR", message: "Something went wrong" };
     }
@@ -51,20 +37,27 @@ export async function registerUser(data: {
     email: string;
     password: string;
     confirmPassword: string;
-}): Promise<AuthResponse | ErrorResponse> {
+}) {
     try {
-        const res = await axios.post<AuthResponse>(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, data);
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, data);
         return res.data;
-    }catch (err : unknown) {
+    } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
+            const errorData = err.response?.data;
             return {
-                code: err.response?.data.code || "AXIOS_ERROR",
-                message: err.response?.data.message || err.message,
-            }
+                code: errorData?.code || "AXIOS_ERROR",
+                message: errorData?.message || err.message,
+                errors: errorData?.errors || [],
+            };
         }
-        return { code: "UNKNOWN_ERROR", message: "Something went wrong" };
+        return {
+            code: "UNKNOWN_ERROR",
+            message: "Something went wrong",
+            errors: []
+        };
     }
 }
+
 export async function loginGoogle(code: string){
     try {
         const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/google`, {code});

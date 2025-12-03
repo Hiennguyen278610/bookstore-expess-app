@@ -2,10 +2,10 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { Button } from '../ui/button';
 import { loginGoogle, useUser } from '@/services/authservices';
 import { setJWTtoCookie } from '@/lib/cookies';
-import { toast } from 'react-toastify';
 import { GoogleIcon } from '@/components/svg/google';
+import { toast } from 'sonner';
 
-export const ButtonLoginGoogle = () => {
+export const ButtonLoginGoogle = ({ onSuccess }: { onSuccess?: () => void }) => {
   const { mutate } = useUser();
   const googleLogin = useGoogleLogin({
     onSuccess: async ({ code }) => {
@@ -13,6 +13,7 @@ export const ButtonLoginGoogle = () => {
       await setJWTtoCookie(response.data.token);
       await mutate();
       toast.success('Đăng nhập thành công');
+      onSuccess?.();
     },
     flow: 'auth-code'
   });

@@ -35,6 +35,7 @@ export default function ResetPasswordPage() {
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
+    mode: "onChange",
   });
 
   const onSubmit = async (data: FormData) => {
@@ -100,7 +101,7 @@ export default function ResetPasswordPage() {
           )}
         </div>
 
-        <Button type="submit" className="w-full mt-1" disabled={isSubmitting}>
+        <Button type="submit" className="w-full mt-1 cursor-pointer" disabled={isSubmitting}>
           {isSubmitting ? "Đang đổi..." : "Đổi mật khẩu"}
         </Button>
       </form>
