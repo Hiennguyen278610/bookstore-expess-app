@@ -20,10 +20,10 @@ export default function HomeLayout({
         </div>
         <div className="w-full flex flex-col">
           <Navbar />
-          <main className="mt-24 w-full max-w-[1200px] mx-auto px-4">
+          <main className="mt-2 w-full max-w-[1200px] mx-auto px-4">
             {children}
           </main>
-          <Toaster />
+          <Toaster position="top-center" />
           <Footer />
         </div>
       </SidebarProvider>
