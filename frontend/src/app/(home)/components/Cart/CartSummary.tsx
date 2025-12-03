@@ -5,7 +5,7 @@ const CartSummary = () => {
   const { getTotalPrice } = useCart();
 
   return (
-    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 h-fit">
+    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 h-fit my-auto">
       <h3 className="text-xl lg:text-2xl font-bold text-gray-800 border-b border-gray-200 pb-4 mb-4">
         Thông tin đơn hàng
       </h3>
