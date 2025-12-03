@@ -1,19 +1,10 @@
 import axios from 'axios';
 import useSWR from 'swr';
+import { toast } from 'sonner';
 
-type AuthResponse = {
-    token: string;
-    code?: string;
-    message?: string;
-}
-type ErrorResponse = {
-    code: string;
-    message: string;
-}
-export  function useUser() {
-
+export function useUser() {
     const { data, error, isLoading, mutate } = useSWR(
-        `${process.env.NEXT_PUBLIC_API_URL}/users/me`,
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/profile`,
     );
     return {
         user: data,
@@ -23,21 +14,17 @@ export  function useUser() {
     };
 }
 
-export async function login(data: {
-    username: string;
-    password: string;
-}): Promise<AuthResponse | ErrorResponse
-> {
+export async function login(data: { username: string; password: string }) {
     try {
-        const res = await axios.post<AuthResponse>(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, data);
-    console.log(res.data);
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, data);
         return res.data;
-    } catch (err : unknown) {
+    } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
+            const errorData = err.response?.data;
             return {
-                code: err.response?.data.code || "AXIOS_ERROR",
-                message: err.response?.data.message || err.message,
-            }
+                code: errorData?.code || "AXIOS_ERROR",
+                message: errorData?.message || err.message,
+            };
         }
         return { code: "UNKNOWN_ERROR", message: "Something went wrong" };
     }
@@ -50,44 +37,54 @@ export async function registerUser(data: {
     email: string;
     password: string;
     confirmPassword: string;
-}): Promise<AuthResponse | ErrorResponse> {
+}) {
     try {
-        const res = await axios.post<AuthResponse>(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, data);
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, data);
+        return res.data;
+    } catch (err: unknown) {
+        if (axios.isAxiosError(err)) {
+            const errorData = err.response?.data;
+            return {
+                code: errorData?.code || "AXIOS_ERROR",
+                message: errorData?.message || err.message,
+                errors: errorData?.errors || [],
+            };
+        }
+        return {
+            code: "UNKNOWN_ERROR",
+            message: "Something went wrong",
+            errors: []
+        };
+    }
+}
+
+export async function loginGoogle(code: string){
+    try {
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/google`, {code});
+        console.log("Res: ", res);
         return res.data;
     }catch (err : unknown) {
         if (axios.isAxiosError(err)) {
             return {
                 code: err.response?.data.code || "AXIOS_ERROR",
-                message: err.response?.data.message || err.message,
+                message: err.response?.data.message || err
             }
         }
         return { code: "UNKNOWN_ERROR", message: "Something went wrong" };
     }
 }
-
-const popupCenter = (url: string, title: string) => {
-    const dualScreenLeft = window.screenLeft ?? window.screenX;
-    const dualScreenTop = window.screenTop ?? window.screenY;
-
-    const width =
-      window.innerWidth ?? document.documentElement.clientWidth ?? screen.width;
-
-    const height =
-      window.innerHeight ??
-      document.documentElement.clientHeight ??
-      screen.height;
-
-    const systemZoom = width / window.screen.availWidth;
-
-    const left = (width - 500) / 2 / systemZoom + dualScreenLeft;
-    const top = (height - 550) / 2 / systemZoom + dualScreenTop;
-
-    const newWindow = window.open(
-      url,
-      title,
-      `width=${500 / systemZoom},height=${550 / systemZoom
-      },top=${top},left=${left}`
-    );
-    newWindow?.focus();
-    return newWindow;
-};
+export async function sendMailForgotPassword(email: string){
+    try {
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/forgot-password`, {email})
+        toast.success("Thư xác nhận thay đổi đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư rác")
+        return res.data;
+    }catch (err : unknown) {
+        if (axios.isAxiosError(err)) {
+            return {
+                code: err.response?.data.code || "AXIOS_ERROR",
+                message: err.response?.data.message || err
+            }
+        }
+        return { code: "UNKNOWN_ERROR", message: "Something went wrong" };
+    }
+}

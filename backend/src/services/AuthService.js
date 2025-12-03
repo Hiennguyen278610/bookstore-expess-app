@@ -4,33 +4,46 @@ import {
   generateEmailVerificationToken,
   generatePasswordResetToken,
   generateToken,
-  verifyEmailToken, verifyPasswordResetToken
+  verifyEmailToken,
+  verifyPasswordResetToken
 } from '../utils/jwt.js';
 import { ErrorResponse } from '../utils/error.js';
 import { toUserResponse } from '../mappers/UserMapper.js';
-import {
-  sendMail,
-  sendPasswordResetEmail,
-  sendPasswordResetSuccessEmail,
-  sendVerificationEmail
-} from './mail.service.js';
-import { buildVerificationEmail } from '../utils/MailTemplate.js';
+import { sendPasswordResetEmail, sendPasswordResetSuccessEmail, sendVerificationEmail } from './mail.service.js';
+import { client } from '../config/clientgoogle.config.js';
+import { v4 as uuidv4 } from 'uuid';
+
 export const registerService = async (userData) => {
-  const existing = await User.findOne({
-    $or: [{ username: userData.username }, { email: userData.email }, { phone: userData.phone }]
+  const existing = await User.find({
+    $or: [
+      { username: userData.username },
+      { email: userData.email },
+      { phone: userData.phone }
+    ]
   });
   if (existing) {
-    throw new ErrorResponse('User already exists', 400);
+    const errors = [];
+    existing.forEach(user => {
+      if (user.username === userData.username)
+        errors.push({ field: "username", code: "USERNAME_EXISTS", message: "Tài khoản đã tồn tại" });
+      if (user.email === userData.email.toLowerCase())
+        errors.push({ field: "email", code: "EMAIL_EXISTS", message: "Email đã tồn tại" });
+      if (user.phone === userData.phone)
+        errors.push({ field: "phone", code: "PHONE_EXISTS", message: "Số điện thoại đã tồn tại" });
+    });
+
+    if (errors.length > 0) {
+      throw new ErrorResponse("Validation failed", 400, undefined, errors);
+    }
   }
+
   const user = new User(userData);
   user.password = await hashPassword(userData.password);
-  user.lastVerificationSent = new Date();
   await user.save();
-  //gui email verification
-  const verificationToken = generateEmailVerificationToken(user)
-  await sendVerificationEmail(user, verificationToken)
 
-  return { fullName: user.fullName, email: user.email, phone: user.phone};
+  const UserResponse = toUserResponse(user);
+  const token = generateToken(UserResponse);
+  return { UserResponse, token };
 };
 
 export const loginService = async (username, password) => {
@@ -38,14 +51,11 @@ export const loginService = async (username, password) => {
     $or: [{ username: username }, { email: username }, { phone: username}]
   });
   if (!user) {
-    throw new ErrorResponse('Invalid username or password', 401);
+    throw new ErrorResponse('Tài khoản không tồn tại', 401, 'USER_NOT_FOUND');
   }
   const isMatch = await comparePassword(password, user.password);
   if (!isMatch) {
-    throw new ErrorResponse('Invalid username or password', 401);
-  }
-  if (!user.isVerified){
-    throw new ErrorResponse('Email not verified', 401);
+    throw new ErrorResponse('Mật khẩu không đúng', 401, 'INVALID_PASSWORD');
   }
   const UserResponse = toUserResponse(user);
   const token = generateToken(UserResponse);
@@ -139,14 +149,12 @@ export const changePasswordService = async (userId, oldPassword, newPassword) =>
   await user.save();
   return {  success: true}
 }
-export const getProfileService = async (userId) => {
-  const user = await User.findById(userId);
+export const getProfileService = async (username) => {
+  const user = await User.findOne({username: username});
   if (!user) {
     throw new ErrorResponse('User not found', 404);
   }
-
-  const UserResponse = toUserResponse(user);
-  return { UserResponse };
+  return { fullName: user.fullName, email: user.email, phone: user.phone };
 };
 export const updateProfileService = async (userId, updateData) => {
   const user = await User.findById(userId)
@@ -189,3 +197,28 @@ export const updateProfileService = async (userId, updateData) => {
   return { UserResponse };
 }
 
+export const googleLoginService = async (code) => {
+  const { tokens } = await client.getToken(code);
+  const ticket = await client.verifyIdToken({
+    idToken: tokens.id_token,
+    audience: process.env.GOOGLE_CLIENT_ID
+  });
+  const payload = await ticket.getPayload();
+  let user = await User.findOne({ email: payload.email });
+  const username = await uuidv4();
+  const password = await hashPassword(uuidv4());
+  if (!user) {
+    user = new User({
+      fullName: payload.name,
+      username: username,
+      email: payload.email,
+      isVerified: payload.email_verified,
+      phone: null,
+      password: password
+    });
+    await user.save();
+  }
+  const UserResponse = toUserResponse(user);
+  const token = generateToken(toUserResponse(user));
+  return { UserResponse, token };
+};

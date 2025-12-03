@@ -1,12 +1,13 @@
 import {
   changePasswordService,
-  forgotPasswordService, getProfileService,
+  forgotPasswordService, getProfileService, googleLoginService,
   loginService,
   registerService, resendVerificationService,
   resetPasswordService, updateProfileService,
   verifyEmailService
 } from '../services/AuthService.js';
 import User from '../models/User.js';
+import { ErrorResponse } from '../utils/error.js';
 
 export const getAll = async (req, res) => {
   try {
@@ -26,10 +27,18 @@ export const registerUser = async (req, res, next) => {
     const result = await registerService(req.body);
     res.status(201).json({
       success: true,
-      message: 'Register successful. Please check your email to verification',
+      message: 'Register successful',
       data: result
     });
   } catch (err) {
+    if (err instanceof ErrorResponse) {
+      res.status(err.statusCode || 400).json({
+        success: false,
+        code: err.code,
+        errors: err.errors
+      });
+      return;
+    }
     next(err);
   }
 };
@@ -45,6 +54,14 @@ export const loginUser = async (req, res, next) => {
       data: result
     });
   } catch (err) {
+    if (err instanceof ErrorResponse) {
+      res.status(err.statusCode || 401).json({
+        success: false,
+        code: err.code,
+        message: err.message
+      });
+      return;
+    }
     next(err)
   }
 };
@@ -116,7 +133,7 @@ export const changePassword = async (req, res, next) => {
 //lum profile  len
 export const getProfile = async (req, res, next) => {
   try {
-    const result = await getProfileService(req.user.id);
+    const result = await getProfileService(req.user.username);
     res.json({
       success: true,
       data: result
@@ -138,3 +155,17 @@ export const updateProfile = async (req, res, next) => {
     next(error);
   }
 };
+//login google
+export const googleLogin = async (req, res, next) => {
+  try {
+    const {code} = req.body;
+    const result = await googleLoginService(code);
+    res.json({
+      success: true,
+      message: 'Login successful',
+      data: result
+    });
+  }catch (error){
+    next(error);
+  }
+}
