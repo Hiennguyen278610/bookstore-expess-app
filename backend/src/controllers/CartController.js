@@ -3,10 +3,8 @@ import { addItemToCart, clearCartService, removeItemFromCart, updateItemQuantity
 
 export async function addItem(req, res) {
   try {
-    const dataUser = req.user;
-    const user = await User.findOne({ username: dataUser.username });
     const { bookId, quantity } = req.body;
-    const cart = await addItemToCart(bookId, user._id, quantity);
+    const cart = await addItemToCart(bookId, req.user.id, quantity);
     if (!cart) {
       return res.status(401).json({ message: 'Cart not found' });
     }
@@ -18,10 +16,8 @@ export async function addItem(req, res) {
 
 export async function removeItem(req, res) {
   try {
-    const dataUser = req.user;
-    const user = await User.findOne({ username: dataUser.username });
     const { bookId } = req.body;
-    const cart = await removeItemFromCart(bookId, user._id);
+    const cart = await removeItemFromCart(bookId, req.user.id);
     if (!cart) {
       return res.status(401).json({ message: 'Cart not found' });
     }
@@ -33,10 +29,8 @@ export async function removeItem(req, res) {
 
 export async function updateQuantity(req, res) {
   try {
-    const dataUser = req.user;
-    const user = await User.findOne({ username: dataUser.username });
     const { bookId, quantity } = req.body;
-    const cart = await updateItemQuantity(bookId, user._id, quantity);
+    const cart = await updateItemQuantity(bookId, req.user.id, quantity);
     if (!cart) {
       return res.status(401).json({ message: 'Cart not found' });
     }
@@ -48,9 +42,7 @@ export async function updateQuantity(req, res) {
 
 export async function clearCart(req, res) {
   try {
-    const dataUser = req.user;
-    const user = await User.findOne({ username: dataUser.username });
-    const cart = await clearCartService(user._id);
+    const cart = await clearCartService(req.user.id);
     if (!cart) {
       return res.status(401).json({ message: 'Cart not found' });
     }

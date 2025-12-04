@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
-import Category from './Category.js';
+import mongoosePaginate from 'mongoose-paginate-v2';
+
 const bookSchema = new mongoose.Schema({
   name: { type: String, required: true },
   categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
@@ -10,6 +11,7 @@ const bookSchema = new mongoose.Schema({
   isDeleted: { type: Boolean, default: false}
 }, { timestamps: true });
 
+bookSchema.plugin(mongoosePaginate);
 bookSchema.virtual("authors", {
   ref: "BookAuthor",
   localField: "_id",
