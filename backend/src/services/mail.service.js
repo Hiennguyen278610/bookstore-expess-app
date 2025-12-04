@@ -1,11 +1,9 @@
 import { mailTransporter } from '../config/mail.config.js';
-import dotenv from 'dotenv';
 import {
   buildPasswordResetEmail,
   buildPasswordResetSuccessEmail,
   buildVerificationEmail
 } from '../utils/MailTemplate.js';
-dotenv.config();
 export async function sendMail(to, subject, html){
   const mailOptions = {
     from: `"Book Store" <${process.env.MAIL_USER}>`,

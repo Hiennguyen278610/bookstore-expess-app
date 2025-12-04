@@ -1,7 +1,5 @@
 import OrderDetail from '../models/OrderDetail.js';
 import Book from '../models/Book.js';
-import dotenv from 'dotenv'
-dotenv.config()
 
 // Helper: Style chung cho container để tái sử dụng
 const containerStyle = `
