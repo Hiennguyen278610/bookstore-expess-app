@@ -9,6 +9,7 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
 export function generateToken(UserResponse) {
   return jwt.sign(
     {
+      id: UserResponse.id,
       username: UserResponse.username,
       role: UserResponse.role
     },

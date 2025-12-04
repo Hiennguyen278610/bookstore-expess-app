@@ -23,7 +23,7 @@ export default function HomeLayout({
           <main className="mt-2 w-full max-w-[1200px] mx-auto px-4">
             {children}
           </main>
-          <Toaster position="top-center" />
+          <Toaster />
           <Footer />
         </div>
       </SidebarProvider>
