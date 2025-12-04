@@ -91,6 +91,22 @@ export async function getOrdersByStatus(req, res) {
     res.status(400).send({message: err.message});
   }
 }
+import { getAllOrdersService } from '../services/OrderService.js';
+
+export const getOrders = async (req, res) => {
+  try {
+    // req.query chứa: page, limit, purchaseStatus, customerId...
+    const result = await getAllOrdersService(req.query);
+
+    res.status(200).json({
+      message: "Get all orders successfully",
+      data: result.data,
+      pagination: result.pagination
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 //[ lum cai id xong tim order xem cai status do co dang delivery khong thi khong cho cancel
 // export async function cancelOrder(req, res) {
 //   try {
