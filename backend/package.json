@@ -24,6 +24,7 @@
     "google-auth-library": "^10.5.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "8.18.0",
+    "mongoose-paginate-v2": "^1.9.1",
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",
     "nanoid": "^5.1.6",

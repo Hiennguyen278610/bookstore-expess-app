@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+import mongoosePaginate from 'mongoose-paginate-v2';
 const orderSchema = new mongoose.Schema({
   customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   purchaseDate: {type: Date, default: Date.now},
@@ -11,6 +11,8 @@ const orderSchema = new mongoose.Schema({
   paymentLinkId: {type: String},
   payosOrderId: {type: Number},
 }, { timestamps: true });
+
+orderSchema.plugin(mongoosePaginate);
 
 orderSchema.virtual("details", {
   ref: "OrderDetail",
