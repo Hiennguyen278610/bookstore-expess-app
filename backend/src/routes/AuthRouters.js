@@ -11,11 +11,9 @@ import {
   verifyEmail
 } from '../controllers/AuthController.js';
 import express from 'express';
-import dotenv from 'dotenv';
 import { checkEmptyBody } from '../middlewares/checkEmptyBody.js';
 import { auth } from '../middlewares/auth.js';
 
-dotenv.config();
 
 const router = express.Router();
 
