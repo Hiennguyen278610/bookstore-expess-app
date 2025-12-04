@@ -17,7 +17,7 @@ const CartSummary = () => {
 
       <p className="text-gray-500 text-sm mb-6">Phí vận chuyển sẽ được tính ở trang thanh toán.</p>
 
-      <button className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 p-4 text-white font-semibold w-full rounded-xl mt-4 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl cursor-pointer">
+      <button className="bg-linear-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 p-4 text-white font-semibold w-full rounded-xl mt-4 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl cursor-pointer">
         Đặt hàng ngay
       </button>
     </div>
