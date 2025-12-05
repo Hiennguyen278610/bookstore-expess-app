@@ -1,10 +1,10 @@
 'use client'
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import FilterSidebar from "../../components/Collections/FilterSidebar";
-import ProductGrid from "../../components/Collections/ProductGrid";
+import FilterSidebar from "../components/FilterSidebar";
+import ProductGrid from "../components/ProductGrid";
 import { ChevronRight, Home, Filter, X } from "lucide-react";
-import ProductPagination from "../../components/Collections/ProductPagination";
+import ProductPagination from "../components/ProductPagination";
 import { products } from "@/constants/user.index";
 
 const Page = () => {
@@ -19,7 +19,6 @@ const Page = () => {
     })
   }, [page])
 
-  // Ngăn scroll body khi mobile filter mở
   useEffect(() => {
     if (isFilterOpen) {
       document.body.style.overflow = 'hidden'

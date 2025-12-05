@@ -1,9 +1,9 @@
 "use client";
 
 import { SidebarProvider } from "@/components/ui/sidebar";
-import Navbar from "./components/Navbar";
+import Navbar from "../../components/customer/Navbar";
 import { AppSidebar } from "./components/AppSideBar";
-import Footer from "./components/Footer";
+import Footer from "../../components/customer/Footer";
 import { CartProvider } from "./context/CartContext";
 import { Toaster } from '@/components/ui/sonner';
 

@@ -3,8 +3,8 @@
 import Image from 'next/image';
 import { LogOut, Star, User2 } from 'lucide-react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import CartIcon from './common/CartIcon';
-import SearchInput from './common/SearchInput';
+import CartIcon from './CartIcon';
+import SearchInput from './SearchInput';
 import Link from 'next/link';
 import { AuthDialog } from '@/components/auth-dialog';
 import { useUser } from '@/services/authservices';
