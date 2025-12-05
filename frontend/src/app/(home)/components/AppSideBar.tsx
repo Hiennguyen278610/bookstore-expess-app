@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -11,35 +12,70 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { categories } from "@/constants/user.index";
+import useSWR from "swr";
+import { categoryServices } from "@/services/categoryServices";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function AppSidebar() {
+  const { data: categories, isLoading } = useSWR(
+    "/categories",
+    categoryServices.getAllCategories
+  );
+
+  const pathname = usePathname();
+
+  const isCategoryActive = (slug: string) => {
+    return pathname?.includes(`/collections/${slug}`);
+  };
+
+  if (isLoading || !categories) {
+    return (
+      <div className="w-full bg-white border-t border-gray-200 px-4 py-3">
+        <Skeleton className="h-6 w-40 mb-3" />
+        <div className="space-y-1">
+          {[...Array(5)].map((_, index) => (
+            <Skeleton key={index} className="h-12 w-full" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <Sidebar className="w-64 bg-white shadow-md border-r border-gray-200">
+    <Sidebar className="w-full bg-white border-t border-gray-200">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-gray-700 font-semibold text-md uppercase px-4 py-3 border-b border-gray-200 tracking-wide">
+          <SidebarGroupLabel className="px-4 py-3.5 text-lg font-semibold text-gray-900">
             Danh mục
           </SidebarGroupLabel>
 
           <SidebarGroupContent>
-            <SidebarMenu className="py-2">
-              {categories.map((item) => (
-                <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton asChild>
-                    <Link
-                      href="/"
-                      className="
-                        flex items-center gap-3 px-4 py-5 rounded-lg 
-                        text-gray-700 hover:text-green-700
-                      "
-                    >
-                      <item.icon size={18} className="text-green-600" />
-                      <span className="font-medium text-md">{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+            <SidebarMenu>
+              {categories.map((item) => {
+                const isActive = isCategoryActive(item.slug);
+
+                return (
+                  <SidebarMenuItem key={item._id}>
+                    <SidebarMenuButton asChild>
+                      <Link
+                        href={`/collections/${item.slug}`}
+                        className={`
+                          block px-4 py-5 text-md
+                          ${
+                            isActive
+                              ? "text-green-700 bg-green-100 font-medium"
+                              : "text-gray-700"
+                          }
+                          active:bg-gray-100
+                          border-b border-gray-100
+                        `}
+                      >
+                        {item.name}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
