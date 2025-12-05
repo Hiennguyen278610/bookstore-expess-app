@@ -104,11 +104,16 @@ export async function getAllBooksService(query) {
   const page = parseInt(query.page) || 1;
   const limit = parseInt(query.limit) || 12;
   const search = query.search || '';
+  const categoryId = query.categoryId || null
 
   // 2. Tạo filter tìm kiếm
   const filter = {};
   if (search) {
     filter.name = { $regex: search, $options: 'i' };
+  }
+
+  if(categoryId) {
+    filter.categoryId = categoryId
   }
 
   const skip = (page - 1) * limit;

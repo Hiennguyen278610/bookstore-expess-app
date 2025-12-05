@@ -27,21 +27,3 @@ export function formatPrice (price : number) {
   }).format(price);
 }
 
-export function getSlug(categoryName: string): string {
-  const slug = categoryName
-    .trim()
-    .toLowerCase()
-    
-    .normalize('NFD') 
-    .replace(/[\u0300-\u036f]/g, '') 
-    
-
-    .replace(/[^\w\s-]/g, '') 
-    .replace(/\s+/g, '-') 
-    .replace(/-+/g, '-') 
-    
-    .replace(/^-+/, '')
-    .replace(/-+$/, '');
-  
-  return slug;
-}

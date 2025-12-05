@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "swiper": "^9.4.1"
+    "swiper": "^9.4.1",
+    "zustand": "^5.0.9"
   }
 }

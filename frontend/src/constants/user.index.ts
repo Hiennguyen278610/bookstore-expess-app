@@ -1,57 +1,5 @@
 
-import { Book, LineChart, ClipboardCheck, FileText, Music, Baby, Languages, Globe, LucideIcon } from "lucide-react";
 
-export interface Category {
-  label: string;
-  image: string;
-  icon: LucideIcon;
-  slug?: string;
-}
-
-export const categories: Category[] = [
-  { 
-    label: "Văn Học", 
-    image: "/images/banners/cat_card_3.webp", 
-    icon: Book,
-    slug: "van-hoc"
-  },
-  { 
-    label: "Kinh Tế", 
-    image: "/images/banners/cat_card_4.webp", 
-    icon: LineChart,
-    slug: "lich-su"
-  },
-  { 
-    label: "Kĩ Năng Sống", 
-    image: "/images/banners/cat_card_5.webp", 
-    icon: ClipboardCheck 
-  },
-  {
-    label: "Lịch Sử, Văn Hóa, Xã Hội",
-    image: "/images/banners/cat_card_6.webp",
-    icon: FileText
-  },
-  { 
-    label: "Sách Truyện Thiếu Nhi", 
-    image: "/images/banners/cat_card_7.webp", 
-    icon: Music 
-  },
-  { 
-    label: "Nuôi Dạy Con", 
-    image: "/images/banners/cat_card_8.jpg", 
-    icon: Baby 
-  },
-  { 
-    label: "Sách Học Ngoại Ngữ", 
-    image: "/images/banners/cat_card_9.webp", 
-    icon: Languages 
-  },
-  { 
-    label: "Sách Ngoại Văn", 
-    image: "/images/banners/cat_card_2.webp", 
-    icon: Globe 
-  },
-];
 
 export const bannerImages = [
   "/images/banners/slider_1.webp",
