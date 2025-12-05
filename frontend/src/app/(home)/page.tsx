@@ -3,7 +3,6 @@
 import { testCardBooks } from "@/constants/user.index";
 import BannerSlider from "./components/Banner";
 import BookShowCase from "./components/BookShowCase";
-import CategoryCarousel from "./components/CategoryCarousel";
 import CategorySidebar from "./components/CategorySidebar";
 import BrandCarousel from "./components/BrandCarousel";
 
@@ -14,7 +13,6 @@ export default function HomePage() {
         <CategorySidebar />
         <BannerSlider />
       </div>
-      <CategoryCarousel />
       <BookShowCase 
         title="Sách Bán Chạy"
         books={testCardBooks}
