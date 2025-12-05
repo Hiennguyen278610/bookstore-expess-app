@@ -5,7 +5,7 @@ const CartSummary = () => {
   const { getTotalPrice } = useCart();
 
   return (
-    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 h-fit">
+    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 h-fit my-auto">
       <h3 className="text-xl lg:text-2xl font-bold text-gray-800 border-b border-gray-200 pb-4 mb-4">
         Thông tin đơn hàng
       </h3>
@@ -17,7 +17,7 @@ const CartSummary = () => {
 
       <p className="text-gray-500 text-sm mb-6">Phí vận chuyển sẽ được tính ở trang thanh toán.</p>
 
-      <button className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 p-4 text-white font-semibold w-full rounded-xl mt-4 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl cursor-pointer">
+      <button className="bg-linear-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 p-4 text-white font-semibold w-full rounded-xl mt-4 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl cursor-pointer">
         Đặt hàng ngay
       </button>
     </div>

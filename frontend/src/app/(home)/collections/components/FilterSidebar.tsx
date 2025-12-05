@@ -2,7 +2,7 @@
 import { Accordion } from "@radix-ui/react-accordion";
 import React, { useReducer } from "react";
 import MyAccordion from "./MyAccordion";
-import CheckboxList from "../common/CheckboxList";
+import CheckboxList from "../../../../components/customer/CheckboxList";
 import { Filter, RotateCcw, Sparkles } from "lucide-react";
 
 interface FilterState {
