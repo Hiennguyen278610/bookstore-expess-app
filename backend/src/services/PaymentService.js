@@ -1,13 +1,10 @@
 import Order from '../models/Order.js';
 import { payos } from '../config/payosconfig.js';
-import dotenv from 'dotenv';
 import OrderDetail from '../models/OrderDetail.js';
 import Book from '../models/Book.js';
 import { buildOrderCanceledMail, buildOrderFailedMail, buildOrderSuccessMail } from '../utils/MailTemplate.js';
 import { sendMail } from './mail.service.js';
 import User from '../models/User.js';
-
-dotenv.config();
 
 export async function createPaymentService(orderId) {
   const order = await Order.findById(orderId);

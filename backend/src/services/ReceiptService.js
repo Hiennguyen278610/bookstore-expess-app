@@ -1,9 +1,7 @@
 import Order from '../models/Order.js';
-import OrderDetail from '../models/OrderDetail.js';
 import Book from '../models/Book.js';
 import SupplyReceipt from '../models/SupplyReceipt.js';
 import SupplyDetail from '../models/SupplyDetail.js';
-import { populate } from 'dotenv';
 
 export async function createSupplyReceiptService(adminId, supplierId, details) {
   const receipt = await SupplyReceipt.create({

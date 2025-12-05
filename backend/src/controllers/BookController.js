@@ -1,4 +1,10 @@
-import { createBookService, deleteBookService, findBookService, updateBookService } from '../services/BookService.js';
+import {
+  createBookService,
+  deleteBookService,
+  findBookService,
+  getAllBooksService,
+  updateBookService
+} from '../services/BookService.js';
 
 export const createBook = async (req, res) => {
   try {
@@ -32,3 +38,17 @@ export const deleteBook = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 }
+export const getBooks = async (req, res) => {
+  try {
+    // req.query sẽ chứa: ?page=1&limit=10&search=harry
+    const result = await getAllBooksService(req.query);
+
+    res.status(200).json({
+      message: "Get all books successfully",
+      data: result.data,
+      pagination: result.pagination
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
