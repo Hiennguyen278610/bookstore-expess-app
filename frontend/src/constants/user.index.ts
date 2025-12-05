@@ -18,7 +18,8 @@ export const categories: Category[] = [
   { 
     label: "Kinh Tế", 
     image: "/images/banners/cat_card_4.webp", 
-    icon: LineChart 
+    icon: LineChart,
+    slug: "lich-su"
   },
   { 
     label: "Kĩ Năng Sống", 
