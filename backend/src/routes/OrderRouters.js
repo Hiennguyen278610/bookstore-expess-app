@@ -3,7 +3,7 @@ import {
   createOrder,
   deleteOrder,
   getAllOrders,
-  getOrderById,
+  getOrderById, getOrders,
   getOrdersByStatus,
   updateOrder,
   updateStatus
@@ -24,5 +24,6 @@ router.post('/me', getAllOrders);
 router.put('/:id',authorizeRoles("admin"), updateOrder);
 router.put('/status/:id', updateStatus);
 router.delete('/:id', deleteOrder);
+router.get("/",authorizeRoles("admin"), getOrders);
 
 export default router;

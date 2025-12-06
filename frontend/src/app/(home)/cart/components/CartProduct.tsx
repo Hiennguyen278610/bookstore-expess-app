@@ -1,6 +1,6 @@
 import { formatPrice } from "@/lib/utils"
 import Image from "next/image";
-import QuantityInput from "../common/QuantityInput";
+import QuantityInput from "../../../../components/customer/QuantityInput";
 import { CartItemProps } from "../../context/CartContext";
 import { Trash } from "lucide-react";
 

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import useSWR from 'swr';
 import { toast } from 'sonner';
+import { getJWTfromCookie } from '@/lib/cookies';
 
 export function useUser() {
     const { data, error, isLoading, mutate } = useSWR(
@@ -61,7 +62,6 @@ export async function registerUser(data: {
 export async function loginGoogle(code: string){
     try {
         const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/google`, {code});
-        console.log("Res: ", res);
         return res.data;
     }catch (err : unknown) {
         if (axios.isAxiosError(err)) {
@@ -87,4 +87,58 @@ export async function sendMailForgotPassword(email: string){
         }
         return { code: "UNKNOWN_ERROR", message: "Something went wrong" };
     }
+}
+
+export async function resetPasswordAfterLogin(currentPassword: string, newPassword: string) {
+    try {
+        const token = await getJWTfromCookie();
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/change-password`, {
+            currentPassword,
+            newPassword
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return res.data;
+    } catch (err: unknown) {
+        if (axios.isAxiosError(err)) {
+            return {
+                code: err.response?.data.code || 'AXIOS_ERROR',
+                message: err.response?.data.message || err
+            };
+        }
+        return { code: 'UNKNOWN_ERROR', message: 'Something went wrong' };
+    }
+}
+
+export async function updateProfile(data: {
+    fullName: string;
+    username: string;
+    phone: string;
+    email: string;
+}) {
+    try {
+        const token = await getJWTfromCookie();
+        const res = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/auth/profile`, data, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return res.data;
+    } catch (err: unknown) {
+        if (axios.isAxiosError(err)) {
+            return {
+                code: err.response?.data.code || 'AXIOS_ERROR',
+                message: err.response?.data.message || err
+            };
+        }
+        return {
+            code: 'UNKNOWN_ERROR',
+            message: 'Something went wrong'
+        };
+    }
+
 }

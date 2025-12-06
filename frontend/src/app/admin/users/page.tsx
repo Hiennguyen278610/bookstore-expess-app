@@ -2,12 +2,15 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Eye, EyeOff } from "lucide-react";
 import { users as fakeUsers } from "../fakedata";
+import Pagination from "../components/Pagination";
 import type { User } from "@/types/user.type";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>(fakeUsers);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showPassword, setShowPassword] = useState<Record<string, boolean>>({});
@@ -32,6 +35,13 @@ export default function UsersPage() {
     const matchRole = roleFilter === "all" || user.role === roleFilter;
     return matchSearch && matchRole;
   });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const paginatedUsers = filteredUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   // Submit form
   const handleSubmit = () => {
@@ -177,14 +187,14 @@ export default function UsersPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.length === 0 ? (
+                {paginatedUsers.length === 0 ? (
                   <tr>
                     <td colSpan={9} className="px-4 py-12 text-center text-gray-400">
                       Không tìm thấy người dùng nào 👥
                     </td>
                   </tr>
                 ) : (
-                  filteredUsers.map((user) => (
+                  paginatedUsers.map((user) => (
                     <tr key={user.id} className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200">
                       <td className="px-4 py-4 text-gray-800 font-medium">{user.fullName}</td>
                       <td className="px-4 py-4 text-gray-600">{user.username}</td>
@@ -250,6 +260,19 @@ export default function UsersPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredUsers.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={(items) => {
+              setItemsPerPage(items);
+              setCurrentPage(1);
+            }}
+          />
         </div>
       </div>
 

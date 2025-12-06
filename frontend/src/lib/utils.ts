@@ -14,8 +14,8 @@ export const fetcher = async (url: string) => {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
-        withCredentials: true,
       },
+      withCredentials: true,
     })
     .then((res) => res.data);
 };
@@ -26,3 +26,4 @@ export function formatPrice (price : number) {
     currency: 'VND'
   }).format(price);
 }
+

@@ -1,8 +1,6 @@
 import Order from '../models/Order.js';
 import OrderDetail from '../models/OrderDetail.js';
 import Book from '../models/Book.js';
-import mongoose from 'mongoose';
-import book from '../models/Book.js';
 
 export async function createOrderService(customerId, paymentMethod, details) {
   const order = await Order.create({
@@ -81,11 +79,19 @@ export async function updateOrderService(orderId, customerId, paymentMethod, pur
 }
 
 export async function getAllOrdersByCustomerId(customerId) {
-  const populatedOrders = await Order.find({ customerId: customerId })
+  // Lấy danh sách order (Mảng)
+  const orders = await Order.find({ customerId: customerId })
     .populate('customerId', 'fullName email')
+    .sort({ createdAt: -1 }) // Nên sort ngày mới nhất
     .lean();
-  populatedOrders.details = await OrderDetail.find({ orderId: populatedOrders._id });
-  return populatedOrders;
+
+  // Phải dùng Promise.all và map để lấy detail cho TỪNG order
+  const ordersWithDetails = await Promise.all(orders.map(async (order) => {
+    const details = await OrderDetail.find({ orderId: order._id });
+    return { ...order, details };
+  }));
+
+  return ordersWithDetails;
 }
 
 export async function deleteOrderService(orderId, customerId) {
@@ -147,9 +153,74 @@ export async function updatePurchaseStatusService(orderId,customerId, purchaseSt
   return order;
 }
 export async function getOrderByStatusAndCustomerId(customerId, purchaseStatus) {
-  const order = await Order.find({customerId: customerId, purchaseStatus: purchaseStatus})
+  const orders = await Order.find({customerId: customerId, purchaseStatus: purchaseStatus})
     .populate('customerId', 'fullName email')
+    .sort({ createdAt: -1 })
     .lean();
-  order.details = await OrderDetail.find({ orderId: order._id });
-  return order;
+  const ordersWithDetails = await Promise.all(orders.map(async (order) => {
+    const details = await OrderDetail.find({ orderId: order._id });
+    return { ...order, details };
+  }));
+
+  return ordersWithDetails;
+}
+
+export async function getAllOrdersService(query) {
+  // 1. Lấy tham số phân trang
+  const page = parseInt(query.page) || 1;
+  const limit = parseInt(query.limit) || 10;
+
+  // 2. Tạo bộ lọc (Filter)
+  const filter = {};
+
+  // Lọc theo trạng thái đơn hàng (VD: ?purchaseStatus=pending)
+  if (query.purchaseStatus) {
+    filter.purchaseStatus = query.purchaseStatus;
+  }
+
+  // Lọc theo ID khách hàng (dành cho Admin muốn xem đơn của 1 người cụ thể)
+  if (query.customerId) {
+    filter.customerId = query.customerId;
+  }
+
+  // Lọc theo phương thức thanh toán
+  if (query.paymentMethod) {
+    filter.paymentMethod = query.paymentMethod;
+  }
+
+  const skip = (page - 1) * limit;
+
+  // 3. Chạy song song: Lấy danh sách Order và Đếm tổng
+  const [orders, total] = await Promise.all([
+    Order.find(filter)
+      .populate('customerId', 'fullName email phone') // Lấy thông tin khách hàng
+      .sort({ createdAt: -1 }) // Sắp xếp đơn mới nhất lên đầu
+      .skip(skip)
+      .limit(limit)
+      .lean(), // Chuyển sang object thường để gắn details
+    Order.countDocuments(filter)
+  ]);
+
+  // 4. Lấy chi tiết (OrderDetail) cho từng đơn hàng
+  // Vì orders là một mảng, ta phải map qua từng cái để lấy detail tương ứng
+  const ordersWithDetails = await Promise.all(orders.map(async (order) => {
+    const details = await OrderDetail.find({ orderId: order._id })
+      .populate('bookId', 'name price imageUrl'); // (Optional) Lấy luôn tên sách để hiển thị cho tiện
+
+    return {
+      ...order,
+      details: details
+    };
+  }));
+
+  // 5. Trả về kết quả
+  return {
+    data: ordersWithDetails,
+    pagination: {
+      totalItems: total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      limit: limit
+    }
+  };
 }

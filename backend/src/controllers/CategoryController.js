@@ -1,6 +1,7 @@
 import {
   createCategoryService,
   deleteCategoryService,
+  getAllCategoryService,
   getCategoryByIdService,
   updateCategoryService
 } from '../services/CategoryService.js';
@@ -45,6 +46,18 @@ export async function getCategoryById(req, res) {
     const category = await getCategoryByIdService(req.params.id);
     if (!category) {
       res.status(404).json({ message: "Category not found" });
+    }
+    res.status(200).json(category);
+  }catch(err){
+    res.status(400).json({ message: err.message });
+  }
+}
+
+export async function getAllCategories(req, res) {
+  try {
+    const category = await getAllCategoryService();
+    if (!category) {
+      res.status(404).json({ message: "None category exists" });
     }
     res.status(200).json(category);
   }catch(err){

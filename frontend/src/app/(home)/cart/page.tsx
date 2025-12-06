@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect } from "react";
-import CartDetail from "../components/Cart/CartDetail";
-import CartSummary from "../components/Cart/CartSummary";
+import CartDetail from "./components/CartDetail";
+import CartSummary from "./components/CartSummary";
 
 const CartPage = () => {
   useEffect(() => {}, [])

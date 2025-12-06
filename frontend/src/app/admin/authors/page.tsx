@@ -3,16 +3,26 @@ import { useState } from "react";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { authors as fakeAuthors } from "../fakedata";
 import type { Author } from "@/types/author.type";
+import Pagination from "../components/Pagination";
 
 export default function AuthorsPage() {
   const [authors, setAuthors] = useState<Author[]>(fakeAuthors);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
   const [formData, setFormData] = useState<{ name: string }>({ name: "" });
 
   const filteredAuthors = authors.filter((a) =>
     a.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredAuthors.length / itemsPerPage);
+  const paginatedAuthors = filteredAuthors.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
   const openModal = (author: Author | null = null) => {
@@ -108,7 +118,7 @@ export default function AuthorsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredAuthors.length === 0 ? (
+                {paginatedAuthors.length === 0 ? (
                   <tr>
                     <td
                       colSpan={2}
@@ -118,7 +128,7 @@ export default function AuthorsPage() {
                     </td>
                   </tr>
                 ) : (
-                  filteredAuthors.map((a) => (
+                  paginatedAuthors.map((a) => (
                     <tr
                       key={a.id}
                       className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200"
@@ -150,6 +160,14 @@ export default function AuthorsPage() {
               </tbody>
             </table>
           </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredAuthors.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
         </div>
       </div>
 

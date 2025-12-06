@@ -3,11 +3,14 @@ import { useState } from "react";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { suppliers as fakeSuppliers } from "../fakedata";
 import type { Supplier } from "@/types/supplier.type";
+import Pagination from "../components/Pagination";
 
 export default function SuppliersPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>(fakeSuppliers);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [formData, setFormData] = useState<Omit<Supplier, "id">>({
     name: "",
@@ -21,6 +24,13 @@ export default function SuppliersPage() {
     (s) =>
       s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       s.phone.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredSuppliers.length / itemsPerPage);
+  const paginatedSuppliers = filteredSuppliers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
   // Mở modal thêm/sửa
@@ -135,14 +145,14 @@ export default function SuppliersPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredSuppliers.length === 0 ? (
+                {paginatedSuppliers.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-4 py-12 text-center text-gray-400">
                       Không tìm thấy nhà cung cấp nào 🚚
                     </td>
                   </tr>
                 ) : (
-                  filteredSuppliers.map((supplier) => (
+                  paginatedSuppliers.map((supplier) => (
                     <tr
                       key={supplier.id}
                       className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200"
@@ -175,6 +185,14 @@ export default function SuppliersPage() {
               </tbody>
             </table>
           </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredSuppliers.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
         </div>
       </div>
 

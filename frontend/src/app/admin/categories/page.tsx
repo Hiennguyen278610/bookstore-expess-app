@@ -3,16 +3,26 @@ import { useState } from "react";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { categories as fakeCategories } from "../fakedata";
 import type { Category } from "@/types/category.type";
+import Pagination from "../components/Pagination";
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>(fakeCategories);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [formData, setFormData] = useState<{ name: string }>({ name: "" });
 
   const filteredCategories = categories.filter((cat) =>
     cat.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
+  const paginatedCategories = filteredCategories.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
   const openModal = (category: Category | null = null) => {
@@ -41,13 +51,14 @@ export default function CategoriesPage() {
     if (editingCategory) {
       setCategories((prev) =>
         prev.map((c) =>
-          c.id === editingCategory.id ? { ...c, name: formData.name.trim() } : c
+          c._id === editingCategory._id ? { ...c, name: formData.name.trim() } : c
         )
       );
     } else {
       const newCategory: Category = {
-        id: `c${Date.now()}`,
+        _id: `c${Date.now()}`,
         name: formData.name.trim(),
+        slug: formData.name.trim().toLowerCase().replace(/\s+/g, "-"),
       };
       setCategories((prev) => [...prev, newCategory]);
     }
@@ -57,7 +68,7 @@ export default function CategoriesPage() {
 
   const handleDelete = (id: string) => {
     if (window.confirm("Bạn có chắc muốn xóa danh mục này?")) {
-      setCategories((prev) => prev.filter((c) => c.id !== id));
+      setCategories((prev) => prev.filter((c) => c._id !== id));
     }
   };
 
@@ -108,7 +119,7 @@ export default function CategoriesPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredCategories.length === 0 ? (
+                {paginatedCategories.length === 0 ? (
                   <tr>
                     <td
                       colSpan={2}
@@ -118,9 +129,9 @@ export default function CategoriesPage() {
                     </td>
                   </tr>
                 ) : (
-                  filteredCategories.map((cat) => (
+                  paginatedCategories.map((cat) => (
                     <tr
-                      key={cat.id}
+                      key={cat._id}
                       className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200"
                     >
                       <td className="px-4 py-4 text-gray-800 font-medium">
@@ -136,7 +147,7 @@ export default function CategoriesPage() {
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(cat.id)}
+                            onClick={() => handleDelete(cat._id)}
                             className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-200"
                             title="Xóa"
                           >
@@ -150,6 +161,14 @@ export default function CategoriesPage() {
               </tbody>
             </table>
           </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredCategories.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
         </div>
       </div>
 

@@ -3,17 +3,27 @@ import { useState } from "react";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { publishers as fakePublishers } from "../fakedata";
 import type { Publisher } from "@/types/publisher.type";
+import Pagination from "../components/Pagination";
 
 export default function PublishersPage() {
   const [publishers, setPublishers] = useState<Publisher[]>(fakePublishers);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [editingPublisher, setEditingPublisher] = useState<Publisher | null>(null);
   const [formData, setFormData] = useState<{ name: string }>({ name: "" });
 
   // Lọc theo tên
   const filteredPublishers = publishers.filter((pub) =>
     pub.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredPublishers.length / itemsPerPage);
+  const paginatedPublishers = filteredPublishers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
   // Mở modal thêm/sửa
@@ -113,7 +123,7 @@ export default function PublishersPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredPublishers.length === 0 ? (
+                {paginatedPublishers.length === 0 ? (
                   <tr>
                     <td
                       colSpan={2}
@@ -123,7 +133,7 @@ export default function PublishersPage() {
                     </td>
                   </tr>
                 ) : (
-                  filteredPublishers.map((pub) => (
+                  paginatedPublishers.map((pub) => (
                     <tr
                       key={pub.id}
                       className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200"
@@ -155,6 +165,14 @@ export default function PublishersPage() {
               </tbody>
             </table>
           </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredPublishers.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
         </div>
       </div>
 

@@ -6,11 +6,33 @@ import type { SupplyReceipt, SupplyItem } from "@/types/supplyreceipt.type";
 import type { Supplier } from "@/types/supplier.type";
 import type { Book } from "@/types/book.type";
 import type { User } from "@/types/user.type";
+import Pagination from "../components/Pagination";
 
 export default function SupplyReceiptsPage() {
   const [receipts, setReceipts] = useState<SupplyReceipt[]>(fakeReceipts);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<SupplyReceipt | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  // Filter và Pagination logic
+  const filteredReceipts = statusFilter === "all"
+    ? receipts
+    : receipts.filter(r => r.supply_status === statusFilter);
+  const totalPages = Math.ceil(filteredReceipts.length / itemsPerPage);
+  const paginatedReceipts = filteredReceipts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Đếm số lượng theo từng trạng thái
+  const statusCounts = {
+    all: receipts.length,
+    pending: receipts.filter(r => r.supply_status === "pending").length,
+    completed: receipts.filter(r => r.supply_status === "completed").length,
+    cancelled: receipts.filter(r => r.supply_status === "cancelled").length,
+  };
   const [formData, setFormData] = useState<Omit<SupplyReceipt, "id" | "total_amount">>({
     supplier_id: "",
     admin_id: "u1",
@@ -150,6 +172,52 @@ export default function SupplyReceiptsPage() {
         </div>
       </div>
 
+      {/* FILTER TABS */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-4">
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => { setStatusFilter("all"); setCurrentPage(1); }}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+              statusFilter === "all"
+                ? "bg-teal-600 text-white shadow-md"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            Tất cả <span className="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs">{statusCounts.all}</span>
+          </button>
+          <button
+            onClick={() => { setStatusFilter("pending"); setCurrentPage(1); }}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+              statusFilter === "pending"
+                ? "bg-amber-500 text-white shadow-md"
+                : "bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200"
+            }`}
+          >
+            Đang xử lý <span className="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs">{statusCounts.pending}</span>
+          </button>
+          <button
+            onClick={() => { setStatusFilter("completed"); setCurrentPage(1); }}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+              statusFilter === "completed"
+                ? "bg-teal-500 text-white shadow-md"
+                : "bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200"
+            }`}
+          >
+            Hoàn tất <span className="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs">{statusCounts.completed}</span>
+          </button>
+          <button
+            onClick={() => { setStatusFilter("cancelled"); setCurrentPage(1); }}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+              statusFilter === "cancelled"
+                ? "bg-red-500 text-white shadow-md"
+                : "bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"
+            }`}
+          >
+            Đã hủy <span className="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs">{statusCounts.cancelled}</span>
+          </button>
+        </div>
+      </div>
+
       {/* BODY */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-6">
@@ -166,14 +234,14 @@ export default function SupplyReceiptsPage() {
                 </tr>
               </thead>
               <tbody>
-                {receipts.length === 0 ? (
+                {paginatedReceipts.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-4 py-12 text-center text-gray-400">
                       Chưa có phiếu nhập nào 📦
                     </td>
                   </tr>
                 ) : (
-                  receipts.map((r) => {
+                  paginatedReceipts.map((r) => {
                     const supplier = suppliers.find((s) => s.id === r.supplier_id);
                     return (
                       <tr key={r.id} className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200">
@@ -223,6 +291,14 @@ export default function SupplyReceiptsPage() {
               </tbody>
             </table>
           </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredReceipts.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
         </div>
       </div>
 

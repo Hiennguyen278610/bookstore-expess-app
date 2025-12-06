@@ -139,11 +139,11 @@ export const resendVerificationService = async (email) => {
 export const changePasswordService = async (userId, oldPassword, newPassword) => {
   const user = await User.findById(userId);
   if (!user){
-    throw new ErrorResponse('User not found', 404);
+    throw new ErrorResponse('Người dùng không tồn tại', 404);
   }
   const isMatch = await comparePassword(oldPassword, user.password);
   if (!isMatch) {
-    throw new ErrorResponse('Current password is incorrect', 401);
+    throw new ErrorResponse('Mật khẩu cũ không đúng', 401);
   }
   user.password = await hashPassword(newPassword);
   await user.save();
@@ -154,12 +154,12 @@ export const getProfileService = async (username) => {
   if (!user) {
     throw new ErrorResponse('User not found', 404);
   }
-  return { fullName: user.fullName, email: user.email, phone: user.phone };
+  return { fullName: user.fullName,username: user.username, email: user.email, phone: user.phone, id: user._id };
 };
 export const updateProfileService = async (userId, updateData) => {
   const user = await User.findById(userId)
   if (!user){
-    throw new ErrorResponse('User not found', 404);
+    throw new ErrorResponse('Người dùng không tồn tại', 404);
   }
   // check email/username/phone có tồn tại trong thằng user khác không
   if (updateData.email && updateData.email !== user.email){
@@ -168,7 +168,7 @@ export const updateProfileService = async (userId, updateData) => {
       _id: { $ne: userId } //not equal
     })
     if (existingEmail) {
-      throw new ErrorResponse('Email already exists', 400);
+      throw new ErrorResponse('Email đã tồn tại', 400);
     }
   }
   if (updateData.username && updateData.username !== user.username){
@@ -177,7 +177,7 @@ export const updateProfileService = async (userId, updateData) => {
       _id: { $ne: userId } //not equal
     })
     if (existingUsername) {
-      throw new ErrorResponse('Username already exists', )
+      throw new ErrorResponse('Tên đăng nhập đã tồn tại', 400 )
     }
   }
   if (updateData.phone && updateData.phone !== user.phone){
@@ -185,7 +185,11 @@ export const updateProfileService = async (userId, updateData) => {
       phone: updateData.phone,
       _id: { $ne: userId } //not equal
     })
+    if (existingPhone) {
+      throw new ErrorResponse('Số điện thoại đã tồn tại', 400)
+    }
   }
+
   // Cập nhật thông tin
   Object.keys(updateData).forEach(key => {
     if (updateData[key] !== undefined) {

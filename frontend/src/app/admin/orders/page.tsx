@@ -1,17 +1,40 @@
 "use client";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Plus, Pencil, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 
 import { orders as fakeOrders, users, books } from "../fakedata";
 import type { Order, OrderItem } from "@/types/order.type";
 import type { User } from "@/types/user.type";
 import type { Book } from "@/types/book.type";
+import Pagination from "../components/Pagination";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>(fakeOrders);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  // Filter và Pagination logic
+  const filteredOrders = statusFilter === "all" 
+    ? orders 
+    : orders.filter(o => o.purchase_status === statusFilter);
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Đếm số lượng theo từng trạng thái
+  const statusCounts = {
+    all: orders.length,
+    pending: orders.filter(o => o.purchase_status === "pending").length,
+    processing: orders.filter(o => o.purchase_status === "processing").length,
+    delivered: orders.filter(o => o.purchase_status === "delivered").length,
+    cancelled: orders.filter(o => o.purchase_status === "cancelled").length,
+  };
 
   const [formData, setFormData] = useState<Omit<Order, "id" | "total_price">>({
     user_id: "",
@@ -75,8 +98,17 @@ export default function OrdersPage() {
   const updateItem = (index: number, field: keyof OrderItem, value: any) => {
     setFormData((prev) => {
       const items = prev.items.map((it, i) => (i === index ? { ...it, [field]: value } : it));
-      // recalc sub_total for updated line
       const updated = items[index];
+      
+      // Nếu chọn sách mới, tự động lấy giá từ sách
+      if (field === "book_id" && value) {
+        const selectedBook = books.find((b: Book) => b.id === value);
+        if (selectedBook) {
+          updated.price = (selectedBook as any).price || 0;
+        }
+      }
+      
+      // recalc sub_total for updated line
       const qty = Number(updated.quantity) || 0;
       const pr = Number(updated.price) || 0;
       items[index] = { ...updated, quantity: qty, price: pr, sub_total: qty * pr };
@@ -170,6 +202,62 @@ export default function OrdersPage() {
         </div>
       </div>
 
+      {/* FILTER TABS */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-4">
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => { setStatusFilter("all"); setCurrentPage(1); }}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+              statusFilter === "all"
+                ? "bg-teal-600 text-white shadow-md"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            Tất cả <span className="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs">{statusCounts.all}</span>
+          </button>
+          <button
+            onClick={() => { setStatusFilter("pending"); setCurrentPage(1); }}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+              statusFilter === "pending"
+                ? "bg-amber-500 text-white shadow-md"
+                : "bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200"
+            }`}
+          >
+            Đang chờ <span className="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs">{statusCounts.pending}</span>
+          </button>
+          <button
+            onClick={() => { setStatusFilter("processing"); setCurrentPage(1); }}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+              statusFilter === "processing"
+                ? "bg-blue-500 text-white shadow-md"
+                : "bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200"
+            }`}
+          >
+            Đang xử lý <span className="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs">{statusCounts.processing}</span>
+          </button>
+          <button
+            onClick={() => { setStatusFilter("delivered"); setCurrentPage(1); }}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+              statusFilter === "delivered"
+                ? "bg-teal-500 text-white shadow-md"
+                : "bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200"
+            }`}
+          >
+            Đã giao <span className="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs">{statusCounts.delivered}</span>
+          </button>
+          <button
+            onClick={() => { setStatusFilter("cancelled"); setCurrentPage(1); }}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+              statusFilter === "cancelled"
+                ? "bg-red-500 text-white shadow-md"
+                : "bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"
+            }`}
+          >
+            Đã hủy <span className="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs">{statusCounts.cancelled}</span>
+          </button>
+        </div>
+      </div>
+
       {/* BODY */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-6">
@@ -186,19 +274,19 @@ export default function OrdersPage() {
                 </tr>
               </thead>
               <tbody>
-                {orders.length === 0 ? (
+                {paginatedOrders.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-4 py-12 text-center text-gray-400">
                       Chưa có đơn hàng nào 📦
                     </td>
                   </tr>
                 ) : (
-                  orders.map((order) => {
+                  paginatedOrders.map((order) => {
                     const user = users.find((u) => u.id === order.user_id);
                     const isExpanded = expandedOrders.has(order.id);
                     return (
-                      <>
-                        <tr key={order.id} className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200">
+                      <React.Fragment key={order.id}>
+                        <tr className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200">
                           <td className="px-4 py-4">
                             <button 
                               onClick={() => toggleExpand(order.id)}
@@ -279,13 +367,21 @@ export default function OrdersPage() {
                             </td>
                           </tr>
                         )}
-                      </>
+                      </React.Fragment>
                     );
                   })
                 )}
               </tbody>
             </table>
           </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={orders.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
         </div>
       </div>
 

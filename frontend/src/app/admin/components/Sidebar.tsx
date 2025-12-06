@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -10,10 +11,15 @@ import {
   Building2,
   FileText,
   BarChart3,
+  User,
+  Home,
+  LogOut,
 } from "lucide-react";
+import MyAccount from "./MyAccount";
 
 export default function Sidebar({ isOpen }: { isOpen: boolean }) {
   const pathname = usePathname();
+  const [showMyAccount, setShowMyAccount] = useState(false);
   
   const isActive = (path: string) => {
     if (path === "/admin") {
@@ -137,6 +143,45 @@ export default function Sidebar({ isOpen }: { isOpen: boolean }) {
           </span>
         </Link>
       </nav>
+
+      {/* Bottom Actions */}
+      <div className="absolute bottom-0 left-0 right-0 border-t border-gray-200 bg-white px-2 py-3 space-y-1">
+        <button
+          onClick={() => setShowMyAccount(true)}
+          className={`w-full flex items-center gap-3 px-4 py-3 pl-6 transition-all duration-300 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-emerald-700 ${isOpen ? "" : "justify-center"}`}
+        >
+          <User className="w-5 h-5 flex-shrink-0 text-gray-500" />
+          <span className={`whitespace-nowrap transition-all duration-500 ${isOpen ? "opacity-100 delay-300 max-w-[200px]" : "opacity-0 max-w-0 overflow-hidden"}`}>
+            Thông tin tài khoản
+          </span>
+        </button>
+
+        <Link
+          href="/"
+          className={`flex items-center gap-3 px-4 py-3 pl-6 transition-all duration-300 rounded-lg text-orange-600 hover:bg-orange-50 hover:text-orange-700 ${isOpen ? "" : "justify-center"}`}
+        >
+          <Home className="w-5 h-5 flex-shrink-0 text-orange-500" />
+          <span className={`whitespace-nowrap transition-all duration-500 ${isOpen ? "opacity-100 delay-300 max-w-[200px]" : "opacity-0 max-w-0 overflow-hidden"}`}>
+            Trở về trang chủ
+          </span>
+        </Link>
+
+        <button
+          onClick={() => {
+            // TODO: Add logout logic
+            console.log("Đăng xuất");
+          }}
+          className={`w-full flex items-center gap-3 px-4 py-3 pl-6 transition-all duration-300 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 ${isOpen ? "" : "justify-center"}`}
+        >
+          <LogOut className="w-5 h-5 flex-shrink-0 text-red-500" />
+          <span className={`whitespace-nowrap transition-all duration-500 ${isOpen ? "opacity-100 delay-300 max-w-[200px]" : "opacity-0 max-w-0 overflow-hidden"}`}>
+            Đăng xuất
+          </span>
+        </button>
+      </div>
+
+      {/* MyAccount Modal */}
+      <MyAccount isOpen={showMyAccount} onClose={() => setShowMyAccount(false)} />
     </aside>
   );
 }

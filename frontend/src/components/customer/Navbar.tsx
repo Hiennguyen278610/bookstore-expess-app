@@ -3,8 +3,8 @@
 import Image from 'next/image';
 import { LogOut, Star, User2 } from 'lucide-react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import CartIcon from './common/CartIcon';
-import SearchInput from './common/SearchInput';
+import CartIcon from './CartIcon';
+import SearchInput from './SearchInput';
 import Link from 'next/link';
 import { AuthDialog } from '@/components/auth-dialog';
 import { useUser } from '@/services/authservices';
@@ -22,7 +22,6 @@ import { Button } from '@/components/ui/button';
 
 export default function UserNavbar() {
   const { user, mutate } = useUser();
-  console.log("User: ", user)
 
   const handleLogout = async () => {
     await removeJWTfromCookie();
@@ -57,7 +56,6 @@ export default function UserNavbar() {
               <CartIcon />
             </Link>
 
-            {/* Mobile User Dropdown - Bỏ các border bao quanh */}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -74,8 +72,10 @@ export default function UserNavbar() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="cursor-pointer">
-                    Hồ sơ cá nhân
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link href="/account">
+                      Hồ sơ cá nhân
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer">
                     Đơn mua
@@ -95,15 +95,13 @@ export default function UserNavbar() {
           </div>
         </div>
 
-        {/* Dòng 2: Search Input Full Width */}
         <div className="px-4 w-full">
-          {/* Tái sử dụng SearchInput bạn vừa sửa, nó sẽ tự full width */}
           <SearchInput className="h-10 text-sm" />
         </div>
       </div>
 
 
-      {/* --- DESKTOP LAYOUT (Giữ nguyên như cũ) --- */}
+      {/* --- DESKTOP LAYOUT --- */}
       <div className="hidden lg:flex justify-between items-center py-4 w-full px-6 max-w-[1400px] mx-auto gap-8">
         <Link href="/" className="flex-shrink-0">
           <Image
@@ -150,7 +148,11 @@ export default function UserNavbar() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer">Hồ sơ cá nhân</DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href="/account">
+                    Hồ sơ cá nhân
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer">Đơn mua</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50">
@@ -161,7 +163,7 @@ export default function UserNavbar() {
             </DropdownMenu>
           ) : (
             <AuthDialog>
-              <Button className="rounded-full px-6 font-semibold shadow-md">
+              <Button className="rounded-full px-6 font-semibold shadow-md cursor-pointer">
                 Đăng nhập
               </Button>
             </AuthDialog>

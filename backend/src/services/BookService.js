@@ -98,3 +98,66 @@ export async function deleteBookService(id){
   await Book.findByIdAndDelete(book._id);
   return book;
 }
+
+export async function getAllBooksService(query) {
+  // 1. Lấy tham số (mặc định page 1, limit 12 cho đẹp giao diện lưới)
+  const page = parseInt(query.page) || 1;
+  const limit = parseInt(query.limit) || 12;
+  const search = query.search || '';
+  const categoryId = query.categoryId || null
+
+  // 2. Tạo filter tìm kiếm
+  const filter = {};
+  if (search) {
+    filter.name = { $regex: search, $options: 'i' };
+  }
+
+  if(categoryId) {
+    filter.categoryId = categoryId
+  }
+
+  const skip = (page - 1) * limit;
+
+  // 3. Query DB (Song song: Lấy data + Đếm tổng)
+  const [books, total] = await Promise.all([
+    Book.find(filter)
+      .populate('categoryId', 'name')   // Chỉ lấy tên Category
+      .populate('publisherId', 'name')  // Chỉ lấy tên NXB
+
+      // --- TỐI ƯU HÓA (Theo lời khuyên của bạn ông) ---
+      // Loại bỏ field 'description' (mô tả dài) và '__v'
+      // Nếu field mô tả của bạn tên là 'content' hay 'detail' thì đổi tên tương ứng nhé
+      .select('-description -__v')
+
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 }) // Sắp xếp mới nhất
+      .lean(),                 // Chuyển về Object thường để xử lý nhanh hơn
+
+    Book.countDocuments(filter)
+  ]);
+
+  // 4. Gắn tác giả vào sách (Vì dùng bảng trung gian)
+  const booksWithAuthors = await Promise.all(books.map(async (book) => {
+    // Tìm các record trong bảng trung gian BookAuthor
+    const authorsRel = await BookAuthor.find({ bookId: book._id })
+      .populate('authorId', 'name'); // Chỉ lấy tên tác giả
+
+    return {
+      ...book,
+      // Trả về mảng tác giả gọn gàng
+      authors: authorsRel.map(a => a.authorId),
+      // Mẹo nhỏ: Frontend muốn hiển thị 1 hình thì cứ lấy imageUrl[0]
+    };
+  }));
+  // 5. Trả về kết quả
+  return {
+    data: booksWithAuthors,
+    pagination: {
+      totalItems: total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      limit: limit
+    }
+  };
+}
