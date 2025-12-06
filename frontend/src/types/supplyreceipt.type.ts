@@ -1,5 +1,3 @@
-
-
 export interface SupplyReceipt {
   id: string;
   supplier_id: string;
