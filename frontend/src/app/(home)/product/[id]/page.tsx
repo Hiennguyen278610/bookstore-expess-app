@@ -9,11 +9,6 @@ import {
   MessageCircle,
   CheckCircle,
   ShoppingCart,
-  BookOpen,
-  Calendar,
-  Ruler,
-  Package,
-  Tag,
 } from "lucide-react";
 import ImageSlider from "../components/ImageSlider";
 

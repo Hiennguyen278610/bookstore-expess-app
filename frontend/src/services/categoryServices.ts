@@ -1,5 +1,5 @@
 import { baseUrl } from "@/constants";
-import publicApi from "@/lib/axios";
+import { publicApi } from "@/lib/axios";
 import { Category } from "@/types/category.type";
 
 export const categoryServices = {

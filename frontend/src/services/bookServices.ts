@@ -1,7 +1,6 @@
-import { baseUrl } from "@/constants";
-import publicApi from "@/lib/axios";
+import { publicApi } from "@/lib/axios";
 import { Book } from "@/types/book.type";
-import { ApiProductResponse } from "@/types/response.type";
+import { ApiResponse } from "@/types/response.type";
 
 export const bookServices = {
   getBooks: async (
@@ -13,7 +12,7 @@ export const bookServices = {
     minPrice?: number,
     maxPrice?: number,
     sortBy?: string
-  ): Promise<ApiProductResponse<Book[]>> => {
+  ): Promise<ApiResponse<Book[]>> => {
     try {
       const queryParams: Record<string, any> = {
         page,
@@ -31,7 +30,7 @@ export const bookServices = {
         queryParams.publishers = publishers.join(",");
       }
 
-      const response = await publicApi.get<ApiProductResponse<Book[]>>(
+      const response = await publicApi.get<ApiResponse<Book[]>>(
         `/books`,
         {
           params: queryParams,
