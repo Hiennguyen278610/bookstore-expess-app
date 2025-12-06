@@ -53,4 +53,14 @@ export const bookServices = {
       throw error;
     }
   },
+
+  getBookById: async (productId: string): Promise<Book> => {
+    try {
+      const response = await publicApi.get<Book>(`/books/${productId}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  },
 };
