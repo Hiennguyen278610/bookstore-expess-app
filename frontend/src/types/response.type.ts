@@ -1,4 +1,5 @@
 import { Book } from "./book.type";
+import { Cart } from "./cart.type";
 
 export interface Pagination {
   totalItems: number;
@@ -9,11 +10,12 @@ export interface Pagination {
   hasPrev?: boolean;
 }
 
-export interface ApiProductResponse<T = any> {
+export interface ApiResponse<T = any> {
   success?: boolean; 
   message: string;
   data: T;
   pagination?: Pagination;
 }
+
 
 

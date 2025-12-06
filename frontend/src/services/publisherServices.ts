@@ -1,4 +1,4 @@
-import publicApi from "@/lib/axios";
+import { publicApi } from "@/lib/axios";
 import { Publisher } from "@/types/publisher.type";
 
 export const publisherServices = {

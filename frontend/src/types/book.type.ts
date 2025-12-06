@@ -16,8 +16,8 @@ export interface Book_2 {
 export interface Book {
   _id: string;
   name: string;
-  categoryId : Category;
-  publisherId: Publisher;
+  category : Category;
+  publisher: Publisher;
   authors: Author[]
   imageUrl : string[];
   quantity: number;

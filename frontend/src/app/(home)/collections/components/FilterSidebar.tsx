@@ -169,7 +169,7 @@ const FilterSidebar = () => {
     state.publishers.length > 0;
 
   return (
-    <div className="h-full flex flex-col max-h-[200px] mb-50">
+    <div className="h-full flex flex-col max-h-[200px] lg:max-h-[400px] mb-50">
   <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 flex-1 flex flex-col">
     {/* Header */}
     <div className="hidden lg:flex items-center justify-between p-6 border-b border-gray-100 bg-gradient-to-r from-green-500 to-emerald-600 rounded-t-xl">
@@ -252,7 +252,7 @@ const FilterSidebar = () => {
             <div className="mb-3 text-sm text-gray-600">
               Đã chọn: <span className="font-medium">{state.publishers.length}/{publishersData.length}</span>
             </div>
-            <ScrollArea className="h-[180px] border rounded-md">
+            <ScrollArea className="h-[180px] lg:h-[280px] border rounded-md">
               <div className="p-3">
                 <CheckboxList
                   options={publishersData}
