@@ -43,4 +43,14 @@ export const bookServices = {
       throw error;
     }
   },
+
+  getMaxPrice: async (): Promise<number> => {
+    try {
+      const response = await publicApi.get<number>("/books/max-price");
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  },
 };

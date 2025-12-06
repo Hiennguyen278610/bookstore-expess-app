@@ -1,13 +1,17 @@
-import Book from '../models/Book.js';
-import BookAuthor from '../models/BookAuthor.js';
-import { deleteImageIntoCloudinary, uploadToCloudinary } from '../middlewares/uploadImage.js';
+import Book from "../models/Book.js";
+import BookAuthor from "../models/BookAuthor.js";
+import {
+  deleteImageIntoCloudinary,
+  uploadToCloudinary,
+} from "../middlewares/uploadImage.js";
 
 export async function createBookService(book, files) {
   try {
     let { name, categoryId, publisherId, quantity, price, authors } = book;
     authors = JSON.parse(authors);
-    if (!name || !categoryId || !publisherId || !authors) { // chan do phai fetch len neu du lieu loi
-      throw new Error('Can\'t upload image to cloudinary!');
+    if (!name || !categoryId || !publisherId || !authors) {
+      // chan do phai fetch len neu du lieu loi
+      throw new Error("Can't upload image to cloudinary!");
     }
     const imageUrl = await uploadToCloudinary(files);
     const newBook = await Book.create({
@@ -17,22 +21,24 @@ export async function createBookService(book, files) {
       imageUrl: imageUrl,
       quantity: quantity,
       price: price,
-    })
+    });
     if (authors && authors.length > 0) {
       await Promise.all(
-        authors.map(async item => {
+        authors.map(async (item) => {
           return await BookAuthor.create({
             bookId: newBook._id,
-            authorId: item.authorId
+            authorId: item.authorId,
           });
-        }));
+        })
+      );
     }
     const populatedBook = await Book.findById(newBook._id)
-      .populate('categoryId', 'name')
-      .populate('publisherId', 'name')
+      .populate("categoryId", "name")
+      .populate("publisherId", "name")
       .lean();
-    populatedBook.authors = await BookAuthor.find({ bookId: newBook._id })
-      .populate('authorId', 'name');
+    populatedBook.authors = await BookAuthor.find({
+      bookId: newBook._id,
+    }).populate("authorId", "name");
     return populatedBook;
   } catch (err) {
     throw new Error(err.message);
@@ -57,41 +63,45 @@ export async function updateBookService(id, data, files) {
       for (const author of authors) {
         newAuthors.push({
           bookId: book._id,
-          authorId: author.authorId
+          authorId: author.authorId,
         });
       }
       await BookAuthor.insertMany(newAuthors);
     }
   }
-  await deleteImageIntoCloudinary(book.imageUrl)
+  await deleteImageIntoCloudinary(book.imageUrl);
   const imageUrl = await uploadToCloudinary(files);
   book.imageUrl = imageUrl;
-  await book.save()
+  await book.save();
   const populatedBook = await Book.findById(book._id)
-    .populate('categoryId', 'name')
-    .populate('publisherId', 'name')
+    .populate("categoryId", "name")
+    .populate("publisherId", "name")
     .lean();
-  populatedBook.authors = await BookAuthor.find({ bookId: book._id })
-    .populate('authorId', 'name');
+  populatedBook.authors = await BookAuthor.find({ bookId: book._id }).populate(
+    "authorId",
+    "name"
+  );
   return populatedBook;
 }
-export async function findBookService(_id){
+export async function findBookService(_id) {
   const book = await Book.findById(_id)
-    .populate('categoryId', 'name')
-    .populate('publisherId', 'name')
-    .lean()
-  if (!book){
+    .populate("categoryId", "name")
+    .populate("publisherId", "name")
+    .lean();
+  if (!book) {
     throw new Error(`Book with id ${_id} not found`);
   }
-  const authors = await BookAuthor.find({ bookId: book._id })
-    .populate('authorId', 'name');
-  book.authors = authors.map(a => a.authorId.name);
+  const authors = await BookAuthor.find({ bookId: book._id }).populate(
+    "authorId",
+    "name"
+  );
+  book.authors = authors.map((a) => a.authorId.name);
   return book;
 }
 
-export async function deleteBookService(id){
-  const book = await Book.findById(id)
-  if (!book){
+export async function deleteBookService(id) {
+  const book = await Book.findById(id);
+  if (!book) {
     throw new Error(`Book with id ${_id} not found`);
   }
   await BookAuthor.deleteMany({ bookId: book._id });
@@ -104,23 +114,21 @@ export async function getAllBooksService(query) {
     // 1. Parse query parameters
     const page = Math.max(1, parseInt(query.page) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(query.limit) || 12));
-    const search = query.search?.trim() || '';
+    const search = query.search?.trim() || "";
     const categoryId = query.categoryId || null;
     const minPrice = query.minPrice ? Number(query.minPrice) : null;
     const maxPrice = query.maxPrice ? Number(query.maxPrice) : null;
-    const sortBy = query.sortBy || 'newest';
+    const sortBy = query.sortBy || "newest";
 
     let publisherIds = [];
-    
+
     if (query.publishers) {
-      if (typeof query.publishers === 'string') {
-        publisherIds = query.publishers.split(',').filter(id => id.trim());
-      } 
-      else if (Array.isArray(query.publishers)) {
-        publisherIds = query.publishers.filter(id => id && id.trim());
+      if (typeof query.publishers === "string") {
+        publisherIds = query.publishers.split(",").filter((id) => id.trim());
+      } else if (Array.isArray(query.publishers)) {
+        publisherIds = query.publishers.filter((id) => id && id.trim());
       }
-    }
-    else if (query.publisherId) {
+    } else if (query.publisherId) {
       publisherIds = [query.publisherId];
     }
 
@@ -129,7 +137,7 @@ export async function getAllBooksService(query) {
 
     // Search filter
     if (search) {
-      filter.name = { $regex: search, $options: 'i' };
+      filter.name = { $regex: search, $options: "i" };
     }
 
     // Category filter
@@ -144,11 +152,11 @@ export async function getAllBooksService(query) {
     // Price range filter
     if (minPrice !== null || maxPrice !== null) {
       filter.price = {};
-      
+
       if (minPrice !== null) {
         filter.price.$gte = minPrice;
       }
-      
+
       if (maxPrice !== null) {
         filter.price.$lte = maxPrice;
       }
@@ -159,19 +167,19 @@ export async function getAllBooksService(query) {
     // 3. Build sort options
     let sortOptions = {};
     switch (sortBy) {
-      case 'price_asc':
+      case "price_asc":
         sortOptions = { price: 1 };
         break;
-      case 'price_desc':
+      case "price_desc":
         sortOptions = { price: -1 };
         break;
-      case 'name_asc':
+      case "name_asc":
         sortOptions = { name: 1 };
         break;
-      case 'name_desc':
+      case "name_desc":
         sortOptions = { name: -1 };
         break;
-      case 'oldest':
+      case "oldest":
         sortOptions = { createdAt: 1 };
         break;
       default:
@@ -181,28 +189,28 @@ export async function getAllBooksService(query) {
     // 4. Query database
     const [books, total] = await Promise.all([
       Book.find(filter)
-        .populate('categoryId', 'name')
-        .populate('publisherId', 'name')
+        .populate("categoryId", "name")
+        .populate("publisherId", "name")
         .skip(skip)
         .limit(limit)
         .sort(sortOptions)
         .lean(),
-      Book.countDocuments(filter)
+      Book.countDocuments(filter),
     ]);
 
     // 5. Get authors for all books in one query
     if (books.length > 0) {
-      const bookIds = books.map(book => book._id);
-      
-      const allAuthorsRel = await BookAuthor.find({ 
-        bookId: { $in: bookIds } 
+      const bookIds = books.map((book) => book._id);
+
+      const allAuthorsRel = await BookAuthor.find({
+        bookId: { $in: bookIds },
       })
-      .populate('authorId', 'name')
-      .lean();
+        .populate("authorId", "name")
+        .lean();
 
       // Group authors by bookId
       const authorsByBookId = {};
-      allAuthorsRel.forEach(rel => {
+      allAuthorsRel.forEach((rel) => {
         const bookId = rel.bookId.toString();
         if (!authorsByBookId[bookId]) {
           authorsByBookId[bookId] = [];
@@ -211,15 +219,15 @@ export async function getAllBooksService(query) {
       });
 
       // Attach authors to books
-      const booksWithAuthors = books.map(book => ({
+      const booksWithAuthors = books.map((book) => ({
         ...book,
         authors: authorsByBookId[book._id.toString()] || [],
-        mainImage: book.imageUrl?.[0] || '/images/default-book.jpg',
+        mainImage: book.imageUrl?.[0] || "/images/default-book.jpg",
       }));
 
       return {
         success: true,
-        message: 'Get all books successfully',
+        message: "Get all books successfully",
         data: booksWithAuthors,
         pagination: {
           totalItems: total,
@@ -233,15 +241,15 @@ export async function getAllBooksService(query) {
           publishers: publisherIds,
           hasCategory: !!categoryId,
           hasPriceFilter: minPrice !== null || maxPrice !== null,
-          hasSearch: !!search
-        }
+          hasSearch: !!search,
+        },
       };
     }
 
     // 6. Return empty result
     return {
       success: true,
-      message: 'Get all books successfully',
+      message: "Get all books successfully",
       data: [],
       pagination: {
         totalItems: total,
@@ -255,12 +263,25 @@ export async function getAllBooksService(query) {
         publishers: publisherIds,
         hasCategory: !!categoryId,
         hasPriceFilter: minPrice !== null || maxPrice !== null,
-        hasSearch: !!search
-      }
+        hasSearch: !!search,
+      },
     };
-
   } catch (error) {
-    console.error('Error in getAllBooksService:', error);
+    console.error("Error in getAllBooksService:", error);
     throw error;
+  }
+}
+
+export async function getMaxPriceService() {
+  try {
+    const maxPriceBook = await Book.findOne({ isDeleted: false })
+      .sort({ price: -1 })
+      .select("price")
+      .lean();
+
+    return maxPriceBook?.price || 0;
+  } catch (error) {
+    console.error("Error getting max price:", error);
+    return 0;
   }
 }
