@@ -7,7 +7,7 @@ import { bookServices } from "@/services/bookServices";
 import ProductGrid from "../components/ProductGrid";
 import FilterSidebar from "../components/FilterSidebar";
 import { parseSearchParams } from "@/lib/utils";
-
+import ProductPagination from "../components/ProductPagination";
 
 const Page = async ({ params, searchParams }: ProductsPageProps) => {
   const [resolvedParams, resolvedSearchParams] = await Promise.all([
@@ -40,7 +40,6 @@ const Page = async ({ params, searchParams }: ProductsPageProps) => {
   return (
     <div className="min-h-screen">
       <div className="w-full px-4 mt-4 max-w-7xl mx-auto">
-        {/* Enhanced Breadcrumb */}
         <nav className="flex justify-start my-6">
           <ol className="flex items-center gap-2 text-sm">
             <li>
@@ -92,6 +91,14 @@ const Page = async ({ params, searchParams }: ProductsPageProps) => {
               categoryName={category.name}
               products={data.data}
               totalCount={data.pagination?.totalItems || 0}
+            />
+
+            <ProductPagination
+              categorySlug={categorySlug}
+              currentPage={data.pagination?.currentPage || 1}
+              totalPages={data.pagination?.totalPages || 1}
+              hasNext={data.pagination?.hasNext || false}
+              hasPrev={data.pagination?.hasPrev || false}
             />
           </div>
         </div>

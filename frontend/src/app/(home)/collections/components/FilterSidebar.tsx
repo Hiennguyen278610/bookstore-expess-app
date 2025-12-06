@@ -16,6 +16,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { roundPrice } from "@/lib/utils";
 import { publisherServices } from "@/services/publisherServices";
 import CheckboxList from "./CheckboxList";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface FilterState {
   publishers: string[];
@@ -168,90 +169,112 @@ const FilterSidebar = () => {
     state.publishers.length > 0;
 
   return (
-    <div className="h-full flex flex-col overflow-y-auto max-h-[100%]">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 flex-1 flex flex-col">
-        {/* Header */}
-        <div className="hidden lg:flex items-center justify-between p-6 border-b border-gray-100 bg-gradient-to-r from-green-500 to-emerald-600 rounded-t-xl flex-shrink-0">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-white/20 rounded-lg">
-              <Filter className="w-5 h-5 text-white" />
+    <div className="h-full flex flex-col max-h-[200px] mb-50">
+  <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 flex-1 flex flex-col">
+    {/* Header */}
+    <div className="hidden lg:flex items-center justify-between p-6 border-b border-gray-100 bg-gradient-to-r from-green-500 to-emerald-600 rounded-t-xl">
+      <div className="flex items-center space-x-3">
+        <div className="p-2 bg-white/20 rounded-lg">
+          <Filter className="w-5 h-5 text-white" />
+        </div>
+        <h2 className="text-xl font-bold text-white">Bộ lọc</h2>
+      </div>
+      <button
+        onClick={handleReset}
+        disabled={!hasActiveFilters}
+        className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+          hasActiveFilters
+            ? "bg-white/20 hover:bg-white/30 text-white"
+            : "bg-white/10 text-white/50 cursor-not-allowed"
+        }`}
+      >
+        <RotateCcw className="w-4 h-4" />
+        <span className="text-sm font-medium">Reset</span>
+      </button>
+    </div>
+
+    <div className="flex-1 overflow-y-auto p-6 space-y-6">
+      {/* Price Filter */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-gray-800">Giá sản phẩm</h3>
+          {priceRange[0] > 0 || priceRange[1] < maxPrice ? (
+            <button
+              onClick={() => handlePriceRangeChange([0, maxPrice])}
+              className="text-xs text-green-600 hover:text-green-700"
+            >
+              Đặt lại
+            </button>
+          ) : null}
+        </div>
+        
+        {maxPrice > 0 ? (
+          <>
+            <Slider
+              min={0}
+              max={maxPrice}
+              step={Math.floor(maxPrice / 20)}
+              value={priceRange}
+              onValueChange={handlePriceRangeChange}
+            />
+            <div className="flex justify-between text-xs text-gray-500 mt-2">
+              <span>0đ</span>
+              <span className="font-medium text-green-600">
+                {priceRange[0].toLocaleString("vi-VN")}đ - {priceRange[1].toLocaleString("vi-VN")}đ
+              </span>
+              <span>{maxPrice.toLocaleString("vi-VN")}đ</span>
             </div>
-            <h2 className="text-xl font-bold text-white">Bộ lọc</h2>
-          </div>
-          <button
-            onClick={handleReset}
-            disabled={!hasActiveFilters}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 backdrop-blur-sm ${
-              hasActiveFilters
-                ? "bg-white/20 hover:bg-white/30 text-white"
-                : "bg-white/10 text-white/50 cursor-not-allowed"
-            }`}
-          >
-            <RotateCcw className="w-4 h-4" />
-            <span className="text-sm font-medium">Reset</span>
-          </button>
-        </div>
+          </>
+        ) : (
+          <p className="text-gray-500 text-sm">Đang tải dữ liệu giá...</p>
+        )}
+      </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
-          <Accordion
-            type="multiple"
-            defaultValue={["item-1", "item-2"]}
-            className="w-full space-y-4"
-          >
-            {/* Price Filter */}
-            <MyAccordion value="item-1" title="Giá sản phẩm">
-              <div className="pt-4">
-                {maxPrice > 0 ? (
-                  <>
-                    <Slider
-                      min={0}
-                      max={maxPrice}
-                      step={Math.floor(maxPrice / 20)}
-                      value={priceRange}
-                      onValueChange={handlePriceRangeChange}
-                      className="mt-2"
-                    />
-                    <div className="flex justify-between text-sm text-gray-600 mt-3">
-                      <span>0đ</span>
-                      <span className="font-medium text-green-600">
-                        {priceRange[0].toLocaleString("vi-VN")}đ -{" "}
-                        {priceRange[1].toLocaleString("vi-VN")}đ
-                      </span>
-                      <span>{maxPrice.toLocaleString("vi-VN")}đ</span>
-                    </div>
-                  </>
-                ) : (
-                  <p className="text-gray-500 text-sm">Không có dữ liệu giá</p>
-                )}
+      {/* Divider */}
+      <div className="border-t border-gray-100"></div>
+
+      {/* Publisher Filter */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-gray-800">Nhà xuất bản</h3>
+          {state.publishers.length > 0 ? (
+            <button
+              onClick={() => handlePublisherChange([])}
+              className="text-xs text-green-600 hover:text-green-700"
+            >
+              Bỏ chọn tất cả
+            </button>
+          ) : null}
+        </div>
+        
+        {publishersData && publishersData.length > 0 ? (
+          <>
+            <div className="mb-3 text-sm text-gray-600">
+              Đã chọn: <span className="font-medium">{state.publishers.length}/{publishersData.length}</span>
+            </div>
+            <ScrollArea className="h-[180px] border rounded-md">
+              <div className="p-3">
+                <CheckboxList
+                  options={publishersData}
+                  selected={state.publishers}
+                  onChange={handlePublisherChange}
+                  searchable={true}
+                  maxHeight="none"
+                />
               </div>
-            </MyAccordion>
-
-            {/* Publisher Filter */}
-            {publishersData && publishersData.length > 0 ? (
-              <MyAccordion value="item-2" title="Nhà xuất bản">
-                <div className="pt-3 pb-2">
-                  <CheckboxList
-                    options={publishersData}
-                    selected={state.publishers}
-                    onChange={handlePublisherChange}
-                    searchable={true}
-                    maxHeight="none"
-                  />
-                </div>
-              </MyAccordion>
-            ) : (
-              !isLoadingPublishers && (
-                <MyAccordion value="item-2" title="🏢 Nhà xuất bản">
-                  <div className="pt-3 pb-2 text-center text-gray-500 text-sm">
-                    Không có dữ liệu nhà xuất bản
-                  </div>
-                </MyAccordion>
-              )
-            )}
-          </Accordion>
-        </div>
+            </ScrollArea>
+          </>
+        ) : !isLoadingPublishers ? (
+          <p className="text-gray-500 text-sm">Không có nhà xuất bản</p>
+        ) : (
+          <div className="flex justify-center py-2">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
+          </div>
+        )}
       </div>
     </div>
+  </div>
+</div>
   );
 };
 

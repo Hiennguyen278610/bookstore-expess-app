@@ -68,7 +68,7 @@ const ProductGrid = ({
     );
   }
   return (
-    <section className="w-full">
+    <section className="w-full min-h-[120vh]">
       {/* Enhanced Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
         <div className="flex items-center gap-4 mb-4 sm:mb-0">
