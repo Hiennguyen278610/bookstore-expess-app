@@ -1,4 +1,3 @@
-"use client";
 
 import { testCardBooks } from "@/constants/user.index";
 import BannerSlider from "./components/Banner";

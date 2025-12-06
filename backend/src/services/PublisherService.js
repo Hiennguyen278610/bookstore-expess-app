@@ -28,3 +28,7 @@ export async function deletePublisherService(_id) {
 export async function getPublisherByIdService(_id) {
   return Publisher.findById(_id);
 }
+
+export async function getAllPublishersService() {
+  return Publisher.find()
+}

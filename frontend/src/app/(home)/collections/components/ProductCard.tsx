@@ -5,15 +5,15 @@ import Link from "next/link";
 import React from "react";
 
 export interface ProductCardProps {
-  id: string;
+  _id: string;
   name: string;
   price: number;
   imgSrc: string;
 }
 
-const ProductCard = ({ id, name, price, imgSrc }: ProductCardProps) => {
+const ProductCard = ({ _id, name, price, imgSrc }: ProductCardProps) => {
   return (
-    <Link href={`/product/${id}`} className="no-underline hover:no-underline">
+    <Link href={`/product/${_id}`} className="no-underline hover:no-underline">
       <div className="border border-green-200 relative bg-white p-3 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group cursor-pointer flex flex-col">
         <div className="px-3 py-2">
           <Image
