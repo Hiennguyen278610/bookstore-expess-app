@@ -100,64 +100,167 @@ export async function deleteBookService(id){
 }
 
 export async function getAllBooksService(query) {
-  // 1. Lấy tham số (mặc định page 1, limit 12 cho đẹp giao diện lưới)
-  const page = parseInt(query.page) || 1;
-  const limit = parseInt(query.limit) || 12;
-  const search = query.search || '';
-  const categoryId = query.categoryId || null
+  try {
+    // 1. Parse query parameters
+    const page = Math.max(1, parseInt(query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(query.limit) || 12));
+    const search = query.search?.trim() || '';
+    const categoryId = query.categoryId || null;
+    const minPrice = query.minPrice ? Number(query.minPrice) : null;
+    const maxPrice = query.maxPrice ? Number(query.maxPrice) : null;
+    const sortBy = query.sortBy || 'newest';
 
-  // 2. Tạo filter tìm kiếm
-  const filter = {};
-  if (search) {
-    filter.name = { $regex: search, $options: 'i' };
-  }
-
-  if(categoryId) {
-    filter.categoryId = categoryId
-  }
-
-  const skip = (page - 1) * limit;
-
-  // 3. Query DB (Song song: Lấy data + Đếm tổng)
-  const [books, total] = await Promise.all([
-    Book.find(filter)
-      .populate('categoryId', 'name')   // Chỉ lấy tên Category
-      .populate('publisherId', 'name')  // Chỉ lấy tên NXB
-
-      // --- TỐI ƯU HÓA (Theo lời khuyên của bạn ông) ---
-      // Loại bỏ field 'description' (mô tả dài) và '__v'
-      // Nếu field mô tả của bạn tên là 'content' hay 'detail' thì đổi tên tương ứng nhé
-      .select('-description -__v')
-
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 }) // Sắp xếp mới nhất
-      .lean(),                 // Chuyển về Object thường để xử lý nhanh hơn
-
-    Book.countDocuments(filter)
-  ]);
-
-  // 4. Gắn tác giả vào sách (Vì dùng bảng trung gian)
-  const booksWithAuthors = await Promise.all(books.map(async (book) => {
-    // Tìm các record trong bảng trung gian BookAuthor
-    const authorsRel = await BookAuthor.find({ bookId: book._id })
-      .populate('authorId', 'name'); // Chỉ lấy tên tác giả
-
-    return {
-      ...book,
-      // Trả về mảng tác giả gọn gàng
-      authors: authorsRel.map(a => a.authorId),
-      // Mẹo nhỏ: Frontend muốn hiển thị 1 hình thì cứ lấy imageUrl[0]
-    };
-  }));
-  // 5. Trả về kết quả
-  return {
-    data: booksWithAuthors,
-    pagination: {
-      totalItems: total,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
-      limit: limit
+    let publisherIds = [];
+    
+    if (query.publishers) {
+      if (typeof query.publishers === 'string') {
+        publisherIds = query.publishers.split(',').filter(id => id.trim());
+      } 
+      else if (Array.isArray(query.publishers)) {
+        publisherIds = query.publishers.filter(id => id && id.trim());
+      }
     }
-  };
+    else if (query.publisherId) {
+      publisherIds = [query.publisherId];
+    }
+
+    // 2. Build filter
+    const filter = { isDeleted: false };
+
+    // Search filter
+    if (search) {
+      filter.name = { $regex: search, $options: 'i' };
+    }
+
+    // Category filter
+    if (categoryId) {
+      filter.categoryId = categoryId;
+    }
+
+    if (publisherIds.length > 0) {
+      filter.publisherId = { $in: publisherIds };
+    }
+
+    // Price range filter
+    if (minPrice !== null || maxPrice !== null) {
+      filter.price = {};
+      
+      if (minPrice !== null) {
+        filter.price.$gte = minPrice;
+      }
+      
+      if (maxPrice !== null) {
+        filter.price.$lte = maxPrice;
+      }
+    }
+
+    const skip = (page - 1) * limit;
+
+    // 3. Build sort options
+    let sortOptions = {};
+    switch (sortBy) {
+      case 'price_asc':
+        sortOptions = { price: 1 };
+        break;
+      case 'price_desc':
+        sortOptions = { price: -1 };
+        break;
+      case 'name_asc':
+        sortOptions = { name: 1 };
+        break;
+      case 'name_desc':
+        sortOptions = { name: -1 };
+        break;
+      case 'oldest':
+        sortOptions = { createdAt: 1 };
+        break;
+      default:
+        sortOptions = { createdAt: -1 };
+    }
+
+    // 4. Query database
+    const [books, total] = await Promise.all([
+      Book.find(filter)
+        .populate('categoryId', 'name')
+        .populate('publisherId', 'name')
+        .skip(skip)
+        .limit(limit)
+        .sort(sortOptions)
+        .lean(),
+      Book.countDocuments(filter)
+    ]);
+
+    // 5. Get authors for all books in one query
+    if (books.length > 0) {
+      const bookIds = books.map(book => book._id);
+      
+      const allAuthorsRel = await BookAuthor.find({ 
+        bookId: { $in: bookIds } 
+      })
+      .populate('authorId', 'name')
+      .lean();
+
+      // Group authors by bookId
+      const authorsByBookId = {};
+      allAuthorsRel.forEach(rel => {
+        const bookId = rel.bookId.toString();
+        if (!authorsByBookId[bookId]) {
+          authorsByBookId[bookId] = [];
+        }
+        authorsByBookId[bookId].push(rel.authorId);
+      });
+
+      // Attach authors to books
+      const booksWithAuthors = books.map(book => ({
+        ...book,
+        authors: authorsByBookId[book._id.toString()] || [],
+        mainImage: book.imageUrl?.[0] || '/images/default-book.jpg',
+      }));
+
+      return {
+        success: true,
+        message: 'Get all books successfully',
+        data: booksWithAuthors,
+        pagination: {
+          totalItems: total,
+          totalPages: Math.ceil(total / limit),
+          currentPage: page,
+          limit: limit,
+          hasNext: page < Math.ceil(total / limit),
+          hasPrev: page > 1,
+        },
+        filtersApplied: {
+          publishers: publisherIds,
+          hasCategory: !!categoryId,
+          hasPriceFilter: minPrice !== null || maxPrice !== null,
+          hasSearch: !!search
+        }
+      };
+    }
+
+    // 6. Return empty result
+    return {
+      success: true,
+      message: 'Get all books successfully',
+      data: [],
+      pagination: {
+        totalItems: total,
+        totalPages: Math.ceil(total / limit),
+        currentPage: page,
+        limit: limit,
+        hasNext: false,
+        hasPrev: false,
+      },
+      filtersApplied: {
+        publishers: publisherIds,
+        hasCategory: !!categoryId,
+        hasPriceFilter: minPrice !== null || maxPrice !== null,
+        hasSearch: !!search
+      }
+    };
+
+  } catch (error) {
+    console.error('Error in getAllBooksService:', error);
+    throw error;
+  }
 }

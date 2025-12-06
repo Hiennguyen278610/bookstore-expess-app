@@ -40,7 +40,7 @@ export const deleteBook = async (req, res) => {
 }
 export const getBooks = async (req, res) => {
   try {
-    // req.query sẽ chứa: ?page=1&limit=10&search=harry
+    //  {{baseURL}}/api/v1/books?categoryId=693249f925621faf76f24394&maxPrice=100000&sortBy=price_asc
     const result = await getAllBooksService(req.query);
 
     res.status(200).json({

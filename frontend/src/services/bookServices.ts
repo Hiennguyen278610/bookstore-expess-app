@@ -1,5 +1,46 @@
-export const getBooks = async () => {
-  try {
-    
-  } catch (error) {}
+import { baseUrl } from "@/constants";
+import publicApi from "@/lib/axios";
+import { Book } from "@/types/book.type";
+import { ApiProductResponse } from "@/types/response.type";
+
+export const bookServices = {
+  getBooks: async (
+    page: number = 1,
+    limit: number = 12,
+    categoryId: string,
+    publishers?: string[],
+    search?: string,
+    minPrice?: number,
+    maxPrice?: number,
+    sortBy?: string
+  ): Promise<ApiProductResponse<Book[]>> => {
+    try {
+      const queryParams: Record<string, any> = {
+        page,
+        limit,
+        categoryId,
+      };
+
+      if (search?.trim()) queryParams.search = search.trim();
+      if (minPrice !== undefined && minPrice >= 0)
+        queryParams.minPrice = minPrice;
+      if (maxPrice !== undefined && maxPrice >= 0)
+        queryParams.maxPrice = maxPrice;
+      if (sortBy) queryParams.sortBy = sortBy;
+      if (publishers && publishers.length > 0) {
+        queryParams.publishers = publishers.join(",");
+      }
+
+      const response = await publicApi.get<ApiProductResponse<Book[]>>(
+        `/books`,
+        {
+          params: queryParams,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  },
 };
