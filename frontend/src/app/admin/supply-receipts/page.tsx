@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import { supplyReceipts as fakeReceipts, suppliers, books, users } from "../fakedata";
+import { supplyReceipts as fakeReceipts, suppliers, books, users } from "@/app/admin/fakedata";
 import type { SupplyReceipt, SupplyItem } from "@/types/supplyreceipt.type";
 import type { Supplier } from "@/types/supplier.type";
 import type { Book } from "@/types/book.type";
@@ -96,13 +96,27 @@ export default function SupplyReceiptsPage() {
     if (editing) {
       setReceipts((prev) =>
         prev.map((r) =>
-          r.id === editing.id ? { ...formData, id: r.id, total_amount: total } : r
+          r.id === editing.id
+            ? {
+                id: r.id,
+                supplier_id: formData.supplier_id,
+                admin_id: formData.admin_id,
+                supply_date: formData.supply_date,
+                supply_status: formData.supply_status,
+                items: formData.items,
+                total_amount: total,
+              }
+            : r
         )
       );
     } else {
       const newReceipt: SupplyReceipt = {
         id: `r${Date.now()}`,
-        ...formData,
+        supplier_id: formData.supplier_id,
+        admin_id: formData.admin_id,
+        supply_date: formData.supply_date,
+        supply_status: formData.supply_status,
+        items: formData.items,
         total_amount: total,
       };
       setReceipts((prev) => [...prev, newReceipt]);
@@ -119,99 +133,114 @@ export default function SupplyReceiptsPage() {
   };
 
   return (
-    <div className="p-4">
-      {/* Header */}
-      <div className="flex justify-between items-center bg-[#B18F7C] px-5 py-3 rounded-t-md">
-        <h2 className="text-white text-lg font-semibold">Phiếu nhập hàng</h2>
-        <button
-          onClick={() => openModal()}
-          className="flex items-center gap-2 bg-[#D1B892] text-[#6B4E2E] font-semibold px-4 py-2 rounded-xl hover:bg-[#E6D6B8] transition"
-        >
-          <Plus className="w-4 h-4" /> Thêm phiếu nhập
-        </button>
-      </div>
-
-      {/* Body */}
-      <div className="p-5 bg-[#F9F6EC] rounded-b-md shadow-inner">
-        <div className="bg-white rounded-md shadow-sm border border-[#E6D6B8] overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-[#D1B892]">
-              <tr>
-                <th className="px-4 py-3 text-left text-[#6B4E2E] font-semibold">Mã phiếu</th>
-                <th className="px-4 py-3 text-left text-[#6B4E2E] font-semibold">Nhà cung cấp</th>
-                <th className="px-4 py-3 text-left text-[#6B4E2E] font-semibold">Ngày nhập</th>
-                <th className="px-4 py-3 text-left text-[#6B4E2E] font-semibold">Trạng thái</th>
-                <th className="px-4 py-3 text-right text-[#6B4E2E] font-semibold">Tổng tiền</th>
-                <th className="px-4 py-3 text-center text-[#6B4E2E] font-semibold">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {receipts.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-[#6B4E2E] italic">
-                    Chưa có phiếu nhập nào 📦
-                  </td>
-                </tr>
-              ) : (
-                receipts.map((r) => {
-                  const supplier = suppliers.find((s) => s.id === r.supplier_id);
-                  return (
-                    <tr key={r.id} className="border-t border-[#E6D6B8] hover:bg-[#F9F6EC] transition">
-                      <td className="px-4 py-3 text-[#6B4E2E] font-medium">{r.id}</td>
-                      <td className="px-4 py-3 text-[#6B4E2E]">{supplier?.name || "Không rõ"}</td>
-                      <td className="px-4 py-3 text-[#6B4E2E]">
-                        {new Date(r.supply_date).toLocaleDateString("vi-VN")}
-                      </td>
-                      <td className="px-4 py-3 text-[#6B4E2E] capitalize">
-                        {r.supply_status === "completed"
-                          ? "Hoàn tất"
-                          : r.supply_status === "cancelled"
-                          ? "Đã hủy"
-                          : "Đang xử lý"}
-                      </td>
-                      <td className="px-4 py-3 text-right text-[#6B4E2E] font-semibold">
-                        {r.total_amount.toLocaleString("vi-VN")} ₫
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <div className="flex justify-center gap-2">
-                          <button
-                            onClick={() => openModal(r)}
-                            className="p-2 bg-[#D1B892] text-[#6B4E2E] rounded-lg hover:bg-[#C0A57A] transition"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(r.id)}
-                            className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+    <div className="p-6 bg-gray-100 min-h-screen">
+      {/* HEADER */}
+      <div className="bg-white border-l-4 border-teal-600 px-6 py-5 rounded-lg shadow-sm mb-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-gray-800 text-2xl font-bold">Quản lý phiếu nhập hàng</h2>
+            <p className="text-gray-600 text-sm mt-1">Quản lý thông tin nhập hàng từ nhà cung cấp</p>
+          </div>
+          <button
+            onClick={() => openModal()}
+            className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg hover:shadow-lg transition-all duration-300"
+          >
+            <Plus className="w-4 h-4" /> Thêm phiếu nhập
+          </button>
         </div>
       </div>
 
-      {/* Modal thêm/sửa */}
+      {/* BODY */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="p-6">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-100 border-b border-gray-200">
+                <tr>
+                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Mã phiếu</th>
+                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Nhà cung cấp</th>
+                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Ngày nhập</th>
+                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Trạng thái</th>
+                  <th className="px-4 py-3 text-right text-gray-700 font-semibold text-sm">Tổng tiền</th>
+                  <th className="px-4 py-3 text-center text-gray-700 font-semibold text-sm">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {receipts.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-12 text-center text-gray-400">
+                      Chưa có phiếu nhập nào 📦
+                    </td>
+                  </tr>
+                ) : (
+                  receipts.map((r) => {
+                    const supplier = suppliers.find((s) => s.id === r.supplier_id);
+                    return (
+                      <tr key={r.id} className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200">
+                        <td className="px-4 py-4 text-gray-800 font-medium">{r.id}</td>
+                        <td className="px-4 py-4 text-gray-600">{supplier?.name || "Không rõ"}</td>
+                        <td className="px-4 py-4 text-gray-600">
+                          {new Date(r.supply_date).toLocaleDateString("vi-VN")}
+                        </td>
+                        <td className="px-4 py-4">
+                          <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium capitalize ${
+                            r.supply_status === "completed"
+                              ? "bg-teal-50 text-teal-700 border border-teal-200"
+                              : r.supply_status === "cancelled"
+                              ? "bg-red-50 text-red-700 border border-red-200"
+                              : "bg-amber-50 text-amber-700 border border-amber-200"
+                          }`}>
+                            {r.supply_status === "completed"
+                              ? "Hoàn tất"
+                              : r.supply_status === "cancelled"
+                              ? "Đã hủy"
+                              : "Đang xử lý"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 text-right text-gray-800 font-semibold">
+                          {r.total_amount.toLocaleString("vi-VN")} ₫
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="flex justify-center gap-2">
+                            <button
+                              onClick={() => openModal(r)}
+                              className="p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-all duration-200"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(r.id)}
+                              className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-200"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-semibold text-[#6B4E2E] mb-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <h3 className="text-xl font-bold text-gray-800 mb-5 pb-3 border-b-2 border-emerald-600">
               {editing ? "Sửa phiếu nhập" : "Thêm phiếu nhập mới"}
             </h3>
 
             {/* Nhà cung cấp */}
             <div className="mb-4">
-              <label className="block text-[#6B4E2E] mb-1 font-medium">Nhà cung cấp *</label>
+              <label className="block text-gray-700 mb-2 font-medium text-sm">Nhà cung cấp *</label>
               <select
                 value={formData.supplier_id}
                 onChange={(e) => setFormData({ ...formData, supplier_id: e.target.value })}
-                className="w-full border border-[#D1B892] px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C0A57A]"
+                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               >
                 <option value="">-- Chọn nhà cung cấp --</option>
                 {suppliers.map((s) => (
@@ -225,18 +254,18 @@ export default function SupplyReceiptsPage() {
             {/* Ngày và trạng thái */}
             <div className="flex gap-4 mb-4">
               <div className="flex-1">
-                <label className="block text-[#6B4E2E] mb-1 font-medium">Ngày nhập *</label>
+                <label className="block text-gray-700 mb-2 font-medium text-sm">Ngày nhập *</label>
                 <input
                   type="date"
                   value={formData.supply_date}
                   onChange={(e) =>
                     setFormData({ ...formData, supply_date: e.target.value })
                   }
-                  className="w-full border border-[#D1B892] px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C0A57A]"
+                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
               </div>
               <div className="flex-1">
-                <label className="block text-[#6B4E2E] mb-1 font-medium">Trạng thái *</label>
+                <label className="block text-gray-700 mb-2 font-medium text-sm">Trạng thái *</label>
                 <select
                   value={formData.supply_status}
                   onChange={(e) =>
@@ -245,7 +274,7 @@ export default function SupplyReceiptsPage() {
                       supply_status: e.target.value as SupplyReceipt["supply_status"],
                     })
                   }
-                  className="w-full border border-[#D1B892] px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C0A57A]"
+                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 >
                   <option value="pending">Đang xử lý</option>
                   <option value="completed">Hoàn tất</option>
@@ -256,7 +285,7 @@ export default function SupplyReceiptsPage() {
 
             {/* Sản phẩm */}
             <div className="mb-4">
-              <label className="block text-[#6B4E2E] mb-2 font-medium">Chi tiết sản phẩm *</label>
+              <label className="block text-gray-700 mb-2 font-medium text-sm">Chi tiết sản phẩm *</label>
               <div className="space-y-3">
                 {formData.items.map((item, index) => (
                   <div key={index} className="flex gap-2 items-center">
@@ -265,7 +294,7 @@ export default function SupplyReceiptsPage() {
                       onChange={(e) =>
                         updateItem(index, "book_id", e.target.value)
                       }
-                      className="border border-[#D1B892] px-2 py-2 rounded-md flex-1"
+                      className="border border-gray-300 px-3 py-2.5 rounded-lg flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     >
                       <option value="">Chọn sách</option>
                       {books.map((b) => (
@@ -281,7 +310,7 @@ export default function SupplyReceiptsPage() {
                       onChange={(e) =>
                         updateItem(index, "quantity", Number(e.target.value))
                       }
-                      className="w-24 border border-[#D1B892] px-2 py-2 rounded-md"
+                      className="w-24 border border-gray-300 px-3 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       placeholder="SL"
                     />
                     <input
@@ -291,15 +320,15 @@ export default function SupplyReceiptsPage() {
                       onChange={(e) =>
                         updateItem(index, "import_price", Number(e.target.value))
                       }
-                      className="w-32 border border-[#D1B892] px-2 py-2 rounded-md"
+                      className="w-32 border border-gray-300 px-3 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       placeholder="Giá nhập"
                     />
-                    <span className="w-28 text-right text-[#6B4E2E]">
+                    <span className="w-28 text-right text-gray-800 font-medium">
                       {item.sub_amount.toLocaleString("vi-VN")} ₫
                     </span>
                     <button
                       onClick={() => removeItem(index)}
-                      className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition"
+                      className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-200"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -308,28 +337,28 @@ export default function SupplyReceiptsPage() {
               </div>
               <button
                 onClick={addItem}
-                className="mt-3 flex items-center gap-2 text-[#6B4E2E] font-medium hover:text-[#8B6F5C] transition"
+                className="mt-3 flex items-center gap-2 text-emerald-700 font-medium hover:text-emerald-800 transition"
               >
                 <Plus className="w-4 h-4" /> Thêm sản phẩm
               </button>
             </div>
 
             {/* Tổng tiền */}
-            <div className="text-right text-[#6B4E2E] font-semibold mb-4">
+            <div className="text-right text-gray-800 font-bold text-lg mb-4 pb-4 border-t border-gray-200 pt-4">
               Tổng tiền: {calcTotal(formData.items).toLocaleString("vi-VN")} ₫
             </div>
 
             {/* Buttons */}
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-3">
               <button
                 onClick={handleSubmit}
-                className="flex-1 bg-[#B18F7C] text-white px-4 py-2 rounded-lg hover:bg-[#8B6F5C] transition font-semibold"
+                className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2.5 rounded-lg hover:shadow-lg transition-all duration-300 font-semibold"
               >
                 {editing ? "Cập nhật" : "Thêm mới"}
               </button>
               <button
                 onClick={resetForm}
-                className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition font-semibold"
+                className="flex-1 bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg hover:bg-gray-300 transition-all duration-300 font-semibold"
               >
                 Hủy
               </button>

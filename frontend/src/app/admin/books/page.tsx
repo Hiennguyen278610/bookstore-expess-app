@@ -122,138 +122,147 @@ export default function BooksPage() {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-6 bg-gray-100 min-h-screen">
       {/* HEADER */}
-      <div className="flex justify-between items-center bg-[#B18F7C] px-5 py-3 rounded-t-md">
-        <h2 className="text-white text-lg font-semibold">Tất cả sách</h2>
-        <button
-          onClick={() => openModal()}
-          className="flex items-center gap-2 bg-[#D1B892] text-[#6B4E2E] font-semibold px-4 py-2 rounded-xl hover:bg-[#E6D6B8] transition"
-        >
-          <Plus className="w-4 h-4" /> Thêm sách
-        </button>
+      <div className="bg-white border-l-4 border-teal-600 px-6 py-5 rounded-lg shadow-sm mb-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-gray-800 text-2xl font-bold">Quản lý sách</h2>
+            <p className="text-gray-600 text-sm mt-1">Quản lý thông tin sách trong cửa hàng</p>
+          </div>
+          <button
+            onClick={() => openModal()}
+            className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg hover:shadow-lg transition-all duration-300"
+          >
+            <Plus className="w-4 h-4" /> Thêm sách
+          </button>
+        </div>
       </div>
 
       {/* BODY */}
-      <div className="p-5 bg-[#F9F6EC] rounded-b-md shadow-inner">
-        <div className="flex gap-4 mb-4">
-          <div className="relative w-1/2">
-            <input
-              placeholder="Nhập tên sách cần tìm..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="border border-[#D1B892] bg-white px-3 py-2 pl-10 rounded-md w-full text-[#6B4E2E] focus:outline-none focus:ring-2 focus:ring-[#C0A57A]"
-            />
-            <Search className="w-5 h-5 text-[#B18F7C] absolute left-3 top-2.5" />
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="relative">
+              <input
+                placeholder="Nhập tên sách cần tìm..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="border border-gray-300 bg-white px-4 py-2.5 pl-10 rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              />
+              <Search className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+            </div>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="border border-gray-300 bg-white px-4 py-2.5 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            >
+              <option value="all">Tất cả thể loại</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
           </div>
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="border border-[#D1B892] bg-white px-3 py-2 rounded-md w-1/2 text-[#6B4E2E] focus:outline-none focus:ring-2 focus:ring-[#C0A57A]"
-          >
-            <option value="all">Tất cả thể loại</option>
-            {categories.map(cat => (
-              <option key={cat.id} value={cat.id}>{cat.name}</option>
-            ))}
-          </select>
-        </div>
 
-        {/* TABLE */}
-        <div className="bg-white rounded-md shadow-sm border border-[#E6D6B8] overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-[#D1B892]">
-              <tr>
-                <th className="px-4 py-3 text-left text-[#6B4E2E] font-semibold">Hình ảnh</th>
-                <th className="px-4 py-3 text-left text-[#6B4E2E] font-semibold">Tên sách</th>
-                <th className="px-4 py-3 text-left text-[#6B4E2E] font-semibold">Thể loại</th>
-                <th className="px-4 py-3 text-left text-[#6B4E2E] font-semibold">Tác giả</th>
-                <th className="px-4 py-3 text-left text-[#6B4E2E] font-semibold">NXB</th>
-                <th className="px-4 py-3 text-right text-[#6B4E2E] font-semibold">Số lượng</th>
-                <th className="px-4 py-3 text-right text-[#6B4E2E] font-semibold">Giá</th>
-                <th className="px-4 py-3 text-center text-[#6B4E2E] font-semibold">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredBooks.length === 0 ? (
+          {/* TABLE */}
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-100 border-b border-gray-200">
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-[#6B4E2E] italic">
-                    Không tìm thấy sách nào 📚
-                  </td>
+                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Hình ảnh</th>
+                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Tên sách</th>
+                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Thể loại</th>
+                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Tác giả</th>
+                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">NXB</th>
+                  <th className="px-4 py-3 text-right text-gray-700 font-semibold text-sm">Số lượng</th>
+                  <th className="px-4 py-3 text-right text-gray-700 font-semibold text-sm">Giá</th>
+                  <th className="px-4 py-3 text-center text-gray-700 font-semibold text-sm">Thao tác</th>
                 </tr>
-              ) : (
-                filteredBooks.map(book => (
-                  <tr key={book.id} className="border-t border-[#E6D6B8] hover:bg-[#F9F6EC] transition">
-                    <td className="px-4 py-3">
-                      <img
-                        src={book.imageUrl}
-                        alt={book.name}
-                        className="w-12 h-16 object-cover rounded border border-[#D1B892]"
-                      />
-                    </td>
-                    <td className="px-4 py-3 text-[#6B4E2E] font-medium">{book.name}</td>
-                    <td className="px-4 py-3 text-[#6B4E2E]">{getCategoryName(book.category_id)}</td>
-                    <td className="px-4 py-3 text-[#6B4E2E]">{getAuthorNames((book as any).author_ids || [])}</td>
-                    <td className="px-4 py-3 text-[#6B4E2E]">{getPublisherName(book.publisher_id)}</td>
-                    <td className="px-4 py-3 text-right text-[#6B4E2E]">
-                      <span className={`px-2 py-1 rounded ${
-                        book.quantity > 10 ? "bg-green-100 text-green-700" :
-                        book.quantity > 5 ? "bg-yellow-100 text-yellow-700" :
-                        "bg-red-100 text-red-700"
-                      }`}>
-                        {book.quantity}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right text-[#6B4E2E] font-semibold">{formatPrice(book.price)}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex justify-center gap-2">
-                        <button
-                          onClick={() => openModal(book as any)}
-                          className="p-2 bg-[#D1B892] text-[#6B4E2E] rounded-lg hover:bg-[#C0A57A] transition"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(book.id)}
-                          className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+              </thead>
+              <tbody>
+                {filteredBooks.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="px-4 py-12 text-center text-gray-400">
+                      Không tìm thấy sách nào 📚
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  filteredBooks.map(book => (
+                    <tr key={book.id} className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200">
+                      <td className="px-4 py-3">
+                        <img
+                          src={book.imageUrl}
+                          alt={book.name}
+                          className="w-12 h-16 object-cover rounded border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-4 py-4 text-gray-800 font-medium">{book.name}</td>
+                      <td className="px-4 py-4 text-gray-600">{getCategoryName(book.category_id)}</td>
+                      <td className="px-4 py-4 text-gray-600">{getAuthorNames((book as any).author_ids || [])}</td>
+                      <td className="px-4 py-4 text-gray-600">{getPublisherName(book.publisher_id)}</td>
+                      <td className="px-4 py-4 text-right">
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                          book.quantity > 10 
+                            ? "bg-teal-50 text-teal-700 border border-teal-200" 
+                            : book.quantity > 5 
+                            ? "bg-amber-50 text-amber-700 border border-amber-200" 
+                            : "bg-red-50 text-red-700 border border-red-200"
+                        }`}>
+                          {book.quantity}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-right text-gray-800 font-semibold">{formatPrice(book.price)}</td>
+                      <td className="px-4 py-4">
+                        <div className="flex justify-center gap-2">
+                          <button
+                            onClick={() => openModal(book as any)}
+                            className="p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-all duration-200"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(book.id)}
+                            className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-200"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
       {/* MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-semibold text-[#6B4E2E] mb-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <h3 className="text-xl font-bold text-gray-800 mb-5 pb-3 border-b-2 border-emerald-600">
               {editingBook ? "Sửa thông tin sách" : "Thêm sách mới"}
             </h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
-                <label className="block text-[#6B4E2E] mb-1 font-medium">Tên sách *</label>
+                <label className="block text-gray-700 mb-2 font-medium text-sm">Tên sách *</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full border border-[#D1B892] px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C0A57A]"
+                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="Nhập tên sách"
                 />
               </div>
 
               {/* Category */}
               <div>
-                <label className="block text-[#6B4E2E] mb-1 font-medium">Thể loại *</label>
+                <label className="block text-gray-700 mb-2 font-medium text-sm">Thể loại *</label>
                 <select
                   value={formData.category_id}
                   onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                  className="w-full border border-[#D1B892] px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C0A57A]"
+                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 >
                   <option value="">Chọn thể loại</option>
                   {categories.map(c => (
@@ -264,11 +273,11 @@ export default function BooksPage() {
 
               {/* Publisher */}
               <div>
-                <label className="block text-[#6B4E2E] mb-1 font-medium">Nhà xuất bản *</label>
+                <label className="block text-gray-700 mb-2 font-medium text-sm">Nhà xuất bản *</label>
                 <select
                   value={formData.publisher_id}
                   onChange={(e) => setFormData({ ...formData, publisher_id: e.target.value })}
-                  className="w-full border border-[#D1B892] px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C0A57A]"
+                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 >
                   <option value="">Chọn NXB</option>
                   {publishers.map(p => (
@@ -279,17 +288,17 @@ export default function BooksPage() {
 
               {/* Authors */}
               <div className="col-span-2">
-                <label className="block text-[#6B4E2E] mb-1 font-medium">Tác giả *</label>
-                <div className="border border-[#D1B892] rounded-md p-3 bg-gray-50 max-h-32 overflow-y-auto">
+                <label className="block text-gray-700 mb-2 font-medium text-sm">Tác giả *</label>
+                <div className="border border-gray-300 rounded-lg p-3 bg-gray-50 max-h-32 overflow-y-auto">
                   {authors.map(a => (
-                    <label key={a.id} className="flex items-center gap-2 mb-2">
+                    <label key={a.id} className="flex items-center gap-2 mb-2 cursor-pointer hover:bg-gray-100 p-1 rounded">
                       <input
                         type="checkbox"
                         checked={formData.author_ids.includes(a.id)}
                         onChange={() => toggleAuthor(a.id)}
-                        className="w-4 h-4 text-[#B18F7C]"
+                        className="w-4 h-4 text-emerald-600 rounded focus:ring-2 focus:ring-emerald-500"
                       />
-                      <span className="text-[#6B4E2E]">{a.name}</span>
+                      <span className="text-gray-700 text-sm">{a.name}</span>
                     </label>
                   ))}
                 </div>
@@ -297,33 +306,33 @@ export default function BooksPage() {
 
               {/* Quantity & Price */}
               <div>
-                <label className="block text-[#6B4E2E] mb-1 font-medium">Số lượng *</label>
+                <label className="block text-gray-700 mb-2 font-medium text-sm">Số lượng *</label>
                 <input
                   type="number"
                   value={formData.quantity}
                   onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
-                  className="w-full border border-[#D1B892] px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C0A57A]"
+                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-[#6B4E2E] mb-1 font-medium">Giá (VNĐ) *</label>
+                <label className="block text-gray-700 mb-2 font-medium text-sm">Giá (VNĐ) *</label>
                 <input
                   type="number"
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })}
-                  className="w-full border border-[#D1B892] px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C0A57A]"
+                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
               </div>
 
               {/* Image */}
               <div className="col-span-2">
-                <label className="block text-[#6B4E2E] mb-1 font-medium">URL hình ảnh</label>
+                <label className="block text-gray-700 mb-2 font-medium text-sm">URL hình ảnh</label>
                 <input
                   type="text"
                   value={formData.imageUrl}
                   onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
                   placeholder="https://example.com/image.jpg"
-                  className="w-full border border-[#D1B892] px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C0A57A]"
+                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -332,13 +341,13 @@ export default function BooksPage() {
             <div className="flex gap-3 pt-6">
               <button
                 onClick={handleSubmit}
-                className="flex-1 bg-[#B18F7C] text-white px-4 py-2 rounded-lg hover:bg-[#8B6F5C] transition font-semibold"
+                className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2.5 rounded-lg hover:shadow-lg transition-all duration-300 font-semibold"
               >
                 {editingBook ? "Cập nhật" : "Thêm mới"}
               </button>
               <button
                 onClick={resetForm}
-                className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition font-semibold"
+                className="flex-1 bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg hover:bg-gray-300 transition-all duration-300 font-semibold"
               >
                 Hủy
               </button>

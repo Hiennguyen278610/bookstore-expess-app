@@ -153,143 +153,181 @@ export default function OrdersPage() {
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n);
 
   return (
-    <div className="p-4">
-      {/* Header */}
-      <div className="flex justify-between items-center bg-[#B18F7C] px-5 py-3 rounded-t-md">
-        <h2 className="text-white text-lg font-semibold">Đơn hàng</h2>
-        <button
-          onClick={() => openModal()}
-          className="flex items-center gap-2 bg-[#D1B892] text-[#6B4E2E] font-semibold px-4 py-2 rounded-xl hover:bg-[#E6D6B8] transition"
-        >
-          <Plus className="w-4 h-4" /> Thêm đơn hàng
-        </button>
-      </div>
-
-      {/* Body */}
-      <div className="p-5 bg-[#F9F6EC] rounded-b-md shadow-inner">
-        <div className="bg-white rounded-md shadow-sm border border-[#E6D6B8] overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-[#D1B892]">
-              <tr>
-                <th className="px-4 py-3 text-left text-[#6B4E2E] font-semibold">Mã đơn</th>
-                <th className="px-4 py-3 text-left text-[#6B4E2E] font-semibold">Khách hàng</th>
-                <th className="px-4 py-3 text-left text-[#6B4E2E] font-semibold">Ngày mua</th>
-                <th className="px-4 py-3 text-left text-[#6B4E2E] font-semibold">Tổng tiền</th>
-                <th className="px-4 py-3 text-left text-[#6B4E2E] font-semibold">Trạng thái</th>
-                <th className="px-4 py-3 text-center text-[#6B4E2E] font-semibold">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-[#6B4E2E] italic">
-                    Chưa có đơn hàng nào 📦
-                  </td>
-                </tr>
-              ) : (
-                orders.map((order) => {
-                  const user = users.find((u) => u.id === order.user_id);
-                  const isExpanded = expandedOrders.has(order.id);
-                  return (
-                    <>
-                      <tr key={order.id} className="border-t border-[#E6D6B8] hover:bg-[#F9F6EC] transition">
-                        <td className="px-4 py-3 text-[#6B4E2E]">
-                          <button 
-                            onClick={() => toggleExpand(order.id)}
-                            className="flex items-center gap-2 hover:text-[#8B6F5C] transition"
-                          >
-                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                            {order.id}
-                          </button>
-                        </td>
-                        <td className="px-4 py-3 text-[#6B4E2E]">{user?.fullName || "Không rõ"}</td>
-                        <td className="px-4 py-3 text-[#6B4E2E]">{new Date(order.purchase_date).toLocaleDateString("vi-VN")}</td>
-                        <td className="px-4 py-3 text-[#6B4E2E]">{formatVND(order.total_price)}</td>
-                        <td className="px-4 py-3 text-[#6B4E2E] capitalize">{order.purchase_status}</td>
-                        <td className="px-4 py-3 text-center">
-                          <div className="flex justify-center gap-2">
-                            <button onClick={() => openModal(order)} className="p-2 bg-[#D1B892] text-[#6B4E2E] rounded-lg hover:bg-[#C0A57A] transition">
-                              <Pencil className="w-4 h-4" />
-                            </button>
-                            <button onClick={() => handleDelete(order.id)} className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      {isExpanded && (
-                        <tr className="bg-[#F9F6EC]">
-                          <td colSpan={6} className="px-8 py-4">
-                            <div className="bg-white rounded-lg p-4 shadow-sm border border-[#E6D6B8]">
-                              <h4 className="font-semibold text-[#6B4E2E] mb-3">Chi tiết đơn hàng:</h4>
-                              <table className="w-full">
-                                <thead className="bg-[#F9F6EC]">
-                                  <tr>
-                                    <th className="px-3 py-2 text-left text-[#6B4E2E] font-medium">Sách</th>
-                                    <th className="px-3 py-2 text-center text-[#6B4E2E] font-medium">Số lượng</th>
-                                    <th className="px-3 py-2 text-right text-[#6B4E2E] font-medium">Đơn giá</th>
-                                    <th className="px-3 py-2 text-right text-[#6B4E2E] font-medium">Thành tiền</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {order.items.map((item, idx) => {
-                                    const book = books.find((b: Book) => b.id === item.book_id);
-                                    return (
-                                      <tr key={idx} className="border-t border-[#E6D6B8]">
-                                        <td className="px-3 py-2 text-[#6B4E2E]">
-                                          {(book as any)?.title || (book as any)?.name || "Không tìm thấy sách"}
-                                        </td>
-                                        <td className="px-3 py-2 text-center text-[#6B4E2E]">{item.quantity}</td>
-                                        <td className="px-3 py-2 text-right text-[#6B4E2E]">{formatVND(item.price)}</td>
-                                        <td className="px-3 py-2 text-right text-[#6B4E2E] font-semibold">{formatVND(item.sub_total)}</td>
-                                      </tr>
-                                    );
-                                  })}
-                                  <tr className="border-t-2 border-[#B18F7C]">
-                                    <td colSpan={3} className="px-3 py-2 text-right text-[#6B4E2E] font-semibold">Tổng cộng:</td>
-                                    <td className="px-3 py-2 text-right text-[#6B4E2E] font-bold text-lg">{formatVND(order.total_price)}</td>
-                                  </tr>
-                                </tbody>
-                              </table>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+    <div className="p-6 bg-gray-100 min-h-screen">
+      {/* HEADER */}
+      <div className="bg-white border-l-4 border-teal-600 px-6 py-5 rounded-lg shadow-sm mb-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-gray-800 text-2xl font-bold">Quản lý đơn hàng</h2>
+            <p className="text-gray-600 text-sm mt-1">Quản lý thông tin đơn hàng trong cửa hàng</p>
+          </div>
+          <button
+            onClick={() => openModal()}
+            className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg hover:shadow-lg transition-all duration-300"
+          >
+            <Plus className="w-4 h-4" /> Thêm đơn hàng
+          </button>
         </div>
       </div>
 
-      {/* Modal */}
+      {/* BODY */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="p-6">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-100 border-b border-gray-200">
+                <tr>
+                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Mã đơn</th>
+                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Khách hàng</th>
+                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Ngày mua</th>
+                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Tổng tiền</th>
+                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Trạng thái</th>
+                  <th className="px-4 py-3 text-center text-gray-700 font-semibold text-sm">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-12 text-center text-gray-400">
+                      Chưa có đơn hàng nào 📦
+                    </td>
+                  </tr>
+                ) : (
+                  orders.map((order) => {
+                    const user = users.find((u) => u.id === order.user_id);
+                    const isExpanded = expandedOrders.has(order.id);
+                    return (
+                      <>
+                        <tr key={order.id} className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200">
+                          <td className="px-4 py-4">
+                            <button 
+                              onClick={() => toggleExpand(order.id)}
+                              className="flex items-center gap-2 text-gray-800 font-medium hover:text-emerald-700 transition"
+                            >
+                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                              {order.id}
+                            </button>
+                          </td>
+                          <td className="px-4 py-4 text-gray-600">{user?.fullName || "Không rõ"}</td>
+                          <td className="px-4 py-4 text-gray-600">{new Date(order.purchase_date).toLocaleDateString("vi-VN")}</td>
+                          <td className="px-4 py-4 text-gray-800 font-semibold">{formatVND(order.total_price)}</td>
+                          <td className="px-4 py-4">
+                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium capitalize ${
+                              order.purchase_status === "delivered" 
+                                ? "bg-teal-50 text-teal-700 border border-teal-200" 
+                                : order.purchase_status === "processing" 
+                                ? "bg-blue-50 text-blue-700 border border-blue-200"
+                                : order.purchase_status === "cancelled"
+                                ? "bg-red-50 text-red-700 border border-red-200"
+                                : "bg-amber-50 text-amber-700 border border-amber-200"
+                            }`}>
+                              {order.purchase_status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4">
+                            <div className="flex justify-center gap-2">
+                              <button 
+                                onClick={() => openModal(order)} 
+                                className="p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-all duration-200"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </button>
+                              <button 
+                                onClick={() => handleDelete(order.id)} 
+                                className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-200"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                        {isExpanded && (
+                          <tr className="bg-gray-50">
+                            <td colSpan={6} className="px-8 py-4">
+                              <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                                <h4 className="font-semibold text-gray-800 mb-3">Chi tiết đơn hàng:</h4>
+                                <table className="w-full">
+                                  <thead className="bg-gray-50">
+                                    <tr>
+                                      <th className="px-3 py-2 text-left text-gray-700 font-medium text-sm">Sách</th>
+                                      <th className="px-3 py-2 text-center text-gray-700 font-medium text-sm">Số lượng</th>
+                                      <th className="px-3 py-2 text-right text-gray-700 font-medium text-sm">Đơn giá</th>
+                                      <th className="px-3 py-2 text-right text-gray-700 font-medium text-sm">Thành tiền</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {order.items.map((item, idx) => {
+                                      const book = books.find((b: Book) => b.id === item.book_id);
+                                      return (
+                                        <tr key={idx} className="border-t border-gray-200">
+                                          <td className="px-3 py-2 text-gray-600">
+                                            {(book as any)?.title || (book as any)?.name || "Không tìm thấy sách"}
+                                          </td>
+                                          <td className="px-3 py-2 text-center text-gray-600">{item.quantity}</td>
+                                          <td className="px-3 py-2 text-right text-gray-600">{formatVND(item.price)}</td>
+                                          <td className="px-3 py-2 text-right text-gray-800 font-semibold">{formatVND(item.sub_total)}</td>
+                                        </tr>
+                                      );
+                                    })}
+                                    <tr className="border-t-2 border-emerald-600">
+                                      <td colSpan={3} className="px-3 py-2 text-right text-gray-700 font-semibold">Tổng cộng:</td>
+                                      <td className="px-3 py-2 text-right text-gray-800 font-bold text-lg">{formatVND(order.total_price)}</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-semibold text-[#6B4E2E] mb-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <h3 className="text-xl font-bold text-gray-800 mb-5 pb-3 border-b-2 border-emerald-600">
               {editingOrder ? "Sửa đơn hàng" : "Thêm đơn hàng mới"}
             </h3>
 
             {/* Customer & date & status */}
             <div className="grid grid-cols-3 gap-4 mb-4">
               <div>
-                <label className="block text-[#6B4E2E] mb-1 font-medium">Khách hàng *</label>
-                <select value={formData.user_id} onChange={(e) => setFormData({ ...formData, user_id: e.target.value })} className="w-full border border-[#D1B892] px-3 py-2 rounded-md">
+                <label className="block text-gray-700 mb-2 font-medium text-sm">Khách hàng *</label>
+                <select 
+                  value={formData.user_id} 
+                  onChange={(e) => setFormData({ ...formData, user_id: e.target.value })} 
+                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                >
                   <option value="">-- Chọn khách hàng --</option>
                   {users.filter(u => u.role === "customer").map(u => <option key={u.id} value={u.id}>{u.fullName}</option>)}
                 </select>
               </div>
 
               <div>
-                <label className="block text-[#6B4E2E] mb-1 font-medium">Ngày mua *</label>
-                <input type="date" value={formData.purchase_date} onChange={(e) => setFormData({ ...formData, purchase_date: e.target.value })} className="w-full border border-[#D1B892] px-3 py-2 rounded-md" />
+                <label className="block text-gray-700 mb-2 font-medium text-sm">Ngày mua *</label>
+                <input 
+                  type="date" 
+                  value={formData.purchase_date} 
+                  onChange={(e) => setFormData({ ...formData, purchase_date: e.target.value })} 
+                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" 
+                />
               </div>
 
               <div>
-                <label className="block text-[#6B4E2E] mb-1 font-medium">Trạng thái *</label>
-                <select value={formData.purchase_status} onChange={(e) => setFormData({ ...formData, purchase_status: e.target.value as Order["purchase_status"] })} className="w-full border border-[#D1B892] px-3 py-2 rounded-md">
+                <label className="block text-gray-700 mb-2 font-medium text-sm">Trạng thái *</label>
+                <select 
+                  value={formData.purchase_status} 
+                  onChange={(e) => setFormData({ ...formData, purchase_status: e.target.value as Order["purchase_status"] })} 
+                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                >
                   <option value="pending">pending</option>
                   <option value="processing">processing</option>
                   <option value="delivered">delivered</option>
@@ -300,21 +338,42 @@ export default function OrdersPage() {
 
             {/* Items */}
             <div className="mb-4">
-              <label className="block text-[#6B4E2E] mb-2 font-medium">Sản phẩm *</label>
+              <label className="block text-gray-700 mb-2 font-medium text-sm">Sản phẩm *</label>
               <div className="space-y-3">
                 {formData.items.map((it, idx) => {
                   const book = books.find((b: Book) => b.id === it.book_id);
                   return (
                     <div key={idx} className="flex gap-2 items-center">
-                      <select value={it.book_id} onChange={(e) => updateItem(idx, "book_id", e.target.value)} className="border border-[#D1B892] px-2 py-2 rounded-md flex-1">
+                      <select 
+                        value={it.book_id} 
+                        onChange={(e) => updateItem(idx, "book_id", e.target.value)} 
+                        className="border border-gray-300 px-3 py-2.5 rounded-lg flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      >
                         <option value="">Chọn sách</option>
                         {books.map((b: Book) => <option key={b.id} value={b.id}>{(b as any).title || (b as any).name || b.id}</option>)}
                       </select>
 
-                      <input type="number" min={1} value={it.quantity} onChange={(e) => updateItem(idx, "quantity", Number(e.target.value))} className="w-24 border border-[#D1B892] px-2 py-2 rounded-md" />
-                      <input type="number" min={0} value={it.price} onChange={(e) => updateItem(idx, "price", Number(e.target.value))} className="w-32 border border-[#D1B892] px-2 py-2 rounded-md" />
-                      <div className="w-32 text-right text-[#6B4E2E]">{formatVND(it.sub_total)}</div>
-                      <button onClick={() => removeItem(idx)} className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition">
+                      <input 
+                        type="number" 
+                        min={1} 
+                        value={it.quantity} 
+                        onChange={(e) => updateItem(idx, "quantity", Number(e.target.value))} 
+                        className="w-24 border border-gray-300 px-3 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" 
+                        placeholder="SL"
+                      />
+                      <input 
+                        type="number" 
+                        min={0} 
+                        value={it.price} 
+                        onChange={(e) => updateItem(idx, "price", Number(e.target.value))} 
+                        className="w-32 border border-gray-300 px-3 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" 
+                        placeholder="Giá"
+                      />
+                      <div className="w-32 text-right text-gray-800 font-medium">{formatVND(it.sub_total)}</div>
+                      <button 
+                        onClick={() => removeItem(idx)} 
+                        className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-200"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -322,20 +381,31 @@ export default function OrdersPage() {
                 })}
               </div>
 
-              <button onClick={addItem} className="mt-3 flex items-center gap-2 text-[#6B4E2E] font-medium hover:text-[#8B6F5C] transition">
+              <button 
+                onClick={addItem} 
+                className="mt-3 flex items-center gap-2 text-emerald-700 font-medium hover:text-emerald-800 transition"
+              >
                 <Plus className="w-4 h-4" /> Thêm sản phẩm
               </button>
             </div>
 
             {/* Total */}
-            <div className="text-right text-[#6B4E2E] font-semibold mb-4">Tổng tiền: {formatVND(calcTotal(formData.items as OrderItem[]))}</div>
+            <div className="text-right text-gray-800 font-bold text-lg mb-4 pb-4 border-t border-gray-200 pt-4">
+              Tổng tiền: {formatVND(calcTotal(formData.items as OrderItem[]))}
+            </div>
 
             {/* buttons */}
             <div className="flex gap-3">
-              <button onClick={handleSubmit} className="flex-1 bg-[#B18F7C] text-white px-4 py-2 rounded-lg hover:bg-[#8B6F5C] transition font-semibold">
+              <button 
+                onClick={handleSubmit} 
+                className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2.5 rounded-lg hover:shadow-lg transition-all duration-300 font-semibold"
+              >
                 {editingOrder ? "Cập nhật" : "Thêm mới"}
               </button>
-              <button onClick={resetForm} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition font-semibold">
+              <button 
+                onClick={resetForm} 
+                className="flex-1 bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg hover:bg-gray-300 transition-all duration-300 font-semibold"
+              >
                 Hủy
               </button>
             </div>

@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Book,
@@ -23,17 +24,17 @@ export default function Sidebar({ isOpen }: { isOpen: boolean }) {
 
   const getItemClass = (path: string) => {
     const active = isActive(path);
-    return `flex items-center gap-3 px-4 py-3 pl-6 transition-all duration-500 rounded-md ${
+    return `flex items-center gap-3 px-4 py-3 pl-6 transition-all duration-300 rounded-lg ${
       active
-        ? "bg-[#D1B892] text-[#6B4E2E] shadow-md scale-105"
-        : "text-[#6B4E2E] hover:bg-[#D1B892] hover:shadow-sm"
+        ? "bg-emerald-600 text-white shadow-sm"
+        : "text-gray-600 hover:bg-gray-100 hover:text-emerald-700"
     } ${isOpen ? "" : "justify-center"}`;
   };
 
   const getIconClass = (path: string) => {
     const active = isActive(path);
     return `w-5 h-5 flex-shrink-0 transition-all duration-300 ${
-      active ? "text-[#6B4E2E] scale-110" : "text-[#6B4E2E]"
+      active ? "text-white" : "text-gray-500"
     }`;
   };
 
@@ -50,23 +51,23 @@ export default function Sidebar({ isOpen }: { isOpen: boolean }) {
 
   return (
     <aside
-      className={`bg-[#F1EEE3] h-screen shadow-md fixed top-0 left-0 transition-all duration-500 z-50 ${
+      className={`bg-white h-screen shadow-lg fixed top-0 left-0 transition-all duration-500 z-50 border-r border-gray-200 ${
         isOpen ? "w-64" : "w-20"
       }`}
     >
       {/* Header */}
-      <div className="h-16 flex items-center justify-center bg-[#7B6050] overflow-hidden">
+      <div className="h-16 flex items-center justify-center bg-emerald-700 overflow-hidden border-b border-emerald-600">
         {isOpen ? (
-          <h1
-            className={`font-bold text-white text-xl tracking-wider transition-opacity duration-300 ${
-              isOpen ? "opacity-100 delay-150" : "opacity-0"
-            }`}
-          >
-            BOOKSTORE
-          </h1>
+          <Image
+            src="/images/logo.webp"
+            alt="Logo"
+            width={150}
+            height={40}
+            className="transition-opacity duration-300"
+          />
         ) : (
-          <div className="w-10 h-10 bg-[#D1B892] rounded-lg flex items-center justify-center transition-all duration-300">
-            <Book className="w-6 h-6 text-[#6B4E2E]" />
+          <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center transition-all duration-300">
+            <Book className="w-6 h-6 text-white" />
           </div>
         )}
       </div>

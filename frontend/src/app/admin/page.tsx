@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { BookOpen, Users, ShoppingCart, Package, TrendingUp, DollarSign } from "lucide-react";
 import { books, users, orders, categories } from "./fakedata";
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
     totalBooks: 0,
@@ -15,7 +16,6 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
-    // Tính toán thống kê
     const totalBooks = books.length;
     const totalUsers = users.filter(u => u.role === "customer").length;
     const totalOrders = orders.length;
@@ -40,7 +40,6 @@ export default function AdminDashboard() {
   const formatVND = (n: number) =>
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n);
 
-  // Top 5 sách bán chạy
   const topBooks = books
     .map(book => {
       const soldCount = orders.reduce((sum, order) => {
@@ -52,124 +51,121 @@ export default function AdminDashboard() {
     .sort((a, b) => b.soldCount - a.soldCount)
     .slice(0, 5);
 
-  // Đơn hàng gần đây
   const recentOrders = [...orders]
     .sort((a, b) => new Date(b.purchase_date).getTime() - new Date(a.purchase_date).getTime())
     .slice(0, 5);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "pending": return "bg-yellow-100 text-yellow-700";
-      case "processing": return "bg-blue-100 text-blue-700";
-      case "delivered": return "bg-green-100 text-green-700";
-      case "cancelled": return "bg-red-100 text-red-700";
-      default: return "bg-gray-100 text-gray-700";
+      case "pending": return "bg-amber-50 text-amber-700 border border-amber-200";
+      case "processing": return "bg-emerald-50 text-emerald-700 border border-emerald-200";
+      case "delivered": return "bg-teal-50 text-teal-700 border border-teal-200";
+      case "cancelled": return "bg-gray-100 text-gray-600 border border-gray-200";
+      default: return "bg-gray-50 text-gray-600 border border-gray-200";
     }
   };
 
   return (
-    <div className="p-4">
+    <div className="p-6 bg-gray-100 min-h-screen">
       {/* Header */}
-      <div className="bg-[#B18F7C] px-5 py-3 rounded-t-md">
-        <h2 className="text-white text-lg font-semibold">Dashboard - Tổng quan hệ thống</h2>
+      <div className="bg-white border-l-4 border-emerald-600 px-6 py-5 rounded-lg shadow-sm mb-6">
+        <h2 className="text-gray-800 text-2xl font-bold">Dashboard - Tổng quan hệ thống</h2>
+        <p className="text-gray-600 text-sm mt-1">Theo dõi và quản lý hoạt động cửa hàng</p>
       </div>
 
-      {/* Body */}
-      <div className="p-5 bg-[#F9F6EC] rounded-b-md shadow-inner space-y-5">
-        
+      <div className="space-y-6">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* Tổng sách */}
-          <div className="bg-white rounded-lg p-5 border border-[#E6D6B8] shadow-sm hover:shadow-md transition">
+          <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[#6B4E2E] text-sm font-medium mb-1">Tổng sách</p>
-                <p className="text-3xl font-bold text-[#B18F7C]">{stats.totalBooks}</p>
-                <p className="text-xs text-gray-500 mt-1">{stats.lowStock} sách sắp hết</p>
+                <p className="text-gray-500 text-sm font-medium mb-2">Tổng sách</p>
+                <p className="text-3xl font-bold text-gray-800 mb-1">{stats.totalBooks}</p>
+                <p className="text-xs text-amber-600">{stats.lowStock} sách sắp hết</p>
               </div>
-              <div className="bg-[#D1B892] p-3 rounded-full">
-                <BookOpen className="w-6 h-6 text-[#6B4E2E]" />
+              <div className="bg-emerald-600 p-4 rounded-lg">
+                <BookOpen className="w-7 h-7 text-white" />
               </div>
             </div>
           </div>
 
           {/* Khách hàng */}
-          <div className="bg-white rounded-lg p-5 border border-[#E6D6B8] shadow-sm hover:shadow-md transition">
+          <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[#6B4E2E] text-sm font-medium mb-1">Khách hàng</p>
-                <p className="text-3xl font-bold text-[#B18F7C]">{stats.totalUsers}</p>
-                <p className="text-xs text-gray-500 mt-1">Đang hoạt động</p>
+                <p className="text-gray-500 text-sm font-medium mb-2">Khách hàng</p>
+                <p className="text-3xl font-bold text-gray-800 mb-1">{stats.totalUsers}</p>
+                <p className="text-xs text-emerald-600">Đang hoạt động</p>
               </div>
-              <div className="bg-[#D1B892] p-3 rounded-full">
-                <Users className="w-6 h-6 text-[#6B4E2E]" />
+              <div className="bg-teal-600 p-4 rounded-lg">
+                <Users className="w-7 h-7 text-white" />
               </div>
             </div>
           </div>
 
           {/* Đơn hàng */}
-          <div className="bg-white rounded-lg p-5 border border-[#E6D6B8] shadow-sm hover:shadow-md transition">
+          <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[#6B4E2E] text-sm font-medium mb-1">Đơn hàng</p>
-                <p className="text-3xl font-bold text-[#B18F7C]">{stats.totalOrders}</p>
-                <p className="text-xs text-gray-500 mt-1">{stats.pendingOrders} chờ xử lý</p>
+                <p className="text-gray-500 text-sm font-medium mb-2">Đơn hàng</p>
+                <p className="text-3xl font-bold text-gray-800 mb-1">{stats.totalOrders}</p>
+                <p className="text-xs text-amber-600">{stats.pendingOrders} chờ xử lý</p>
               </div>
-              <div className="bg-[#D1B892] p-3 rounded-full">
-                <ShoppingCart className="w-6 h-6 text-[#6B4E2E]" />
+              <div className="bg-blue-600 p-4 rounded-lg">
+                <ShoppingCart className="w-7 h-7 text-white" />
               </div>
             </div>
           </div>
 
           {/* Doanh thu */}
-          <div className="bg-white rounded-lg p-5 border border-[#E6D6B8] shadow-sm hover:shadow-md transition">
+          <div className="bg-gradient-to-br from-emerald-600 to-teal-600 rounded-lg p-6 shadow-md hover:shadow-lg transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[#6B4E2E] text-sm font-medium mb-1">Doanh thu</p>
-                <p className="text-2xl font-bold text-[#B18F7C]">{formatVND(stats.totalRevenue)}</p>
-                <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                <p className="text-emerald-100 text-sm font-medium mb-2">Doanh thu</p>
+                <p className="text-2xl font-bold text-white mb-1">{formatVND(stats.totalRevenue)}</p>
+                <p className="text-xs text-emerald-100 flex items-center gap-1">
                   <TrendingUp className="w-3 h-3" /> Tổng doanh thu
                 </p>
               </div>
-              <div className="bg-[#D1B892] p-3 rounded-full">
-                <DollarSign className="w-6 h-6 text-[#6B4E2E]" />
+              <div className="bg-white bg-opacity-20 p-4 rounded-lg backdrop-blur-sm">
+                <DollarSign className="w-7 h-7 text-white" />
               </div>
             </div>
           </div>
         </div>
 
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Top sách bán chạy */}
-          <div className="bg-white rounded-lg border border-[#E6D6B8] shadow-sm">
-            <div className="bg-[#D1B892] px-4 py-3 rounded-t-lg">
-              <h3 className="text-[#6B4E2E] font-semibold flex items-center gap-2">
-                <Package className="w-4 h-4" />
+          <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+            <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
+              <h3 className="text-gray-800 font-bold text-lg flex items-center gap-2">
+                <Package className="w-5 h-5 text-emerald-600" />
                 Top 5 sách bán chạy
               </h3>
             </div>
-            <div className="p-4">
+            <div className="p-6">
               {topBooks.length === 0 ? (
-                <p className="text-center text-gray-500 py-4">Chưa có dữ liệu</p>
+                <p className="text-center text-gray-400 py-8">Chưa có dữ liệu</p>
               ) : (
                 <div className="space-y-3">
                   {topBooks.map((book, idx) => (
-                    <div key={book.id} className="flex items-center gap-3 p-2 hover:bg-[#F9F6EC] rounded transition">
-                      <div className="flex-shrink-0 w-8 h-8 bg-[#D1B892] rounded-full flex items-center justify-center">
-                        <span className="text-[#6B4E2E] font-bold text-sm">#{idx + 1}</span>
+                    <div key={book.id} className="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition-all duration-200 group border border-transparent hover:border-gray-200">
+                      <div className="flex-shrink-0 w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">#{idx + 1}</span>
                       </div>
                       <img
                         src={book.imageUrl}
                         alt={book.name}
-                        className="w-10 h-14 object-cover rounded border border-[#D1B892]"
+                        className="w-10 h-14 object-cover rounded-lg shadow-sm border border-gray-200"
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-[#6B4E2E] font-medium truncate">{book.name}</p>
+                        <p className="text-gray-800 font-medium truncate text-sm">{book.name}</p>
                         <p className="text-xs text-gray-500">{formatVND(book.price)}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[#B18F7C] font-bold">{book.soldCount}</p>
+                        <p className="text-emerald-600 font-bold text-lg">{book.soldCount}</p>
                         <p className="text-xs text-gray-500">đã bán</p>
                       </div>
                     </div>
@@ -180,32 +176,32 @@ export default function AdminDashboard() {
           </div>
 
           {/* Đơn hàng gần đây */}
-          <div className="bg-white rounded-lg border border-[#E6D6B8] shadow-sm">
-            <div className="bg-[#D1B892] px-4 py-3 rounded-t-lg">
-              <h3 className="text-[#6B4E2E] font-semibold flex items-center gap-2">
-                <ShoppingCart className="w-4 h-4" />
+          <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+            <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
+              <h3 className="text-gray-800 font-bold text-lg flex items-center gap-2">
+                <ShoppingCart className="w-5 h-5 text-teal-600" />
                 Đơn hàng gần đây
               </h3>
             </div>
-            <div className="p-4">
+            <div className="p-6">
               {recentOrders.length === 0 ? (
-                <p className="text-center text-gray-500 py-4">Chưa có đơn hàng</p>
+                <p className="text-center text-gray-400 py-8">Chưa có đơn hàng</p>
               ) : (
                 <div className="space-y-3">
                   {recentOrders.map((order) => {
                     const user = users.find(u => u.id === order.user_id);
                     return (
-                      <div key={order.id} className="flex items-center justify-between p-3 border border-[#E6D6B8] rounded-lg hover:bg-[#F9F6EC] transition">
+                      <div key={order.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-teal-400 hover:bg-gray-50 transition-all duration-200">
                         <div className="flex-1">
-                          <p className="text-[#6B4E2E] font-medium">{order.id}</p>
-                          <p className="text-sm text-gray-600">{user?.fullName || "Không rõ"}</p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-gray-800 font-semibold text-sm">{order.id}</p>
+                          <p className="text-sm text-gray-600 mt-1">{user?.fullName || "Không rõ"}</p>
+                          <p className="text-xs text-gray-400 mt-1">
                             {new Date(order.purchase_date).toLocaleDateString("vi-VN")}
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-[#B18F7C] font-semibold">{formatVND(order.total_price)}</p>
-                          <span className={`inline-block px-2 py-1 rounded text-xs font-medium mt-1 ${getStatusColor(order.purchase_status)}`}>
+                          <p className="text-teal-700 font-bold text-base">{formatVND(order.total_price)}</p>
+                          <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium mt-2 ${getStatusColor(order.purchase_status)}`}>
                             {order.purchase_status}
                           </span>
                         </div>
@@ -219,44 +215,43 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-lg p-4 border border-[#E6D6B8] shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="bg-green-100 p-2 rounded">
-                <ShoppingCart className="w-5 h-5 text-green-600" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="bg-white rounded-lg p-5 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300">
+            <div className="flex items-center gap-4">
+              <div className="bg-emerald-600 p-3 rounded-lg">
+                <ShoppingCart className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Đơn hoàn thành</p>
-                <p className="text-xl font-bold text-[#6B4E2E]">{stats.completedOrders}</p>
+                <p className="text-sm text-gray-600 font-medium">Đơn hoàn thành</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.completedOrders}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg p-4 border border-[#E6D6B8] shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="bg-yellow-100 p-2 rounded">
-                <Package className="w-5 h-5 text-yellow-600" />
+          <div className="bg-white rounded-lg p-5 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300">
+            <div className="flex items-center gap-4">
+              <div className="bg-amber-600 p-3 rounded-lg">
+                <Package className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Sách sắp hết</p>
-                <p className="text-xl font-bold text-[#6B4E2E]">{stats.lowStock}</p>
+                <p className="text-sm text-gray-600 font-medium">Sách sắp hết</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.lowStock}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg p-4 border border-[#E6D6B8] shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="bg-blue-100 p-2 rounded">
-                <BookOpen className="w-5 h-5 text-blue-600" />
+          <div className="bg-white rounded-lg p-5 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300">
+            <div className="flex items-center gap-4">
+              <div className="bg-teal-600 p-3 rounded-lg">
+                <BookOpen className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Danh mục</p>
-                <p className="text-xl font-bold text-[#6B4E2E]">{stats.totalCategories}</p>
+                <p className="text-sm text-gray-600 font-medium">Danh mục</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.totalCategories}</p>
               </div>
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );

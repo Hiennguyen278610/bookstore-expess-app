@@ -1,4 +1,6 @@
 import type { User } from "@/types/user.type";
+import type { SupplyReceipt } from "@/types/supplyreceipt.type";
+import type { Order } from "@/types/order.type";
 
 export const users: User[] = [
   {
@@ -150,12 +152,12 @@ export const carts = [
 ];
 
 // Orders (each order contains items array similar order_details)
-export const orders = [
+export const orders: Order[] = [
   {
     id: "o1",
     user_id: "u2",
     payment_method: "cash",
-    purchase_date: "2025-04-10T09:30:00.000Z",
+    purchase_date: "2025-04-10",
     purchase_status: "delivered",
     items: [
       { book_id: "b2", quantity: 1, price: 350000, sub_total: 350000 },
@@ -167,7 +169,7 @@ export const orders = [
     id: "o2",
     user_id: "u3",
     payment_method: "card",
-    purchase_date: "2025-04-12T11:00:00.000Z",
+    purchase_date: "2025-04-12",
     purchase_status: "processing",
     items: [{ book_id: "b1", quantity: 1, price: 95000, sub_total: 95000 }],
     total_price: 95000
@@ -180,12 +182,12 @@ export const suppliers = [
   { id: "s2", name: "Nhà phân phối B", phone: "0287654321", email: "supB@books.com", address: "HN" }
 ];
 
-export const supplyReceipts = [
+export const supplyReceipts: SupplyReceipt[] = [
   {
     id: "r1",
     supplier_id: "s1",
     admin_id: "u1",
-    supply_date: "2025-03-20T08:00:00.000Z",
+    supply_date: "2025-03-20",
     supply_status: "completed",
     items: [
       { book_id: "b2", import_price: 250000, quantity: 10, sub_amount: 2500000 },
@@ -197,7 +199,7 @@ export const supplyReceipts = [
     id: "r2",
     supplier_id: "s2",
     admin_id: "u1",
-    supply_date: "2025-04-01T10:30:00.000Z",
+    supply_date: "2025-04-01",
     supply_status: "completed",
     items: [{ book_id: "b6", import_price: 30000, quantity: 100, sub_amount: 3000000 }],
     total_amount: 3000000
