@@ -387,8 +387,8 @@ export default function OrdersPage() {
 
       {/* MODAL */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto border border-gray-200">
             <h3 className="text-xl font-bold text-gray-800 mb-5 pb-3 border-b-2 border-emerald-600">
               {editingOrder ? "Sửa đơn hàng" : "Thêm đơn hàng mới"}
             </h3>
@@ -403,7 +403,7 @@ export default function OrdersPage() {
                   className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 >
                   <option value="">-- Chọn khách hàng --</option>
-                  {users.filter(u => u.role === "customer").map(u => <option key={u.id} value={u.id}>{u.fullName}</option>)}
+                  {users.filter(u => u.role === "USER").map(u => <option key={u.id} value={u.id}>{u.fullName}</option>)}
                 </select>
               </div>
 

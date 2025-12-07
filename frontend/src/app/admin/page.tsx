@@ -136,7 +136,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const totalBooks = books.length;
-    const totalUsers = users.filter(u => u.role === "customer").length;
+    const totalUsers = users.filter(u => u.role === "USER").length;
     const totalOrders = orders.length;
     const totalRevenue = orders.reduce((sum, order) => sum + order.total_price, 0);
     const totalCategories = categories.length;
@@ -174,7 +174,7 @@ export default function AdminDashboard() {
 
   // Top 5 khách hàng mua nhiều tiền nhất
   const topCustomers = users
-    .filter(u => u.role === "customer")
+    .filter(u => u.role === "USER")
     .map(user => {
       const totalSpent = orders
         .filter(o => o.user_id === user.id && (o.purchase_status === "delivered" || o.purchase_status === "processing"))
@@ -259,8 +259,8 @@ export default function AdminDashboard() {
                   <TrendingUp className="w-3 h-3" /> Tổng doanh thu
                 </p>
               </div>
-              <div className="bg-white bg-opacity-20 p-4 rounded-lg backdrop-blur-sm">
-                <DollarSign className="w-7 h-7 text-white" />
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <DollarSign className="w-7 h-7 text-emerald-600" />
               </div>
             </div>
           </div>
@@ -276,8 +276,8 @@ export default function AdminDashboard() {
                 <TrendingUp className="w-3 h-3" /> Tổng lợi nhuận từ các đơn hàng đã xử lý
               </p>
             </div>
-            <div className="bg-white bg-opacity-20 p-4 rounded-lg backdrop-blur-sm">
-              <BarChart3 className="w-7 h-7 text-white" />
+            <div className="bg-white p-4 rounded-lg shadow-sm">
+              <BarChart3 className="w-7 h-7 text-purple-600" />
             </div>
           </div>
         </div>
