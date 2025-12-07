@@ -19,7 +19,7 @@ import { errorHandler } from './middlewares/errorHandle.js';
 
 const app = express();
 connectDB(process.env.MONGODB_URL);
-setup(app)
+// setup(app) // Commented out to avoid ngrok conflict
 
 app.use(cors());
 app.use(express.json()); // To parse JSON bodies
