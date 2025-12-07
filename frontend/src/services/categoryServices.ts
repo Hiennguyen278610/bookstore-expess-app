@@ -1,11 +1,11 @@
 import { baseUrl } from "@/constants";
-import publicApi from "@/lib/axios";
 import { Category } from "@/types/category.type";
+import axios from '@/lib/axios';
 
 export const categoryServices = {
   getAllCategories: async (): Promise<Category[]> => {
     try {
-      const response = await publicApi.get<Category[]>(`${baseUrl}/categories`);
+      const response = await axios.get<Category[]>(`${baseUrl}/categories`);
       return response.data;
     } catch (error) {
       console.error(error);

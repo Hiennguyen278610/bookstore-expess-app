@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "swiper": "^9.4.1",
-    "zustand": "^5.0.9"
-  }
-}

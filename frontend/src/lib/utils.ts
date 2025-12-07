@@ -14,8 +14,8 @@ export const fetcher = async (url: string) => {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        withCredentials: true,
       },
-      withCredentials: true,
     })
     .then((res) => res.data);
 };
@@ -26,4 +26,16 @@ export function formatPrice (price : number) {
     currency: 'VND'
   }).format(price);
 }
+
+export const normalizeString = (str: string) => {
+  return str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Bỏ dấu
+    .replace(/đ/g, "d")
+    // Bỏ hết các từ khóa hành chính
+    .replace(/\b(thanh pho|tinh|thanh thi|quan|huyen|thi xa|phuong|xa|thi tran|tp\.|tp|q\.)\b/g, "")
+    .replace(/\s+/g, " ") // Xóa khoảng trắng thừa
+    .trim();
+};
 

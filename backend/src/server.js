@@ -16,6 +16,7 @@ import receiptRouter from './routes/ReceiptRouters.js';
 import { setup } from './utils/hosting.js';
 import paymentRouter from './routes/PaymentRouters.js';
 import { errorHandler } from './middlewares/errorHandle.js';
+import addressRouter from './routes/AddressRouters.js';
 
 const app = express();
 connectDB(process.env.MONGODB_URL);
@@ -25,6 +26,7 @@ app.use(cors());
 app.use(express.json()); // To parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 app.use(process.env.API_TAG + "/auth", authRoute)
+app.use(process.env.API_TAG + "/address", addressRouter)
 app.use(process.env.API_TAG + "/users", userRoute);
 app.use(process.env.API_TAG + "/books", bookRoute);
 app.use(process.env.API_TAG + "/cart", cartRoute);
