@@ -73,15 +73,20 @@ export default function PublishersPage() {
 
     try {
       if (editingPublisher) {
+        console.log("Updating publisher with ID:", editingPublisher._id);
+        console.log("Data:", { name: formData.name.trim() });
         await updatePublisher(editingPublisher._id, { name: formData.name.trim() });
+        alert('Cập nhật nhà xuất bản thành công!');
       } else {
         await createPublisher({ name: formData.name.trim() });
+        alert('Thêm nhà xuất bản thành công!');
       }
       await fetchPublishers();
       resetForm();
     } catch (error) {
       console.error("Error saving publisher:", error);
-      alert("Lỗi khi lưu nhà xuất bản!");
+      console.error("Error response:", error.response?.data);
+      alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu nhà xuất bản'}`);
     }
   };
 
@@ -90,10 +95,12 @@ export default function PublishersPage() {
     if (window.confirm("Bạn có chắc muốn xóa nhà xuất bản này?")) {
       try {
         await deletePublisher(id);
+        alert('Xóa nhà xuất bản thành công!');
         await fetchPublishers();
       } catch (error) {
         console.error("Error deleting publisher:", error);
-        alert("Lỗi khi xóa nhà xuất bản!");
+        console.error("Error response:", error.response?.data);
+        alert(`Lỗi: ${error.response?.data?.message || 'Không thể xóa nhà xuất bản'}`);
       }
     }
   };

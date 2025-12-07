@@ -15,4 +15,5 @@ router.get("/", getAll);
 router.get("/:id", getById);
 
 
+
 export default router;

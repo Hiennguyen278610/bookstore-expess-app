@@ -9,6 +9,7 @@ const router = express.Router();
 //router.use(auth)
 //router.use(authorizeRoles("admin"))
 //router.use(checkEmptyBody)
+
 router.get("/", getAllSuppliers);
 router.post("/", createSupplier);
 router.put("/:id", updateSupplier);

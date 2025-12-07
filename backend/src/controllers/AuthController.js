@@ -155,6 +155,8 @@ export const updateProfile = async (req, res, next) => {
     next(error);
   }
 };
+
+
 //login google
 export const googleLogin = async (req, res, next) => {
   try {

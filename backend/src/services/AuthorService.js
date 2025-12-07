@@ -2,19 +2,26 @@ import Author from '../models/Author.js';
 
 
 export async function createAuthorService(name) {
-  const isAvailable = await Author.findOne({name: name});
+  const isAvailable = await Author.findOne({ name: name });
   if (isAvailable) {
     throw new Error("Author already exists");
   }
-  const newAuthor = await Author.create({name: name})
+  const newAuthor = await Author.create({ name: name })
   await newAuthor.save();
   return newAuthor;
 }
 export async function updateAuthorService(_id, newName) {
-  const isAvailable = await Author.findOne({name: newName});
-  if (!isAvailable) {
+  const author = await Author.findById(_id);
+  if (!author) {
     throw new Error("Author not found");
   }
+
+  // Check if new name already exists (exclude current author)
+  const existingAuthor = await Author.findOne({ name: newName, _id: { $ne: _id } });
+  if (existingAuthor) {
+    throw new Error("Author name already exists");
+  }
+
   return Author.findByIdAndUpdate(
     _id,
     { name: newName },

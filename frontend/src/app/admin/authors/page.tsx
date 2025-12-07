@@ -69,15 +69,20 @@ export default function AuthorsPage() {
 
     try {
       if (editingAuthor) {
+        console.log("Updating author with ID:", editingAuthor._id);
+        console.log("Data:", { name: formData.name.trim() });
         await updateAuthor(editingAuthor._id, { name: formData.name.trim() });
+        alert('Cập nhật tác giả thành công!');
       } else {
         await createAuthor({ name: formData.name.trim() });
+        alert('Thêm tác giả thành công!');
       }
       await fetchAuthors();
       resetForm();
     } catch (error) {
       console.error("Error saving author:", error);
-      alert("Lỗi khi lưu tác giả!");
+      console.error("Error response:", error.response?.data);
+      alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu tác giả'}`);
     }
   };
 

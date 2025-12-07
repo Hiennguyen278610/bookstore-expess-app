@@ -70,15 +70,20 @@ export default function CategoriesPage() {
     try {
       const slug = formData.name.trim().toLowerCase().replace(/\s+/g, "-");
       if (editingCategory) {
+        console.log("Updating category with ID:", editingCategory._id);
+        console.log("Data:", { name: formData.name.trim(), slug });
         await updateCategory(editingCategory._id, { name: formData.name.trim(), slug });
+        alert('Cập nhật danh mục thành công!');
       } else {
         await createCategory({ name: formData.name.trim(), slug });
+        alert('Thêm danh mục thành công!');
       }
       await fetchCategories();
       resetForm();
     } catch (error) {
       console.error("Error saving category:", error);
-      alert("Lỗi khi lưu danh mục!");
+      console.error("Error response:", error.response?.data);
+      alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu danh mục'}`);
     }
   };
 
@@ -86,10 +91,12 @@ export default function CategoriesPage() {
     if (window.confirm("Bạn có chắc muốn xóa danh mục này?")) {
       try {
         await deleteCategory(id);
+        alert('Xóa danh mục thành công!');
         await fetchCategories();
       } catch (error) {
         console.error("Error deleting category:", error);
-        alert("Lỗi khi xóa danh mục!");
+        console.error("Error response:", error.response?.data);
+        alert(`Lỗi: ${error.response?.data?.message || 'Không thể xóa danh mục'}`);
       }
     }
   };

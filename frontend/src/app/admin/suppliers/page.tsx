@@ -95,6 +95,8 @@ export default function SuppliersPage() {
 
     try {
       if (editingSupplier) {
+        console.log("Updating supplier with ID:", editingSupplier._id);
+        console.log("Data:", formData);
         await updateSupplier(editingSupplier._id, formData);
         alert('Cập nhật nhà cung cấp thành công!');
       } else {
@@ -105,7 +107,8 @@ export default function SuppliersPage() {
       fetchSuppliers();
     } catch (error) {
       console.error('Error saving supplier:', error);
-      alert('Lỗi khi lưu nhà cung cấp');
+      console.error('Error response:', error.response?.data);
+      alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu nhà cung cấp'}`);
     }
   };
 
@@ -118,7 +121,8 @@ export default function SuppliersPage() {
         fetchSuppliers();
       } catch (error) {
         console.error('Error deleting supplier:', error);
-        alert('Lỗi khi xóa nhà cung cấp');
+        console.error('Error response:', error.response?.data);
+        alert(`Lỗi: ${error.response?.data?.message || 'Không thể xóa nhà cung cấp'}`);
       }
     }
   };

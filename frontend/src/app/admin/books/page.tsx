@@ -9,6 +9,7 @@ import type { Category } from "@/types/category.type";
 import type { Publisher } from "@/types/publisher.type";
 import axios from "axios";
 import { baseUrl } from "@/constants/index";
+import { createBook, updateBook, deleteBook } from "@/api/bookApi";
 
 // Hàm tạo slug từ tên sách
 const generateSlug = (name: string): string => {
@@ -126,6 +127,24 @@ export default function BooksPage() {
   const formatPrice = (price: number) =>
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
 
+  const getCategoryName = (categoryId: string) => {
+    const category = categories.find(c => c._id === categoryId);
+    return category?.name || 'N/A';
+  };
+
+  const getAuthorNames = (authorIds: string[]) => {
+    const authorNames = authorIds.map(id => {
+      const author = authors.find(a => a._id === id);
+      return author?.name || '';
+    }).filter(name => name);
+    return authorNames.length > 0 ? authorNames.join(', ') : 'N/A';
+  };
+
+  const getPublisherName = (publisherId: string) => {
+    const publisher = publishers.find(p => p._id === publisherId);
+    return publisher?.name || 'N/A';
+  };
+
   // CRUD
   const handleSubmit = async () => {
     if (!formData.name || !formData.categoryId || !formData.publisherId || formData.authorIds.length === 0) {
@@ -134,29 +153,53 @@ export default function BooksPage() {
     }
 
     try {
+      // Create FormData for multipart/form-data
+      const submitData = new FormData();
+      submitData.append('name', formData.name);
+      submitData.append('categoryId', formData.categoryId);
+      submitData.append('publisherId', formData.publisherId);
+      formData.authorIds.forEach(id => submitData.append('authorIds[]', id));
+      submitData.append('quantity', formData.quantity.toString());
+      submitData.append('price', formData.price.toString());
+
+      // Only add images if user selected new files
+      if (selectedFiles.length > 0) {
+        selectedFiles.forEach(file => submitData.append('images', file));
+      } else if (editingBook) {
+        // Keep existing images when updating without new images
+        formData.imageUrl.forEach(url => submitData.append('existingImages[]', url));
+      }
+
       if (editingBook) {
-        // Update book
-        await axios.put(`${baseUrl}/books/${editingBook._id}`, formData);
+        await updateBook(editingBook._id, submitData);
+        alert('Cập nhật sách thành công!');
       } else {
-        // Create new book
-        await axios.post(`${baseUrl}/books`, formData);
+        if (selectedFiles.length === 0) {
+          alert('Vui lòng chọn ít nhất 1 ảnh cho sách mới!');
+          return;
+        }
+        await createBook(submitData);
+        alert('Thêm sách thành công!');
       }
       fetchBooks();
       resetForm();
     } catch (error) {
       console.error("Error saving book:", error);
-      alert("Có lỗi xảy ra khi lưu sách!");
+      console.error("Error response:", error.response?.data);
+      alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu sách'}`);
     }
   };
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Bạn có chắc muốn xóa sách này?")) {
       try {
-        await axios.delete(`${baseUrl}/books/${id}`);
+        await deleteBook(id);
+        alert('Xóa sách thành công!');
         fetchBooks();
       } catch (error) {
         console.error("Error deleting book:", error);
-        alert("Có lỗi xảy ra khi xóa sách!");
+        console.error("Error response:", error.response?.data);
+        alert(`Lỗi: ${error.response?.data?.message || 'Không thể xóa sách'}`);
       }
     }
   };
@@ -166,9 +209,9 @@ export default function BooksPage() {
       setEditingBook(book);
       setFormData({
         name: book.name,
-        categoryId: book.categoryId._id,
-        authorIds: book.authors.map(a => a._id),
-        publisherId: book.publisherId._id,
+        categoryId: book.categoryId?._id || '',
+        authorIds: book.authors?.map(a => a._id) || [],
+        publisherId: book.publisherId?._id || '',
         imageUrl: book.imageUrl,
         quantity: book.quantity,
         price: book.price
@@ -404,25 +447,29 @@ export default function BooksPage() {
                   filteredBooks.map(book => (
                     <tr key={book._id} className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200">
                       <td className="px-4 py-3">
-                        <Image
-                          src={book.mainImage}
-                          alt={book.name}
-                          width={48}
-                          height={64}
-                          className="w-12 h-16 object-cover rounded border border-gray-200"
-                          unoptimized
-                        />
+                        {book.mainImage || book.imageUrl?.[0] ? (
+                          <Image
+                            src={book.mainImage || book.imageUrl[0]}
+                            alt={book.name}
+                            width={48}
+                            height={64}
+                            className="w-12 h-16 object-cover rounded border border-gray-200"
+                            unoptimized
+                          />
+                        ) : (
+                          <div className="w-12 h-16 bg-gray-200 rounded border border-gray-300 flex items-center justify-center text-gray-400 text-xs">No img</div>
+                        )}
                       </td>
                       <td className="px-4 py-4 text-gray-800 font-medium">{book.name}</td>
-                      <td className="px-4 py-4 text-gray-600">{book.categoryId.name}</td>
-                      <td className="px-4 py-4 text-gray-600">{book.authors.map(a => a.name).join(", ")}</td>
-                      <td className="px-4 py-4 text-gray-600">{book.publisherId.name}</td>
+                      <td className="px-4 py-4 text-gray-600">{book.categoryId?.name || 'N/A'}</td>
+                      <td className="px-4 py-4 text-gray-600">{book.authors?.map(a => a.name).join(", ") || 'N/A'}</td>
+                      <td className="px-4 py-4 text-gray-600">{book.publisherId?.name || 'N/A'}</td>
                       <td className="px-4 py-4 text-right">
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${book.quantity > 10
-                            ? "bg-teal-50 text-teal-700 border border-teal-200"
-                            : book.quantity > 5
-                              ? "bg-amber-50 text-amber-700 border border-amber-200"
-                              : "bg-red-50 text-red-700 border border-red-200"
+                          ? "bg-teal-50 text-teal-700 border border-teal-200"
+                          : book.quantity > 5
+                            ? "bg-amber-50 text-amber-700 border border-amber-200"
+                            : "bg-red-50 text-red-700 border border-red-200"
                           }`}>
                           {book.quantity}
                         </span>
@@ -567,7 +614,7 @@ export default function BooksPage() {
 
                 {/* Image Previews Grid */}
                 <div className="grid grid-cols-4 gap-3 mb-4">
-                  {imagePreviews.map((preview, index) => (
+                  {imagePreviews.filter(preview => preview).map((preview, index) => (
                     <div key={index} className={`relative group ${index === 0 ? 'ring-2 ring-emerald-500' : ''}`}>
                       <Image
                         src={preview}
@@ -661,14 +708,18 @@ export default function BooksPage() {
             <div className="grid grid-cols-2 gap-6">
               {/* Ảnh nền (ảnh chính) */}
               <div className="col-span-2 md:col-span-1">
-                <Image
-                  src={detailBook.imageUrls?.[0] || detailBook.imageUrl}
-                  alt={detailBook.name}
-                  width={300}
-                  height={400}
-                  className="w-full h-80 object-cover rounded-lg border border-gray-200 shadow-md"
-                  unoptimized
-                />
+                {(detailBook.imageUrls?.[0] || detailBook.imageUrl?.[0]) ? (
+                  <Image
+                    src={detailBook.imageUrls?.[0] || detailBook.imageUrl[0]}
+                    alt={detailBook.name}
+                    width={300}
+                    height={400}
+                    className="w-full h-80 object-cover rounded-lg border border-gray-200 shadow-md"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="w-full h-80 bg-gray-200 rounded-lg border border-gray-300 flex items-center justify-center text-gray-400">No Image</div>
+                )}
               </div>
 
               {/* Thông tin sách */}
@@ -689,7 +740,7 @@ export default function BooksPage() {
                 <div className="col-span-2">
                   <h5 className="text-sm font-semibold text-gray-700 mb-3">Tất cả hình ảnh ({detailBook.imageUrls.length})</h5>
                   <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
-                    {detailBook.imageUrls.map((url, index) => (
+                    {detailBook.imageUrls.filter(url => url).map((url, index) => (
                       <div key={index} className={`relative ${index === 0 ? 'ring-2 ring-emerald-500' : ''}`}>
                         <Image
                           src={url}
