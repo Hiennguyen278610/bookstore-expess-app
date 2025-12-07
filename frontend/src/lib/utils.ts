@@ -14,8 +14,8 @@ export const fetcher = async (url: string) => {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
-        withCredentials: true,
       },
+      withCredentials: true,
     })
     .then((res) => res.data);
 };
@@ -26,3 +26,45 @@ export function formatPrice (price : number) {
     currency: 'VND'
   }).format(price);
 }
+
+export const roundPrice = (n: number): number => 
+  n <= 0 ? 100000 : Math.ceil(n / 100000) * 100000;
+
+// Helper function để parse search params an toàn
+export const parseSearchParams = (searchParams: {
+  [key: string]: string | string[] | undefined;
+}) => {
+  const getString = (key: string): string => {
+    const value = searchParams[key];
+    if (!value) return "";
+    if (Array.isArray(value)) return value[0] || "";
+    return value;
+  };
+
+  const getNumber = (key: string, defaultValue = 0): number => {
+    const value = getString(key);
+    const num = Number(value);
+    return isNaN(num) ? defaultValue : num;
+  };
+
+  const getStringArray = (key: string): string[] => {
+    const value = searchParams[key];
+    if (!value) return [];
+
+    if (typeof value === "string") {
+      return value.split(",").filter((item) => item.trim());
+    }
+
+    if (Array.isArray(value)) {
+      return value.filter((item) => typeof item === "string" && item.trim());
+    }
+
+    return [];
+  };
+
+  return {
+    getString,
+    getNumber,
+    getStringArray,
+  };
+};

@@ -25,3 +25,4 @@ export async function getJWTfromCookie() {
 
     return cookieStore.get("access_token")?.value;
 }
+

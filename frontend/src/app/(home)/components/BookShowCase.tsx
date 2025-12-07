@@ -1,5 +1,5 @@
 import React from 'react'
-import ProductCard, { ProductCardProps } from '../common/ProductCard'
+import ProductCard, { ProductCardProps } from '../collections/components/ProductCard'
 
 interface BookShowCaseProps {
     title: string,

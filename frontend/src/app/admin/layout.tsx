@@ -7,7 +7,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <div className="flex bg-[#E2D4B7] min-h-screen">
+    <div className="flex bg-gray-100 min-h-screen">
       <Sidebar isOpen={isOpen} />
       <div
         className={`flex-1 transition-all duration-700 ${

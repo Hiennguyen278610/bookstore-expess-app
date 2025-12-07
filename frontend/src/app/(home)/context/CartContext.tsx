@@ -1,8 +1,9 @@
 import { ProductCardProps, products } from "@/constants/user.index";
+import { Book } from "@/types/book.type";
 import React, { useContext, useReducer } from "react";
 
 export interface CartItemProps {
-  product: ProductCardProps;
+  product: Book;
   quantity: number;
   maxQuantity: number;
 }

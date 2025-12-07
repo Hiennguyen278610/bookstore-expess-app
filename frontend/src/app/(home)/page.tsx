@@ -1,11 +1,9 @@
-"use client";
 
 import { testCardBooks } from "@/constants/user.index";
-import BannerSlider from "./components/Homepage/Banner";
-import BookShowCase from "./components/Homepage/BookShowCase";
-import CategoryCarousel from "./components/Homepage/CategoryCarousel";
-import CategorySidebar from "./components/Homepage/CategorySidebar";
-import BrandCarousel from "./components/Homepage/BrandCarousel";
+import BannerSlider from "./components/Banner";
+import BookShowCase from "./components/BookShowCase";
+import CategorySidebar from "./components/CategorySidebar";
+import BrandCarousel from "./components/BrandCarousel";
 
 export default function HomePage() {
   return (
@@ -14,7 +12,6 @@ export default function HomePage() {
         <CategorySidebar />
         <BannerSlider />
       </div>
-      <CategoryCarousel />
       <BookShowCase 
         title="Sách Bán Chạy"
         books={testCardBooks}
