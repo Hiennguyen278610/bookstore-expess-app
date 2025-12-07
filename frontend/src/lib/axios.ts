@@ -5,7 +5,6 @@ import { baseUrl } from '@/constants';
 const api = axios.create({
     baseURL : `${baseUrl}`,
 });
-
 api.interceptors.request.use(
   async (config) => {
       const token = await getJWTfromCookie();

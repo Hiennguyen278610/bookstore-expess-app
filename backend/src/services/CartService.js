@@ -59,3 +59,14 @@ export async function clearCartService(customerId) {
   await cart.save();
   return { message: 'Cart cleared successfully' };
 }
+
+export async function getCartByCustomerId(customerId) {
+  const cart = await Cart.findOne({ customerId })
+    .populate("items.bookId");
+
+  if (!cart) {
+    throw new Error("Cart not found");
+  }
+
+  return cart;
+}
