@@ -3,14 +3,14 @@
 import { useUser } from "@/services/authservices";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
-import { redirect } from "next/navigation";
 
 // Import các components con
 import { AccountSidebar } from "@/components/account/account-sidebar";
 import { ProfileTab } from "@/components/account/profile-tab";
-import { AddressTab } from "@/components/account/address-tab";
+import AddressTab from "@/components/account/address-tab";
 import { OrdersTab } from "@/components/account/orders-tab";
 import { PasswordTab } from "@/components/account/password-tab";
+import NotFound from 'next/dist/client/components/builtin/not-found';
 
 export default function AccountPage() {
   const { user, isLoading } = useUser();
@@ -20,8 +20,7 @@ export default function AccountPage() {
   }
 
   if (!isLoading && !user) {
-    redirect("/");
-    return null;
+    return <NotFound />;
   }
 
   return (

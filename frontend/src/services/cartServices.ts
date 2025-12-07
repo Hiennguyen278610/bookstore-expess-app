@@ -1,26 +1,10 @@
-import { baseUrl } from "@/constants";
-import { customerApi } from "@/lib/axios";
-import { Cart } from "@/types/cart.type";
-import { ApiResponse } from "@/types/response.type";
+import api from '@/lib/axios';
+import { Cart } from '@/types/cart.type';
+import { ApiResponse } from '@/types/response.type';
 
 export const cartServices = {
   fetchCart: async (): Promise<ApiResponse<Cart>> => {
-    try {
-      const response = await fetch(`${baseUrl}/cart`, {
-        method: "GET",
-        credentials: "include", // để gửi cookie HttpOnly
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-
-      const data: ApiResponse<Cart> = await response.json();
-      return data;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+    return await api.get<ApiResponse<Cart>>('/cart').then(res => res.data);
   },
 
   addToCart: async (
@@ -28,7 +12,7 @@ export const cartServices = {
     quantity: number = 1
   ): Promise<ApiResponse<Cart>> => {
     try {
-      const response = await customerApi.post<ApiResponse<Cart>>("/cart", {
+      const response = await api.post<ApiResponse<Cart>>('/cart', {
         bookId,
         quantity,
       });
@@ -44,7 +28,7 @@ export const cartServices = {
     quantity: number
   ): Promise<ApiResponse<Cart>> => {
     try {
-      const response = await customerApi.put<ApiResponse<Cart>>(
+      const response = await api.put<ApiResponse<Cart>>(
         `/cart/${cartDetailId}`,
         {
           quantity,
@@ -59,7 +43,7 @@ export const cartServices = {
 
   removeCartItem: async (cartDetailId: string): Promise<ApiResponse<Cart>> => {
     try {
-      const response = await customerApi.delete<ApiResponse<Cart>>(
+      const response = await api.delete<ApiResponse<Cart>>(
         `/cart/${cartDetailId}`
       );
       return response.data;
@@ -71,7 +55,7 @@ export const cartServices = {
 
   clearCart: async () => {
     try {
-      const response = await customerApi.delete("/cart");
+      const response = await api.delete('/cart');
       return response.status;
     } catch (error) {
       console.error(error);

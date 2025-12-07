@@ -19,7 +19,6 @@ const ProductDetailPage = async ({
 }) => {
   const { id } = await params;
   const book = await bookServices.getBookById(id);
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
