@@ -14,24 +14,19 @@ export default function UsersPage() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showPassword, setShowPassword] = useState<Record<string, boolean>>({});
+  const [showFormPassword, setShowFormPassword] = useState<boolean>(false);
   const [formData, setFormData] = useState<Omit<User, "id">>({
     fullName: "",
     username: "",
     password: "",
-    phone: "",
-    email: "",
-    role: "customer",
-    status: "active",
-    online: false,
-    gender: null,
+    role: "USER",
   });
 
   // Lọc user
   const filteredUsers = users.filter((user) => {
     const matchSearch =
       user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      user.username.toLowerCase().includes(searchTerm.toLowerCase());
     const matchRole = roleFilter === "all" || user.role === roleFilter;
     return matchSearch && matchRole;
   });
@@ -48,9 +43,7 @@ export default function UsersPage() {
     if (
       !formData.fullName ||
       !formData.username ||
-      !formData.password ||
-      !formData.phone ||
-      !formData.email
+      !formData.password
     ) {
       alert("Vui lòng điền đầy đủ thông tin!");
       return;
@@ -84,12 +77,7 @@ export default function UsersPage() {
         fullName: user.fullName,
         username: user.username,
         password: user.password,
-        phone: user.phone,
-        email: user.email,
         role: user.role,
-        status: user.status || "active",
-        online: user.online || false,
-        gender: user.gender || null,
       });
     } else {
       setEditingUser(null);
@@ -97,29 +85,21 @@ export default function UsersPage() {
         fullName: "",
         username: "",
         password: "",
-        phone: "",
-        email: "",
-        role: "customer",
-        status: "active",
-        online: false,
-        gender: null,
+        role: "USER",
       });
     }
+    setShowFormPassword(false);
     setShowModal(true);
   };
 
   const resetForm = () => {
     setEditingUser(null);
+    setShowFormPassword(false);
     setFormData({
       fullName: "",
       username: "",
       password: "",
-      phone: "",
-      email: "",
-      role: "customer",
-      status: "active",
-      online: false,
-      gender: null,
+      role: "USER",
     });
     setShowModal(false);
   };
@@ -154,7 +134,7 @@ export default function UsersPage() {
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <input
-              placeholder="Tìm theo tên, username hoặc email..."
+              placeholder="Tìm theo tên hoặc username..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="border border-gray-300 bg-white px-4 py-2.5 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
@@ -165,8 +145,8 @@ export default function UsersPage() {
               className="border border-gray-300 bg-white px-4 py-2.5 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
             >
               <option value="all">Tất cả vai trò</option>
-              <option value="admin">Admin</option>
-              <option value="customer">Khách hàng</option>
+              <option value="ADMIN">Admin</option>
+              <option value="USER">User</option>
             </select>
           </div>
 
@@ -178,18 +158,14 @@ export default function UsersPage() {
                   <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Họ tên</th>
                   <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Username</th>
                   <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Mật khẩu</th>
-                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Điện thoại</th>
-                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Email</th>
                   <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Vai trò</th>
-                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Trạng thái</th>
-                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Giới tính</th>
                   <th className="px-4 py-3 text-center text-gray-700 font-semibold text-sm">Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="px-4 py-12 text-center text-gray-400">
+                    <td colSpan={5} className="px-4 py-12 text-center text-gray-400">
                       Không tìm thấy người dùng nào 👥
                     </td>
                   </tr>
@@ -211,32 +187,14 @@ export default function UsersPage() {
                           </button>
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-gray-600">{user.phone}</td>
-                      <td className="px-4 py-4 text-gray-600">{user.email}</td>
                       <td className="px-4 py-4">
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                          user.role === "admin" 
+                          user.role === "ADMIN" 
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
                             : "bg-blue-50 text-blue-700 border border-blue-200"
                         }`}>
-                          {user.role === "admin" ? "Admin" : "Khách hàng"}
+                          {user.role === "ADMIN" ? "Admin" : "User"}
                         </span>
-                      </td>
-                      <td className="px-4 py-4">
-                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                          user.status === "active" 
-                            ? "bg-teal-50 text-teal-700 border border-teal-200" 
-                            : "bg-gray-100 text-gray-600 border border-gray-200"
-                        }`}>
-                          {user.status === "active" ? "Hoạt động" : "Ngừng hoạt động"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 text-gray-600">
-                        {user.gender === "male"
-                          ? "Nam"
-                          : user.gender === "female"
-                          ? "Nữ"
-                          : "Khác"}
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex justify-center gap-2">
@@ -278,32 +236,54 @@ export default function UsersPage() {
 
       {/* Modal thêm/sửa */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto border border-gray-200">
             <h3 className="text-xl font-bold text-gray-800 mb-5 pb-3 border-b-2 border-emerald-600">
               {editingUser ? "Sửa người dùng" : "Thêm người dùng mới"}
             </h3>
 
             <div className="space-y-4">
-              {(
-                [
-                  ["Họ tên *", "fullName"],
-                  ["Username *", "username"],
-                  ["Mật khẩu *", "password"],
-                  ["Số điện thoại *", "phone"],
-                  ["Email *", "email"],
-                ] as const
-              ).map(([label, field]) => (
-                <div key={field}>
-                  <label className="block text-gray-700 mb-2 font-medium text-sm">{label}</label>
+              {/* Họ tên */}
+              <div>
+                <label className="block text-gray-700 mb-2 font-medium text-sm">Họ tên *</label>
+                <input
+                  type="text"
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Username */}
+              <div>
+                <label className="block text-gray-700 mb-2 font-medium text-sm">Username *</label>
+                <input
+                  type="text"
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Mật khẩu */}
+              <div>
+                <label className="block text-gray-700 mb-2 font-medium text-sm">Mật khẩu *</label>
+                <div className="relative">
                   <input
-                    type={field === "password" ? "password" : "text"}
-                    value={formData[field]}
-                    onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
-                    className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    type={showFormPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent pr-12"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowFormPassword(!showFormPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-600 transition"
+                  >
+                    {showFormPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
-              ))}
+              </div>
 
               {/* Vai trò */}
               <div>
@@ -315,41 +295,8 @@ export default function UsersPage() {
                   }
                   className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 >
-                  <option value="customer">Khách hàng</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-
-              {/* Trạng thái */}
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">Trạng thái *</label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                >
-                  <option value="active">Hoạt động</option>
-                  <option value="inactive">Ngừng hoạt động</option>
-                </select>
-              </div>
-
-              {/* Giới tính */}
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">Giới tính *</label>
-                <select
-                  value={formData.gender || ""}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      gender: e.target.value || null,
-                    })
-                  }
-                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                >
-                  <option value="">Chưa chọn</option>
-                  <option value="male">Nam</option>
-                  <option value="female">Nữ</option>
-                  <option value="other">Khác</option>
+                  <option value="USER">User</option>
+                  <option value="ADMIN">Admin</option>
                 </select>
               </div>
 
