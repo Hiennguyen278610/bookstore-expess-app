@@ -12,6 +12,16 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "**",
       },
+       {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.cloudinary.com",
+        pathname: "/**",
+      },
     ],
   },
   allowedDevOrigins: ['local-origin.dev', '*.local-origin.dev'],

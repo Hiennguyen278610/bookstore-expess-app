@@ -30,6 +30,30 @@ export async function getCategoryByIdService(_id) {
   return Category.findById(_id);
 }
 
+export async function getCategoryBySlugService(slug) {
+  try {
+    if (!slug || typeof slug !== "string" || slug.trim().length === 0) {
+      throw new Error("Slug is required");
+    }
+
+    const trimmedSlug = slug.trim().toLowerCase();
+
+    const category = await Category.findOne({
+      slug: trimmedSlug,
+      isDeleted: { $ne: true },
+    }).lean();
+
+    if (!category) {
+      throw new Error(`Category with slug "${slug}" not found`);
+    }
+
+    return category;
+  } catch (error) {
+    console.error("Error in getCategoryBySlugService:", error);
+    throw error;
+  }
+}
+
 export async function getAllCategoryService() {
   return Category.find();
 }

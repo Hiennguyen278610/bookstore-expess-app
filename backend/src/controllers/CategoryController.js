@@ -3,30 +3,31 @@ import {
   deleteCategoryService,
   getAllCategoryService,
   getCategoryByIdService,
-  updateCategoryService
-} from '../services/CategoryService.js';
+  getCategoryBySlugService,
+  updateCategoryService,
+} from "../services/CategoryService.js";
 
 export async function createCategory(req, res) {
   try {
-    const {name} = req.body;
+    const { name } = req.body;
     const category = await createCategoryService(name);
     if (!category) {
-      res.status(404).json({message:"Category not found"})
+      res.status(404).json({ message: "Category not found" });
     }
     res.status(201).json(category);
-  }catch(err){
+  } catch (err) {
     res.status(400).json({ message: err.message });
   }
 }
 export async function updateCategory(req, res) {
   try {
-    const {name} = req.body;
+    const { name } = req.body;
     const category = await updateCategoryService(req.params.id, name);
     if (!category) {
       res.status(404).json({ message: "Category not found" });
     }
     res.status(201).json(category);
-  }catch (err) {
+  } catch (err) {
     res.status(400).json({ message: err.message });
   }
 }
@@ -37,7 +38,7 @@ export async function deleteCategory(req, res) {
       res.status(404).json({ message: "Category not found" });
     }
     res.status(201).json(category);
-  }catch(err){
+  } catch (err) {
     res.status(400).json({ message: err.message });
   }
 }
@@ -48,7 +49,7 @@ export async function getCategoryById(req, res) {
       res.status(404).json({ message: "Category not found" });
     }
     res.status(200).json(category);
-  }catch(err){
+  } catch (err) {
     res.status(400).json({ message: err.message });
   }
 }
@@ -60,7 +61,20 @@ export async function getAllCategories(req, res) {
       res.status(404).json({ message: "None category exists" });
     }
     res.status(200).json(category);
-  }catch(err){
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+
+export async function getCategoryBySlug(req, res) {
+  try {
+    const { slug } = req.params;
+    const category = await getCategoryBySlugService(slug);
+    if (!category) {
+      res.status(404).json({ message: "None category exists" });
+    }
+    res.status(200).json(category);
+  } catch (error) {
     res.status(400).json({ message: err.message });
   }
 }
