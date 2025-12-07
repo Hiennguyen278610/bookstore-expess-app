@@ -5,11 +5,13 @@ import { authorizeRoles } from '../middlewares/authorize.js';
 
 //kenh nay cho admin nhe'
 const router = express.Router();
-router.use(auth)
-router.use(authorizeRoles("admin"))
+//comment lai con test api lam xongg thi xoa di nhe' from manh dung
+//router.use(auth)
+//router.use(authorizeRoles("admin"))
+//router.get('/', auth, authorizeRoles('admin'), getAll);
 
-router.get('/', auth, authorizeRoles('admin'), getAll);
 
+router.get("/", getAll);
 router.get("/:id", getById);
 
 

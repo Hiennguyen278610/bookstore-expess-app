@@ -1,18 +1,37 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
-import { publishers as fakePublishers } from "../fakedata";
 import type { Publisher } from "@/types/publisher.type";
 import Pagination from "../components/Pagination";
+import { getAllPublishers, createPublisher, updatePublisher, deletePublisher } from "@/api/publisherApi";
 
 export default function PublishersPage() {
-  const [publishers, setPublishers] = useState<Publisher[]>(fakePublishers);
+  const [publishers, setPublishers] = useState<Publisher[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [editingPublisher, setEditingPublisher] = useState<Publisher | null>(null);
   const [formData, setFormData] = useState<{ name: string }>({ name: "" });
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // Fetch publishers from API
+  useEffect(() => {
+    fetchPublishers();
+  }, []);
+
+  const fetchPublishers = async () => {
+    try {
+      setLoading(true);
+      const data = await getAllPublishers();
+      setPublishers(data);
+    } catch (error) {
+      console.error("Error fetching publishers:", error);
+      alert("Lỗi khi tải danh sách nhà xuất bản!");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Lọc theo tên
   const filteredPublishers = publishers.filter((pub) =>
@@ -46,33 +65,36 @@ export default function PublishersPage() {
   };
 
   // Lưu form
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.name.trim()) {
       alert("Vui lòng nhập tên nhà xuất bản!");
       return;
     }
 
-    if (editingPublisher) {
-      setPublishers((prev) =>
-        prev.map((p) =>
-          p.id === editingPublisher.id ? { ...p, name: formData.name.trim() } : p
-        )
-      );
-    } else {
-      const newPublisher: Publisher = {
-        id: `p${Date.now()}`,
-        name: formData.name.trim(),
-      };
-      setPublishers((prev) => [...prev, newPublisher]);
+    try {
+      if (editingPublisher) {
+        await updatePublisher(editingPublisher._id, { name: formData.name.trim() });
+      } else {
+        await createPublisher({ name: formData.name.trim() });
+      }
+      await fetchPublishers();
+      resetForm();
+    } catch (error) {
+      console.error("Error saving publisher:", error);
+      alert("Lỗi khi lưu nhà xuất bản!");
     }
-
-    resetForm();
   };
 
   // Xóa
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm("Bạn có chắc muốn xóa nhà xuất bản này?")) {
-      setPublishers((prev) => prev.filter((p) => p.id !== id));
+      try {
+        await deletePublisher(id);
+        await fetchPublishers();
+      } catch (error) {
+        console.error("Error deleting publisher:", error);
+        alert("Lỗi khi xóa nhà xuất bản!");
+      }
     }
   };
 
@@ -123,7 +145,16 @@ export default function PublishersPage() {
                 </tr>
               </thead>
               <tbody>
-                {paginatedPublishers.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td
+                      colSpan={2}
+                      className="px-4 py-12 text-center text-gray-400"
+                    >
+                      Đang tải dữ liệu...
+                    </td>
+                  </tr>
+                ) : paginatedPublishers.length === 0 ? (
                   <tr>
                     <td
                       colSpan={2}
@@ -135,7 +166,7 @@ export default function PublishersPage() {
                 ) : (
                   paginatedPublishers.map((pub) => (
                     <tr
-                      key={pub.id}
+                      key={pub._id}
                       className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200"
                     >
                       <td className="px-4 py-4 text-gray-800 font-medium">
@@ -151,7 +182,7 @@ export default function PublishersPage() {
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(pub.id)}
+                            onClick={() => handleDelete(pub._id)}
                             className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-200"
                             title="Xóa"
                           >

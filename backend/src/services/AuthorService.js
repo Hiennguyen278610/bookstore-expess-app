@@ -27,3 +27,7 @@ export async function deleteAuthorService(_id) {
 export async function getAuthorByIdService(_id) {
   return Author.findById(_id);
 }
+
+export async function getAllAuthorsService() {
+  return Author.find();
+}

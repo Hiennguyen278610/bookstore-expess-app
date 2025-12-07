@@ -1,6 +1,12 @@
 import Supplier from '../models/Supplier.js';
 
 
+
+export async function getAllSuppliersService() {
+  return Supplier.find();
+} 
+
+
 export async function createSupplierService(name, phone, email, address) {
   const isAvailable = await Supplier.findOne({name: name});
   if (isAvailable) {
