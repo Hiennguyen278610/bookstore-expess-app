@@ -1,16 +1,17 @@
-"use client"
+"use client";
 
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Search } from "lucide-react"
-import { useState } from "react"
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Search } from "lucide-react";
+import { useState } from "react";
+import { Publisher } from "@/types/publisher.type";
 
 interface FilterCheckboxListProps {
-  options: string[]
-  selected: string[] 
-  onChange: (selected: string[]) => void
-  maxHeight?: string
-  searchable?: boolean
+  options: Publisher[];
+  selected: string[];
+  onChange: (selected: string[]) => void;
+  maxHeight?: string;
+  searchable?: boolean;
 }
 
 const CheckboxList = ({
@@ -20,22 +21,22 @@ const CheckboxList = ({
   maxHeight = "200px",
   searchable = true,
 }: FilterCheckboxListProps) => {
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredOptions = options.filter(option =>
-    option.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredOptions = options.filter((option) =>
+    option.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleToggle = (option: string) => {
     const newSelected = selected.includes(option)
       ? selected.filter((item) => item !== option)
-      : [...selected, option]
+      : [...selected, option];
 
-    onChange(newSelected)
-  }
+    onChange(newSelected);
+  };
 
-  const selectedCount = selected.length
-  const totalCount = options.length
+  const selectedCount = selected.length;
+  const totalCount = options.length;
 
   return (
     <div className="space-y-3">
@@ -45,9 +46,9 @@ const CheckboxList = ({
           Đã chọn: {selectedCount}/{totalCount}
         </span>
         {selectedCount > 0 && (
-          <button 
+          <button
             onClick={() => onChange([])}
-            className="text-xs text-green-600 hover:text-green-700 font-medium transition-colors"
+            className="text-xs text-green-600 hover:text-green-700 font-medium transition-colors cursor-pointer"
           >
             Bỏ chọn
           </button>
@@ -75,18 +76,24 @@ const CheckboxList = ({
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option) => (
                 <label
-                  key={option}
+                  key={option._id}
                   className="flex items-center space-x-3 cursor-pointer select-none p-1 py-2 rounded-lg hover:bg-green-50 transition-all duration-200 group"
                 >
                   <Checkbox
-                    checked={selected.includes(option)}
-                    onCheckedChange={() => handleToggle(option)}
+                    checked={selected.includes(option._id)}
+                    onCheckedChange={() => handleToggle(option._id)}
                     className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500 transition-colors"
                   />
                   <span className="text-sm text-gray-700 group-hover:text-gray-900 flex-1">
-                    {option}
+                    {option.name}
                   </span>
-                  <div className={`w-2 h-2 rounded-full ${selected.includes(option) ? 'bg-green-500' : 'bg-gray-300'} transition-colors`} />
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      selected.includes(option._id)
+                        ? "bg-green-500"
+                        : "bg-gray-300"
+                    } transition-colors`}
+                  />
                 </label>
               ))
             ) : (
@@ -98,7 +105,7 @@ const CheckboxList = ({
         </ScrollArea>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CheckboxList
+export default CheckboxList;

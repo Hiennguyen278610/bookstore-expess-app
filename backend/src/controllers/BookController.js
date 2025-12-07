@@ -3,8 +3,9 @@ import {
   deleteBookService,
   findBookService,
   getAllBooksService,
-  updateBookService
-} from '../services/BookService.js';
+  getMaxPriceService,
+  updateBookService,
+} from "../services/BookService.js";
 
 export const createBook = async (req, res) => {
   try {
@@ -16,7 +17,11 @@ export const createBook = async (req, res) => {
 };
 export const updateBook = async (req, res) => {
   try {
-    const updateBook =await updateBookService(req.params.id, req.body, req.files);
+    const updateBook = await updateBookService(
+      req.params.id,
+      req.body,
+      req.files
+    );
     res.status(201).json(updateBook);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -34,21 +39,33 @@ export const deleteBook = async (req, res) => {
   try {
     const Book = await deleteBookService(req.params.id);
     res.status(200).json(Book);
-  }catch (err) {
+  } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 export const getBooks = async (req, res) => {
   try {
-    // req.query sẽ chứa: ?page=1&limit=10&search=harry
+    //  {{baseURL}}/api/v1/books?categoryId=693249f925621faf76f24394&maxPrice=100000&sortBy=price_asc
     const result = await getAllBooksService(req.query);
 
     res.status(200).json({
       message: "Get all books successfully",
       data: result.data,
-      pagination: result.pagination
+      pagination: result.pagination,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+export const getMaxPrice = async (req, res) => {
+  try {
+    const maxPrice = await getMaxPriceService();
+    if (!maxPrice) {
+      res.status(404).json({ message: "No product for max price" });
+    }
+    res.status(200).json(maxPrice);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 };
