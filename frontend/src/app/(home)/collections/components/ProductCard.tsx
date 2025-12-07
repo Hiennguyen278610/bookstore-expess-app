@@ -1,4 +1,6 @@
+"use client";
 import { formatPrice } from "@/lib/utils";
+import { useCartStore } from "@/stores/useCartStore";
 import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,6 +14,19 @@ export interface ProductCardProps {
 }
 
 const ProductCard = ({ _id, name, price, imgSrc }: ProductCardProps) => {
+  const { addToCart } = useCartStore();
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    try {
+      await addToCart(_id, 1);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <Link href={`/product/${_id}`} className="no-underline hover:no-underline">
       <div className="border border-green-200 relative bg-white p-3 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group cursor-pointer flex flex-col">
@@ -33,7 +48,10 @@ const ProductCard = ({ _id, name, price, imgSrc }: ProductCardProps) => {
               {formatPrice(price)}
             </p>
             <div className="p-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-lg font-bold text-white flex-center transition-all duration-300 group-hover:scale-110 cursor-pointer shadow-lg">
-              <ShoppingCart className="size-4 md:size-5" />
+              <ShoppingCart
+                className="size-4 md:size-5"
+                onClick={handleAddToCart}
+              />
             </div>
           </div>
         </div>

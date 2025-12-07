@@ -1,28 +1,45 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import CartProduct from "./CartProduct";
 import { useCartStore } from "@/stores/useCartStore";
 
 const CartDetail = () => {
-  const {
-    cartItems,
-    cartCount,
-    loading,
-    fetchCart,
-    updateCartItem,
-    removeCartItem,
-  } = useCartStore();
+  const cart = useCartStore((s) => s.cart);
+  const loading = useCartStore((s) => s.loading);
 
-  // Load cart khi mở component
+  const fetchCart = useCartStore((s) => s.fetchCart);
+  const updateCartItem = useCartStore((s) => s.updateCartItem);
+  const removeCartItem = useCartStore((s) => s.removeCartItem);
+
+  const fetched = useRef(false);
+
   useEffect(() => {
-    fetchCart();
-  }, []);
+    if (!fetched.current) {
+      fetchCart();
+      fetched.current = true;
+    }
+  }, [fetchCart]);
 
+  const cartCount = cart?.totalQuantity ?? 0;
+  const items = cart?.items ?? [];
+
+  // Loading state
   if (loading) {
     return (
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+      <div className="bg-white p-6 rounded-xl border border-gray-200">
         <p className="text-gray-600 text-center">Đang tải giỏ hàng...</p>
+      </div>
+    );
+  }
+
+  // Không có cart → giỏ trống
+  if (!cart || items.length === 0) {
+    return (
+      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+        <p className="text-gray-500 text-center text-lg">
+          Giỏ hàng của bạn đang trống
+        </p>
       </div>
     );
   }
@@ -35,31 +52,22 @@ const CartDetail = () => {
       </div>
 
       <div className="space-y-4">
-        {cartItems.length > 0 ? (
-          cartItems.map((item, index) => (
-            <div
-              key={index}
-              className="border-b border-gray-100 pb-4 last:border-b-0"
-            >
-              <CartProduct
-                quantity={item.quantity}
-                bookId={item.bookId}
-                onIncrease={() => updateCartItem(item._id, item.quantity + 1)}
-                onDecrease={() =>
-                  updateCartItem(item._id, Math.max(1, item.quantity - 1))
-                }
-                onInputQuantity={(amount: number) =>
-                  updateCartItem(item._id, amount)
-                }
-                onRemove={() => removeCartItem(item._id)}
-              />
-            </div>
-          ))
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-gray-500 text-lg">Giỏ hàng của bạn đang trống</p>
+        {items.map((item) => (
+          <div key={item._id} className="border-b pb-4 last:border-b-0">
+            <CartProduct
+              bookId={item.bookId}
+              quantity={item.quantity}
+              onIncrease={() => updateCartItem(item._id, item.quantity + 1)}
+              onDecrease={() =>
+                updateCartItem(item._id, Math.max(1, item.quantity - 1))
+              }
+              onInputQuantity={(amount) =>
+                updateCartItem(item._id, amount)
+              }
+              onRemove={() => removeCartItem(item._id)}
+            />
           </div>
-        )}
+        ))}
       </div>
     </div>
   );

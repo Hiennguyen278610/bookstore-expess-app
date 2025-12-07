@@ -1,14 +1,6 @@
 import {
   addItemToCart,
   clearCartService,
-  getCartByCustomerId,
-  removeItemFromCart,
-  updateItemQuantity
-} from '../services/CartService.js';
-import User from "../models/User.js";
-import {
-  addItemToCart,
-  clearCartService,
   getCartService,
   removeItemFromCart,
   updateItemQuantity,
