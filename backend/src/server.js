@@ -1,3 +1,6 @@
+// backend/src/server.js
+
+
 import "dotenv/config";
 import express from 'express';
 import userRoute from './routes/UserRouters.js';
@@ -20,7 +23,7 @@ import addressRouter from './routes/AddressRouters.js';
 
 const app = express();
 connectDB(process.env.MONGODB_URL);
-// setup(app)
+// setup(app) // Commented out to avoid ngrok conflict
 
 app.use(cors());
 app.use(express.json()); // To parse JSON bodies

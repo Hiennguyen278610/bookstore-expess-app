@@ -46,7 +46,7 @@ export async function createBookService(book, files) {
 }
 
 export async function updateBookService(id, data, files) {
-  const { name, categoryId, publisherId, quantity, price, authors } = data;
+  const { name, categoryId, publisherId, quantity, price, authors, existingImages } = data;
   const book = await Book.findById(id);
   if (!book) {
     throw new Error(`Book with id ${id} not found`);
@@ -69,9 +69,18 @@ export async function updateBookService(id, data, files) {
       await BookAuthor.insertMany(newAuthors);
     }
   }
-  await deleteImageIntoCloudinary(book.imageUrl);
-  const imageUrl = await uploadToCloudinary(files);
-  book.imageUrl = imageUrl;
+
+  // Only update images if new files are provided
+  if (files && files.length > 0) {
+    await deleteImageIntoCloudinary(book.imageUrl);
+    const imageUrl = await uploadToCloudinary(files);
+    book.imageUrl = imageUrl;
+  } else if (existingImages && Array.isArray(existingImages)) {
+    // Keep existing images if provided
+    book.imageUrl = existingImages;
+  }
+  // If neither files nor existingImages, keep current book.imageUrl
+
   await book.save();
   const populatedBook = await Book.findById(book._id)
     .populate("categoryId", "name")
@@ -222,7 +231,7 @@ export async function getAllBooksService(query) {
       const booksWithAuthors = books.map((book) => ({
         ...book,
         authors: authorsByBookId[book._id.toString()] || [],
-        mainImage: book.imageUrl?.[0] || "/images/default-book.jpg",
+        mainImage: book.imageUrl?.[0] || "https://placehold.co/400x600/e2e8f0/64748b?text=No+Image",
       }));
 
       return {

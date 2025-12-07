@@ -1,12 +1,13 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Eye, EyeOff } from "lucide-react";
-import { users as fakeUsers } from "../fakedata";
 import Pagination from "../components/Pagination";
 import type { User } from "@/types/user.type";
+import axios from "axios";
+import { baseUrl } from "@/constants/index";
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>(fakeUsers);
+  const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -15,12 +16,32 @@ export default function UsersPage() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showPassword, setShowPassword] = useState<Record<string, boolean>>({});
   const [showFormPassword, setShowFormPassword] = useState<boolean>(false);
-  const [formData, setFormData] = useState<Omit<User, "id">>({
+  const [loading, setLoading] = useState<boolean>(true);
+  const [formData, setFormData] = useState({
     fullName: "",
     username: "",
+    email: "",
+    phone: "",
     password: "",
-    role: "USER",
+    role: "user" as "user" | "admin",
   });
+
+  // Fetch users from API
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${baseUrl}/users`);
+      setUsers(response.data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Lọc user
   const filteredUsers = users.filter((user) => {
@@ -39,34 +60,43 @@ export default function UsersPage() {
   );
 
   // Submit form
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (
       !formData.fullName ||
       !formData.username ||
+      !formData.email ||
+      !formData.phone ||
       !formData.password
     ) {
       alert("Vui lòng điền đầy đủ thông tin!");
       return;
     }
 
-    if (editingUser) {
-      setUsers((prev) =>
-        prev.map((u) => (u.id === editingUser.id ? { ...u, ...formData } : u))
-      );
-    } else {
-      const newUser: User = {
-        id: `u${Date.now()}`,
-        ...formData,
-      };
-      setUsers((prev) => [...prev, newUser]);
+    try {
+      if (editingUser) {
+        // Update user
+        await axios.put(`${baseUrl}/users/${editingUser._id}`, formData);
+      } else {
+        // Create new user
+        await axios.post(`${baseUrl}/users`, formData);
+      }
+      fetchUsers();
+      resetForm();
+    } catch (error) {
+      console.error("Error saving user:", error);
+      alert("Có lỗi xảy ra khi lưu người dùng!");
     }
-
-    resetForm();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm("Bạn có chắc muốn xóa người dùng này?")) {
-      setUsers((prev) => prev.filter((u) => u.id !== id));
+      try {
+        await axios.delete(`${baseUrl}/users/${id}`);
+        fetchUsers();
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        alert("Có lỗi xảy ra khi xóa người dùng!");
+      }
     }
   };
 
@@ -76,6 +106,8 @@ export default function UsersPage() {
       setFormData({
         fullName: user.fullName,
         username: user.username,
+        email: user.email,
+        phone: user.phone,
         password: user.password,
         role: user.role,
       });
@@ -84,8 +116,10 @@ export default function UsersPage() {
       setFormData({
         fullName: "",
         username: "",
+        email: "",
+        phone: "",
         password: "",
-        role: "USER",
+        role: "user",
       });
     }
     setShowFormPassword(false);
@@ -98,8 +132,10 @@ export default function UsersPage() {
     setFormData({
       fullName: "",
       username: "",
+      email: "",
+      phone: "",
       password: "",
-      role: "USER",
+      role: "user",
     });
     setShowModal(false);
   };
@@ -145,8 +181,8 @@ export default function UsersPage() {
               className="border border-gray-300 bg-white px-4 py-2.5 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
             >
               <option value="all">Tất cả vai trò</option>
-              <option value="ADMIN">Admin</option>
-              <option value="USER">User</option>
+              <option value="admin">Admin</option>
+              <option value="user">User</option>
             </select>
           </div>
 
@@ -157,43 +193,52 @@ export default function UsersPage() {
                 <tr>
                   <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Họ tên</th>
                   <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Username</th>
+                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Email</th>
+                  <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Số điện thoại</th>
                   <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Mật khẩu</th>
                   <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">Vai trò</th>
                   <th className="px-4 py-3 text-center text-gray-700 font-semibold text-sm">Thao tác</th>
                 </tr>
               </thead>
               <tbody>
-                {paginatedUsers.length === 0 ? (
+                {loading ? (
                   <tr>
-                    <td colSpan={5} className="px-4 py-12 text-center text-gray-400">
+                    <td colSpan={7} className="px-4 py-12 text-center text-gray-400">
+                      Đang tải dữ liệu...
+                    </td>
+                  </tr>
+                ) : paginatedUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-4 py-12 text-center text-gray-400">
                       Không tìm thấy người dùng nào 👥
                     </td>
                   </tr>
                 ) : (
                   paginatedUsers.map((user) => (
-                    <tr key={user.id} className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200">
+                    <tr key={user._id} className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200">
                       <td className="px-4 py-4 text-gray-800 font-medium">{user.fullName}</td>
                       <td className="px-4 py-4 text-gray-600">{user.username}</td>
+                      <td className="px-4 py-4 text-gray-600">{user.email}</td>
+                      <td className="px-4 py-4 text-gray-600">{user.phone}</td>
                       <td className="px-4 py-4 text-gray-600">
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-sm">
-                            {showPassword[user.id] ? user.password : "••••••••"}
+                            {showPassword[user._id] ? user.password : "••••••••"}
                           </span>
                           <button
-                            onClick={() => togglePasswordVisibility(user.id)}
+                            onClick={() => togglePasswordVisibility(user._id)}
                             className="text-gray-400 hover:text-teal-600 transition"
                           >
-                            {showPassword[user.id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            {showPassword[user._id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </button>
                         </div>
                       </td>
                       <td className="px-4 py-4">
-                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                          user.role === "ADMIN" 
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${user.role === "admin"
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                             : "bg-blue-50 text-blue-700 border border-blue-200"
-                        }`}>
-                          {user.role === "ADMIN" ? "Admin" : "User"}
+                          }`}>
+                          {user.role === "admin" ? "Admin" : "User"}
                         </span>
                       </td>
                       <td className="px-4 py-4">
@@ -205,7 +250,7 @@ export default function UsersPage() {
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(user.id)}
+                            onClick={() => handleDelete(user._id)}
                             className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-200"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -265,6 +310,28 @@ export default function UsersPage() {
                 />
               </div>
 
+              {/* Email */}
+              <div>
+                <label className="block text-gray-700 mb-2 font-medium text-sm">Email *</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Phone */}
+              <div>
+                <label className="block text-gray-700 mb-2 font-medium text-sm">Số điện thoại *</label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                />
+              </div>
+
               {/* Mật khẩu */}
               <div>
                 <label className="block text-gray-700 mb-2 font-medium text-sm">Mật khẩu *</label>
@@ -291,12 +358,12 @@ export default function UsersPage() {
                 <select
                   value={formData.role}
                   onChange={(e) =>
-                    setFormData({ ...formData, role: e.target.value as User["role"] })
+                    setFormData({ ...formData, role: e.target.value as "user" | "admin" })
                   }
                   className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 >
-                  <option value="USER">User</option>
-                  <option value="ADMIN">Admin</option>
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
                 </select>
               </div>
 
