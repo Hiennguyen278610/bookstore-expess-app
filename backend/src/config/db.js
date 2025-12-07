@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { seedAdmin } from '../utils/seedAdmin.js';
 
 export const connectDB = async (mongoURL) => {
     try {

@@ -19,11 +19,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 export default function UserNavbar() {
   const { user, mutate } = useUser();
+  const router  = useRouter()
 
   const handleLogout = async () => {
+    router.push("/")
     await removeJWTfromCookie();
     await mutate(null, false);
     toast.success("Đăng xuất thành công");

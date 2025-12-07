@@ -1,16 +1,20 @@
-import { baseUrl } from "@/constants";
 import axios from "axios";
+import { getJWTfromCookie } from '@/lib/cookies';
+import { baseUrl } from '@/constants';
 
-function getClientToken(): string | null {
-  const match = document.cookie.match(/(^| )access_token=([^;]+)/);
-  return match ? match[2] : null;
-}
-
-export const publicApi = axios.create({
-  baseURL: `${baseUrl}`,
+const api = axios.create({
+    baseURL : `${baseUrl}`,
 });
 
-export const customerApi = axios.create({
-  baseURL: `${baseUrl}`,
-});
+api.interceptors.request.use(
+  async (config) => {
+      const token = await getJWTfromCookie();
+      if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+  },
+  (error) => Promise.reject(error)
+);
 
+export default api

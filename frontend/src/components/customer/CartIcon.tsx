@@ -1,23 +1,27 @@
 // components/common/CartIcon.tsx
 "use client";
+import { useCartStore } from "@/stores/useCartStore";
 import { ShoppingCart } from "lucide-react";
+import { useEffect } from "react";
 
-interface CartIconProps {
-  quantity?: number;
-}
+export default function CartIcon() {
+  const cart = useCartStore((s) => s.cart);
+  const fetchCart = useCartStore((s) => s.fetchCart);
 
-export default function CartIcon({ quantity = 0 }: CartIconProps) {
+  useEffect(() => {
+    if (!cart) {
+      fetchCart();
+    }
+  }, []);
   return (
-    <div 
-        className="relative inline-block cursor-pointer"
-    >
+    <div className="relative inline-block cursor-pointer">
       <ShoppingCart size={24} className="text-gray-800" />
-        <div
-          className="absolute -top-1 -right-1 bg-red-500 text-white text-xs 
+      <div
+        className="absolute -top-1 -right-1 bg-red-500 text-white text-xs 
             w-4 h-4 rounded-full flex items-center justify-center"
-        >
-          {quantity}
-        </div>
+      >
+        {cart?.totalQuantity || 0}
+      </div>
     </div>
   );
 }

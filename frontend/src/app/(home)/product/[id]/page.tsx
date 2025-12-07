@@ -5,12 +5,12 @@ import {
   Shield,
   Leaf,
   Share2,
-  Heart,
   MessageCircle,
   CheckCircle,
   ShoppingCart,
 } from "lucide-react";
 import ImageSlider from "../components/ImageSlider";
+import PurchaseCard from "../components/PurchaseCard";
 
 const ProductDetailPage = async ({
   params,
@@ -19,7 +19,6 @@ const ProductDetailPage = async ({
 }) => {
   const { id } = await params;
   const book = await bookServices.getBookById(id);
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
@@ -117,58 +116,7 @@ const ProductDetailPage = async ({
           </div>
         </div>
 
-        {/* Cột phải - Mua hàng và thông tin liên hệ */}
-        <div className="space-y-6">
-          {/* Nút mua hàng */}
-          <div className="bg-white rounded-xl shadow-md p-6 border border-green-100 sticky top-25">
-            <div className="space-y-4">
-              {/* Giá hiển thị lại */}
-              <div className="pb-4 border-b border-green-100">
-                <p className="text-sm text-gray-500 mb-1">Giá bán</p>
-                <p className="text-3xl font-bold text-green-700">
-                  {book?.price?.toLocaleString() || "103.000"}đ
-                </p>
-              </div>
-
-              <button className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-xl text-lg transition duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
-                MUA NGAY
-              </button>
-
-              <button className="w-full border-2 border-green-600 text-green-600 hover:bg-green-50 font-bold py-4 px-6 rounded-xl text-lg transition duration-300 flex items-center justify-center gap-2">
-                <ShoppingCart size={22} />
-                THÊM VÀO GIỎ
-              </button>
-
-              {/* Chia sẻ */}
-              <div className="border-t border-green-100 pt-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <span className="text-gray-700 font-medium">Chia sẻ</span>
-                  <div className="flex gap-3">
-                    <button className="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center hover:bg-green-200 transition">
-                      <Share2 size={18} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Hotline */}
-              <div className="border-t border-green-100 pt-6">
-                <div className="flex items-center gap-3">
-                  <div className="bg-green-100 p-3 rounded-full">
-                    <MessageCircle className="text-green-600" size={24} />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Gọi đặt mua</p>
-                    <p className="text-xl font-bold text-gray-900">
-                      0972 430 690
-                    </p>
-                    <p className="text-sm text-gray-500">(7:30 - 22:00)</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PurchaseCard book={book} />
       </div>
     </div>
   );
