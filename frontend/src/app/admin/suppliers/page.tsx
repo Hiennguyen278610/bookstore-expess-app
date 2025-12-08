@@ -105,7 +105,7 @@ export default function SuppliersPage() {
       }
       resetForm();
       fetchSuppliers();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving supplier:', error);
       console.error('Error response:', error.response?.data);
       alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu nhà cung cấp'}`);
@@ -119,7 +119,7 @@ export default function SuppliersPage() {
         await deleteSupplier(id);
         alert('Xóa nhà cung cấp thành công!');
         fetchSuppliers();
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error deleting supplier:', error);
         console.error('Error response:', error.response?.data);
         alert(`Lỗi: ${error.response?.data?.message || 'Không thể xóa nhà cung cấp'}`);

@@ -80,7 +80,7 @@ export default function CategoriesPage() {
       }
       await fetchCategories();
       resetForm();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving category:", error);
       console.error("Error response:", error.response?.data);
       alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu danh mục'}`);
@@ -93,7 +93,7 @@ export default function CategoriesPage() {
         await deleteCategory(id);
         alert('Xóa danh mục thành công!');
         await fetchCategories();
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error deleting category:", error);
         console.error("Error response:", error.response?.data);
         alert(`Lỗi: ${error.response?.data?.message || 'Không thể xóa danh mục'}`);

@@ -83,7 +83,7 @@ export default function PublishersPage() {
       }
       await fetchPublishers();
       resetForm();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving publisher:", error);
       console.error("Error response:", error.response?.data);
       alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu nhà xuất bản'}`);
@@ -97,7 +97,7 @@ export default function PublishersPage() {
         await deletePublisher(id);
         alert('Xóa nhà xuất bản thành công!');
         await fetchPublishers();
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error deleting publisher:", error);
         console.error("Error response:", error.response?.data);
         alert(`Lỗi: ${error.response?.data?.message || 'Không thể xóa nhà xuất bản'}`);

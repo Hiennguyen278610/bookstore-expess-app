@@ -79,7 +79,7 @@ export default function AuthorsPage() {
       }
       await fetchAuthors();
       resetForm();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving author:", error);
       console.error("Error response:", error.response?.data);
       alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu tác giả'}`);
