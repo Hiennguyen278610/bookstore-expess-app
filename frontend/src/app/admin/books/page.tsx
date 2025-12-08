@@ -462,7 +462,7 @@ export default function BooksPage() {
                       </td>
                       <td className="px-4 py-4 text-gray-800 font-medium">{book.name}</td>
                       <td className="px-4 py-4 text-gray-600">{book.categoryId?.name || 'N/A'}</td>
-                      <td className="px-4 py-4 text-gray-600">{book.authors?.map(a => a.name).join(", ") || 'N/A'}</td>
+                      <td className="px-4 py-4 text-gray-600">{book.authors?.filter(a => a)?.map(a => a?.name).join(", ") || 'N/A'}</td>
                       <td className="px-4 py-4 text-gray-600">{book.publisherId?.name || 'N/A'}</td>
                       <td className="px-4 py-4 text-right">
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${book.quantity > 10
