@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Plus, Pencil, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 
-// import { orders as fakeOrders, users, books } from "../fakedata";
+import { orders as fakeOrders, users, books } from "../fakedata";
 import type { Order, OrderItem } from "@/types/order.type";
 import type { User } from "@/types/user.type";
 import type { Book } from "@/types/book.type";
