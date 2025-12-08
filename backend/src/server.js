@@ -13,7 +13,7 @@ import authorRouter from './routes/AuthorRouters.js';
 import publisherRouter from './routes/PublisherRouters.js';
 import supplierRouter from './routes/SupplierRouters.js';
 import receiptRouter from './routes/ReceiptRouters.js';
-import { setup } from './utils/hosting.js';
+// import { setup } from './utils/hosting.js';
 import paymentRouter from './routes/PaymentRouters.js';
 import { errorHandler } from './middlewares/errorHandle.js';
 import addressRouter from './routes/AddressRouters.js';
