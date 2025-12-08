@@ -4,9 +4,16 @@ import SupplyReceipt from '../models/SupplyReceipt.js';
 import SupplyDetail from '../models/SupplyDetail.js';
 
 export async function createSupplyReceiptService(adminId, supplierId, details) {
+  // Tính tổng tiền trước
+  let totalAmount = 0;
+  if (details && details.length > 0) {
+    totalAmount = details.reduce((sum, item) => sum + (item.importPrice * item.quantity), 0);
+  }
+
   const receipt = await SupplyReceipt.create({
-    adminId: adminId,
-    supplierId: supplierId
+    adminId: adminId || null,
+    supplierId: supplierId,
+    totalAmount: totalAmount
   });
   if (details && details.length > 0) {
     await Promise.all(
@@ -16,16 +23,22 @@ export async function createSupplyReceiptService(adminId, supplierId, details) {
             throw new Error(`Book with id ${item.bookId} not found`);
           }
           if (item.quantity <= 0) {
-            throw new Error('Quantity > 0');
+            throw new Error('Quantity must be greater than 0');
           }
-          if (book.quantity < item.quantity) {
-            throw new Error('Out of stock');
+          if (item.importPrice <= 0) {
+            throw new Error('Import price must be greater than 0');
           }
+
+          // Cập nhật số lượng sách trong kho (tăng lên)
+          await Book.findByIdAndUpdate(item.bookId, {
+            $inc: { quantity: item.quantity }
+          });
+
           return await SupplyDetail.create({
             receiptId: receipt._id,
             bookId: book._id,
             quantity: item.quantity,
-            importPrice: book.price
+            importPrice: item.importPrice
           });
         }
       )
@@ -40,13 +53,20 @@ export async function createSupplyReceiptService(adminId, supplierId, details) {
 }
 
 export async function updateSupplyReceiptService(receiptId, adminId, supplierId, purchaseStatus, supplyDate, details) {
+  // Tính tổng tiền
+  let totalAmount = 0;
+  if (Array.isArray(details) && details.length > 0) {
+    totalAmount = details.reduce((sum, item) => sum + (item.importPrice * item.quantity), 0);
+  }
+
   const receipt = await SupplyReceipt.findByIdAndUpdate(
     receiptId,
     {
-      adminId: adminId,
+      adminId: adminId || undefined,
       supplierId: supplierId,
       purchaseStatus: purchaseStatus,
-      supplyDate: supplyDate
+      supplyDate: supplyDate,
+      totalAmount: totalAmount
     },
     { new: true }
   );
@@ -55,7 +75,6 @@ export async function updateSupplyReceiptService(receiptId, adminId, supplierId,
   }
   if (Array.isArray(details)) {
     await SupplyDetail.deleteMany({ receiptId: receipt._id });
-    // xu ly quantity theo paymentStatus ==> co ham duoi sua roi luoi vai l
     if (details.length > 0) {
       const newDetails = [];
       for (const item of details) {
@@ -67,7 +86,7 @@ export async function updateSupplyReceiptService(receiptId, adminId, supplierId,
           receiptId: receipt._id,
           bookId: book._id,
           quantity: item.quantity,
-          importPrice: book.price
+          importPrice: item.importPrice  // Lấy giá từ request, không phải từ book
         });
       }
       await SupplyDetail.insertMany(newDetails);
