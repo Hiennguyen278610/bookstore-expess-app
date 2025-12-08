@@ -8,20 +8,6 @@ import {
 } from '../services/AuthService.js';
 import User from '../models/User.js';
 import { ErrorResponse } from '../utils/error.js';
-
-export const getAll = async (req, res) => {
-  try {
-    const users = await User.find();
-    res.status(200).json(users);
-  }
-  catch(err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-export const getById = (req, res) => {
-    res.status(200).send("Nhân viên 1");
-};
 export const registerUser = async (req, res, next) => {
   try {
     const result = await registerService(req.body);

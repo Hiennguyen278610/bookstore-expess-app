@@ -58,7 +58,7 @@ export async function deleteOrder(req, res) {
 }
 export async function getOrderById(req, res) {
   try {
-    const order = getOrderByIdService(req.params.id);
+    const order = await getOrderByIdService(req.params.id);
     if (!order) {
       return res.status(400).send({message: 'Error deleting order'});
     }

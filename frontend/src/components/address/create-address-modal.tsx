@@ -142,7 +142,6 @@ export const CreateAddressModal = ({ isOpen, onClose, initialData, onSuccess }: 
         );
 
         if (match) {
-          console.log(match.name);
           pendingDistrictRef.current = match.name;
         }
       }
@@ -207,7 +206,7 @@ export const CreateAddressModal = ({ isOpen, onClose, initialData, onSuccess }: 
             <DialogDescription id="form-desc" className="sr-only">Form nhập thông tin</DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit(onSubmit, onError)}>
+          <form>
             <div className="p-5 space-y-5 overflow-y-auto">
 
               <div className="grid grid-cols-2 gap-4">
@@ -302,7 +301,7 @@ export const CreateAddressModal = ({ isOpen, onClose, initialData, onSuccess }: 
                           </SelectTrigger>
                           <SelectContent className="max-h-[240px]">
                             {districts?.map((item) => (
-                              <SelectItem key={item.id} value={item.id}>
+                              <SelectItem key={item.id} value={item.name}>
                                 {item.name}
                               </SelectItem>
                             ))}
@@ -365,7 +364,13 @@ export const CreateAddressModal = ({ isOpen, onClose, initialData, onSuccess }: 
 
             <DialogFooter className="p-4 border-t bg-gray-50/50 sm:justify-end gap-2">
               <Button variant="outline" type="button" onClick={onClose}>Hủy bỏ</Button>
-              <Button type="submit">{isSubmitting ? <Loader2 className="animate-spin" /> : 'Lưu địa chỉ'}</Button>
+              <Button
+                type="button"
+                onClick={handleSubmit(onSubmit, onError)}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? <Loader2 className="animate-spin" /> : 'Lưu địa chỉ'}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
