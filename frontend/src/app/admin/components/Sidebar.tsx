@@ -176,7 +176,7 @@ export default function Sidebar({ isOpen }: { isOpen: boolean }) {
       </div>
 
       {/* MyAccount Modal */}
-      <MyAccount isOpen={showMyAccount} onClose={() => setShowMyAccount(false)} />
+      {/* <MyAccount isOpen={showMyAccount} onClose={() => setShowMyAccount(false)} /> */}
     </aside>
   );
 }

@@ -37,9 +37,12 @@ export default function UsersPage() {
     try {
       setLoading(true);
       const response = await axios.get(`${baseUrl}/users`);
-      setUsers(response.data);
+      // API có thể trả về { data: [...] } hoặc trực tiếp array
+      const usersData = response.data?.data || response.data || [];
+      setUsers(Array.isArray(usersData) ? usersData : []);
     } catch (error) {
       console.error("Error fetching users:", error);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
