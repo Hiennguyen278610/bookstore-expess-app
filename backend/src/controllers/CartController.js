@@ -69,12 +69,3 @@ export async function getCart(req, res) {
     res.status(400).json({ message: err.message });
   }
 }
-export async function getMyCart(req, res) {
-  try {
-    const customerId = req.user.id;
-    const cart = await getCartByCustomerId(customerId);
-    res.status(200).json(cart);
-  } catch (err) {
-    res.status(404).json({ message: err.message });
-  }
-}

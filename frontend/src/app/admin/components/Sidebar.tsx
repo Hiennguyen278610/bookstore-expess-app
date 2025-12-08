@@ -20,7 +20,7 @@ import MyAccount from "./MyAccount";
 export default function Sidebar({ isOpen }: { isOpen: boolean }) {
   const pathname = usePathname();
   const [showMyAccount, setShowMyAccount] = useState(false);
-  
+
   const isActive = (path: string) => {
     if (path === "/admin") {
       return pathname === "/admin";
@@ -30,36 +30,31 @@ export default function Sidebar({ isOpen }: { isOpen: boolean }) {
 
   const getItemClass = (path: string) => {
     const active = isActive(path);
-    return `flex items-center gap-3 px-4 py-3 pl-6 transition-all duration-300 rounded-lg ${
-      active
-        ? "bg-emerald-600 text-white shadow-sm"
-        : "text-gray-600 hover:bg-gray-100 hover:text-emerald-700"
-    } ${isOpen ? "" : "justify-center"}`;
+    return `flex items-center gap-3 px-4 py-3 pl-6 transition-all duration-300 rounded-lg relative group no-underline ${active
+      ? "bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-md scale-105 border-l-4 border-emerald-400"
+      : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 hover:scale-102 hover:shadow-sm hover:border-l-4 hover:border-emerald-200"
+      } ${isOpen ? "" : "justify-center"}`;
   };
 
   const getIconClass = (path: string) => {
     const active = isActive(path);
-    return `w-5 h-5 flex-shrink-0 transition-all duration-300 ${
-      active ? "text-white" : "text-gray-500"
-    }`;
+    return `w-5 h-5 flex-shrink-0 transition-all duration-300 ${active ? "text-white animate-pulse" : "text-gray-500 group-hover:text-emerald-600 group-hover:scale-110"
+      }`;
   };
 
   const getTextClass = (path: string) => {
     const active = isActive(path);
-    return `whitespace-nowrap transition-all duration-500 ${
-      active ? "font-semibold" : "font-normal"
-    } ${
-      isOpen
+    return `whitespace-nowrap transition-all duration-500 ${active ? "font-semibold" : "font-normal"
+      } ${isOpen
         ? "opacity-100 delay-300 max-w-[200px]"
         : "opacity-0 max-w-0 overflow-hidden"
-    }`;
+      } group-hover:no-underline`;
   };
 
   return (
     <aside
-      className={`bg-white h-screen shadow-lg fixed top-0 left-0 transition-all duration-500 z-50 border-r border-gray-200 ${
-        isOpen ? "w-64" : "w-20"
-      }`}
+      className={`bg-white h-screen shadow-lg fixed top-0 left-0 transition-all duration-500 z-50 border-r border-gray-200 ${isOpen ? "w-64" : "w-20"
+        }`}
     >
       {/* Header */}
       <div className="h-16 flex items-center justify-center bg-emerald-700 overflow-hidden border-b border-emerald-600">
@@ -181,7 +176,7 @@ export default function Sidebar({ isOpen }: { isOpen: boolean }) {
       </div>
 
       {/* MyAccount Modal */}
-      <MyAccount isOpen={showMyAccount} onClose={() => setShowMyAccount(false)} />
+      {/* <MyAccount isOpen={showMyAccount} onClose={() => setShowMyAccount(false)} /> */}
     </aside>
   );
 }

@@ -16,10 +16,13 @@ import authorRouter from './routes/AuthorRouters.js';
 import publisherRouter from './routes/PublisherRouters.js';
 import supplierRouter from './routes/SupplierRouters.js';
 import receiptRouter from './routes/ReceiptRouters.js';
+// import { setup } from './utils/hosting.js';
+import supplyReceiptRouter from './routes/SupplyReceiptRouters.js';
 import { setup } from './utils/hosting.js';
 import paymentRouter from './routes/PaymentRouters.js';
 import { errorHandler } from './middlewares/errorHandle.js';
 import addressRouter from './routes/AddressRouters.js';
+import statisticsRouter from './routes/StatisticsRouters.js';
 
 const app = express();
 connectDB(process.env.MONGODB_URL);
@@ -39,7 +42,9 @@ app.use(process.env.API_TAG + "/authors", authorRouter);
 app.use(process.env.API_TAG + "/publishers", publisherRouter)
 app.use(process.env.API_TAG + "/suppliers", supplierRouter)
 app.use(process.env.API_TAG + "/receipts", receiptRouter);
+app.use(process.env.API_TAG + "/supply-receipts", supplyReceiptRouter);
 app.use(process.env.API_TAG + "/payment", paymentRouter)
+app.use(process.env.API_TAG + "/statistics", statisticsRouter)
 app.listen(process.env.PORTBE, async () => {
   console.log("Server is running on port " + process.env.PORTBE);
 });

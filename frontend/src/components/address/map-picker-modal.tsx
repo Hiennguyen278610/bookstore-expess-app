@@ -1,38 +1,38 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, MapPin } from "lucide-react";
-
-const MapPicker = dynamic(() => import("@/components/map-picker"), {
-  ssr: false,
-  loading: () => (
-    <div className="h-full w-full flex items-center justify-center bg-gray-100">
-      <Loader2 className="animate-spin text-primary" />
-    </div>
-  ),
-});
+import { MapPin } from "lucide-react";
+import Map4DAutoSuggest from "@/components/map-picker";
 
 interface MapPickerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (data: { address: string; lat: number; lng: number }) => void;
+  onConfirm: (data: AddressComponent[]) => void;
 }
 
-export const MapPickerModal = ({ isOpen, onClose, onConfirm }: MapPickerModalProps) => {
-  const [tempSelected, setTempSelected] = useState<{
-    address: string;
-    lat: number;
-    lng: number;
-  } | null>(null);
+export interface AddressComponent {
+  types: string[];
+  name: string;
+}
 
-  const MAP4D_KEY = process.env.NEXT_PUBLIC_MAP4D_KEY || "";
+export const MapPickerModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+}: MapPickerModalProps) => {
+  const [addresstName, setAddressName] = useState<AddressComponent[]>([]);
 
   const handleConfirm = () => {
-    if (tempSelected) {
-      onConfirm(tempSelected);
+    if (addresstName) {
+      onConfirm(addresstName);
       onClose();
     }
   };
@@ -55,26 +55,26 @@ export const MapPickerModal = ({ isOpen, onClose, onConfirm }: MapPickerModalPro
         </DialogHeader>
 
         <div className="flex-1 relative bg-gray-100 overflow-hidden">
-          <MapPicker
-            apiKey={MAP4D_KEY}
-            className="h-full w-full"
-            onSelect={(data) => setTempSelected({
-              address: data.address,
-              lat: data.location.lat,
-              lng: data.location.lng
-            })}
-          />
+          <Map4DAutoSuggest setAddressName={setAddressName} />
         </div>
 
         <div className="p-4 bg-white border-t z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-500 font-bold uppercase">Vị trí đã chọn:</p>
+              <p className="text-xs text-gray-500 font-bold uppercase">
+                Vị trí đã chọn:
+              </p>
               <p className="text-sm font-medium text-gray-900 truncate">
-                {tempSelected ? tempSelected.address : "Vui lòng kéo bản đồ..."}
+                {addresstName
+                  ? addresstName.map((a) => a.name).join(", ")
+                  : "Vui lòng kéo bản đồ..."}
               </p>
             </div>
-            <Button onClick={handleConfirm} disabled={!tempSelected} className="w-full md:w-auto">
+            <Button
+              onClick={handleConfirm}
+              disabled={!addresstName}
+              className="w-full md:w-auto"
+            >
               Xác nhận vị trí
             </Button>
           </div>

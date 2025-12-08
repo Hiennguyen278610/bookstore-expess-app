@@ -7,6 +7,8 @@ import type { Supplier } from "@/types/supplier.type";
 import type { Book } from "@/types/book.type";
 import type { User } from "@/types/user.type";
 import Pagination from "../components/Pagination";
+import Swal from "sweetalert2";
+import toast from "react-hot-toast";
 
 export default function SupplyReceiptsPage() {
   const [receipts, setReceipts] = useState<SupplyReceipt[]>(fakeReceipts);
@@ -109,7 +111,11 @@ export default function SupplyReceiptsPage() {
   // Lưu phiếu nhập
   const handleSubmit = () => {
     if (!formData.supplier_id || formData.items.length === 0) {
-      alert("Vui lòng chọn nhà cung cấp và thêm ít nhất 1 sản phẩm!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Vui lòng chọn nhà cung cấp và thêm ít nhất 1 sản phẩm!',
+      });
       return;
     }
 
@@ -120,17 +126,24 @@ export default function SupplyReceiptsPage() {
         prev.map((r) =>
           r.id === editing.id
             ? {
-                id: r.id,
-                supplier_id: formData.supplier_id,
-                admin_id: formData.admin_id,
-                supply_date: formData.supply_date,
-                supply_status: formData.supply_status,
-                items: formData.items,
-                total_amount: total,
-              }
+              id: r.id,
+              supplier_id: formData.supplier_id,
+              admin_id: formData.admin_id,
+              supply_date: formData.supply_date,
+              supply_status: formData.supply_status,
+              items: formData.items,
+              total_amount: total,
+            }
             : r
         )
       );
+      Swal.fire({
+        icon: 'success',
+        title: 'Thành công',
+        text: 'Cập nhật phiếu nhập thành công!',
+        timer: 2000,
+        showConfirmButton: false,
+      });
     } else {
       const newReceipt: SupplyReceipt = {
         id: `r${Date.now()}`,
@@ -142,15 +155,42 @@ export default function SupplyReceiptsPage() {
         total_amount: total,
       };
       setReceipts((prev) => [...prev, newReceipt]);
+      Swal.fire({
+        icon: 'success',
+        title: 'Thành công',
+        text: 'Tạo phiếu nhập thành công!',
+        timer: 2000,
+        showConfirmButton: false,
+      });
     }
 
     resetForm();
   };
 
   // Xóa phiếu
-  const handleDelete = (id: string) => {
-    if (window.confirm("Bạn có chắc muốn xóa phiếu nhập này?")) {
+  const handleDelete = async (id: string, supplierName: string) => {
+    const result = await Swal.fire({
+      title: 'Xác nhận xóa phiếu nhập',
+      html: `Bạn có chắc muốn xóa phiếu nhập từ "<strong>${supplierName}</strong>"?<br/><small class="text-red-500">⚠️ Hành động này không thể hoàn tác!</small>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Hủy',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
       setReceipts((prev) => prev.filter((r) => r.id !== id));
+      toast.success('Xóa phiếu nhập thành công!', {
+        position: 'bottom-right',
+        duration: 3000,
+        style: {
+          fontSize: '15px',
+          padding: '16px',
+        },
+      });
     }
   };
 
@@ -177,41 +217,37 @@ export default function SupplyReceiptsPage() {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => { setStatusFilter("all"); setCurrentPage(1); }}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
-              statusFilter === "all"
-                ? "bg-teal-600 text-white shadow-md"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${statusFilter === "all"
+              ? "bg-teal-600 text-white shadow-md"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
           >
             Tất cả <span className="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs">{statusCounts.all}</span>
           </button>
           <button
             onClick={() => { setStatusFilter("pending"); setCurrentPage(1); }}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
-              statusFilter === "pending"
-                ? "bg-amber-500 text-white shadow-md"
-                : "bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200"
-            }`}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${statusFilter === "pending"
+              ? "bg-amber-500 text-white shadow-md"
+              : "bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200"
+              }`}
           >
             Đang xử lý <span className="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs">{statusCounts.pending}</span>
           </button>
           <button
             onClick={() => { setStatusFilter("completed"); setCurrentPage(1); }}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
-              statusFilter === "completed"
-                ? "bg-teal-500 text-white shadow-md"
-                : "bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200"
-            }`}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${statusFilter === "completed"
+              ? "bg-teal-500 text-white shadow-md"
+              : "bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200"
+              }`}
           >
             Hoàn tất <span className="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs">{statusCounts.completed}</span>
           </button>
           <button
             onClick={() => { setStatusFilter("cancelled"); setCurrentPage(1); }}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
-              statusFilter === "cancelled"
-                ? "bg-red-500 text-white shadow-md"
-                : "bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"
-            }`}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${statusFilter === "cancelled"
+              ? "bg-red-500 text-white shadow-md"
+              : "bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"
+              }`}
           >
             Đã hủy <span className="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs">{statusCounts.cancelled}</span>
           </button>
@@ -251,18 +287,17 @@ export default function SupplyReceiptsPage() {
                           {new Date(r.supply_date).toLocaleDateString("vi-VN")}
                         </td>
                         <td className="px-4 py-4">
-                          <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium capitalize ${
-                            r.supply_status === "completed"
-                              ? "bg-teal-50 text-teal-700 border border-teal-200"
-                              : r.supply_status === "cancelled"
+                          <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium capitalize ${r.supply_status === "completed"
+                            ? "bg-teal-50 text-teal-700 border border-teal-200"
+                            : r.supply_status === "cancelled"
                               ? "bg-red-50 text-red-700 border border-red-200"
                               : "bg-amber-50 text-amber-700 border border-amber-200"
-                          }`}>
+                            }`}>
                             {r.supply_status === "completed"
                               ? "Hoàn tất"
                               : r.supply_status === "cancelled"
-                              ? "Đã hủy"
-                              : "Đang xử lý"}
+                                ? "Đã hủy"
+                                : "Đang xử lý"}
                           </span>
                         </td>
                         <td className="px-4 py-4 text-right text-gray-800 font-semibold">
@@ -277,7 +312,7 @@ export default function SupplyReceiptsPage() {
                               <Pencil className="w-4 h-4" />
                             </button>
                             <button
-                              onClick={() => handleDelete(r.id)}
+                              onClick={() => handleDelete(r.id, supplier?.name || "Không rõ")}
                               className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-200"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -304,8 +339,8 @@ export default function SupplyReceiptsPage() {
 
       {/* MODAL */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl p-8 w-full max-w-3xl max-h-[90vh] overflow-y-auto transform transition-all animate-slideUp border border-emerald-300 shadow-[0_0_40px_rgba(16,185,129,0.3)]">
             <h3 className="text-xl font-bold text-gray-800 mb-5 pb-3 border-b-2 border-emerald-600">
               {editing ? "Sửa phiếu nhập" : "Thêm phiếu nhập mới"}
             </h3>
