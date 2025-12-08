@@ -83,7 +83,7 @@ export default function PublishersPage() {
       }
       await fetchPublishers();
       resetForm();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving publisher:", error);
       console.error("Error response:", error.response?.data);
       alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu nhà xuất bản'}`);
@@ -97,7 +97,7 @@ export default function PublishersPage() {
         await deletePublisher(id);
         alert('Xóa nhà xuất bản thành công!');
         await fetchPublishers();
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error deleting publisher:", error);
         console.error("Error response:", error.response?.data);
         alert(`Lỗi: ${error.response?.data?.message || 'Không thể xóa nhà xuất bản'}`);
@@ -216,8 +216,8 @@ export default function PublishersPage() {
 
       {/* Modal thêm/sửa */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+        <div className="fixed inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md border border-gray-200">
             <h3 className="text-xl font-bold text-gray-800 mb-5 pb-3 border-b-2 border-emerald-600">
               {editingPublisher ? "Sửa nhà xuất bản" : "Thêm nhà xuất bản mới"}
             </h3>
