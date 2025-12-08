@@ -3,12 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { createOrder } from "@/services/orderservices";
 import { formatPrice } from "@/lib/utils";
 import CheckoutItem from "@/components/checkout/CheckoutItem"; // Component tạo ở bước 2
 import { ArrowLeft, MapPin, ReceiptText } from "lucide-react";
 import { CartItem } from "@/types/cart.type";
 import { useCartStore } from "@/stores/useCartStore";
+import { orderServices } from "@/services/orderServices";
 
 const CheckoutPage = () => {
   const router = useRouter();
@@ -35,8 +35,8 @@ const CheckoutPage = () => {
       setLoading(true);
 
       // Gọi API tạo đơn
-      const order = await createOrder(items);
-
+      const order = await orderServices.createOrder(items);
+      console.log(order)
       // Xóa LocalStorage và Clear giỏ hàng (nếu muốn)
       localStorage.removeItem('checkout_session');
       await clearCart()

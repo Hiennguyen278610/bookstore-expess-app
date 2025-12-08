@@ -6,6 +6,8 @@ import { OrderTable } from "./components/OrderTable";
 import useSWR from "swr";
 import { orderServices } from "@/services/orderServices";
 import { OrderPagination } from "./components/OrderPagination";
+import { Order } from "@/types/order.type";
+import OrderDetailDialog from "./components/OrderDetailDialog";
 
 const page = () => {
   const [filters, setFilters] = useState({
@@ -15,6 +17,9 @@ const page = () => {
     page: 1,
     limit: 10,
   });
+
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
 
   const { data: result, isLoading } = useSWR(["/get-orders", filters], () =>
     orderServices.getAllOrders(
@@ -65,6 +70,11 @@ const page = () => {
     setFilters((prev) => ({ ...prev, page: page }));
   };
 
+  const handleViewOrder = (order: Order) => {
+    setSelectedOrder(order);
+    setIsViewDialogOpen(true);
+  };
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white border-l-4 border-teal-600 px-6 py-5 rounded-lg shadow-sm mb-6">
@@ -91,7 +101,10 @@ const page = () => {
         </div>
       ) : (
         <>
-          <OrderTable orders={result?.data ?? []} />
+          <OrderTable
+            orders={result?.data ?? []}
+            onViewOrder={handleViewOrder}
+          />
           <OrderPagination
             currentPage={pagination.currentPage}
             totalPages={pagination.totalPages}
@@ -101,6 +114,12 @@ const page = () => {
           />
         </>
       )}
+
+      <OrderDetailDialog
+        order={selectedOrder}
+        open={isViewDialogOpen}
+        onOpenChange={setIsViewDialogOpen}
+      />
     </div>
   );
 };
