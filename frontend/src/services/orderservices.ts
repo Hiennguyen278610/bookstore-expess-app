@@ -70,8 +70,4 @@ export const orderServices = {
       mutate,
     };
   },
-
-  getOrderDetailById : (orderId : string) => {
-    
-  }
 };
