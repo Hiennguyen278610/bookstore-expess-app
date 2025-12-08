@@ -36,9 +36,11 @@ export async function createBookService(book, files) {
       .populate("categoryId", "name")
       .populate("publisherId", "name")
       .lean();
-    populatedBook.authors = await BookAuthor.find({
+    const authorsRel = await BookAuthor.find({
       bookId: newBook._id,
     }).populate("authorId", "name");
+    // Map to same structure as getAllBooksService
+    populatedBook.authors = authorsRel.map(rel => rel.authorId);
     return populatedBook;
   } catch (err) {
     throw new Error(err.message);
@@ -46,17 +48,28 @@ export async function createBookService(book, files) {
 }
 
 export async function updateBookService(id, data, files) {
-  const { name, categoryId, publisherId, quantity, price, authors, existingImages } = data;
+  let { name, categoryId, publisherId, quantity, price, authors, existingImages } = data;
   const book = await Book.findById(id);
   if (!book) {
     throw new Error(`Book with id ${id} not found`);
   }
+
+  // Parse authors if it's a JSON string
+  if (typeof authors === 'string') {
+    try {
+      authors = JSON.parse(authors);
+    } catch (e) {
+      console.error('Failed to parse authors:', e);
+    }
+  }
+
   book.name = name;
   book.categoryId = categoryId;
   book.publisherId = publisherId;
   book.quantity = quantity;
   book.price = price;
-  if (Array.isArray(authors)) {
+
+  if (authors && Array.isArray(authors)) {
     await BookAuthor.deleteMany({ bookId: book._id });
     if (authors.length > 0) {
       const newAuthors = [];
@@ -86,10 +99,12 @@ export async function updateBookService(id, data, files) {
     .populate("categoryId", "name")
     .populate("publisherId", "name")
     .lean();
-  populatedBook.authors = await BookAuthor.find({ bookId: book._id }).populate(
+  const authorsRel = await BookAuthor.find({ bookId: book._id }).populate(
     "authorId",
     "name"
   );
+  // Map to same structure as getAllBooksService
+  populatedBook.authors = authorsRel.map(rel => rel.authorId);
   return populatedBook;
 }
 export async function findBookService(_id) {

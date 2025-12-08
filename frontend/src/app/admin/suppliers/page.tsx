@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import Swal from "sweetalert2";
+import toast from "react-hot-toast";
 import type { Supplier } from "@/types/supplier.type";
 import Pagination from "../components/Pagination";
 import { getAllSuppliers, createSupplier, updateSupplier, deleteSupplier } from "@/api/supplierApi";
@@ -89,40 +91,79 @@ export default function SuppliersPage() {
   // Submit form
   const handleSubmit = async () => {
     if (!formData.name || !formData.phone) {
-      alert("Vui lòng nhập ít nhất tên và số điện thoại!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Vui lòng nhập ít nhất tên và số điện thoại!',
+      });
       return;
     }
 
     try {
       if (editingSupplier) {
-        console.log("Updating supplier with ID:", editingSupplier._id);
-        console.log("Data:", formData);
         await updateSupplier(editingSupplier._id, formData);
-        alert('Cập nhật nhà cung cấp thành công!');
+        Swal.fire({
+          icon: 'success',
+          title: 'Thành công',
+          text: 'Cập nhật nhà cung cấp thành công!',
+          timer: 2000,
+          showConfirmButton: false,
+        });
       } else {
         await createSupplier(formData);
-        alert('Thêm nhà cung cấp thành công!');
+        Swal.fire({
+          icon: 'success',
+          title: 'Thành công',
+          text: 'Thêm nhà cung cấp thành công!',
+          timer: 2000,
+          showConfirmButton: false,
+        });
       }
       resetForm();
       fetchSuppliers();
     } catch (error) {
       console.error('Error saving supplier:', error);
-      console.error('Error response:', error.response?.data);
-      alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu nhà cung cấp'}`);
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: error.response?.data?.message || 'Không thể lưu nhà cung cấp',
+      });
     }
   };
 
   // Xóa
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Bạn có chắc muốn xóa nhà cung cấp này?")) {
+  const handleDelete = async (id: string, name: string) => {
+    const result = await Swal.fire({
+      title: 'Xác nhận xóa nhà cung cấp',
+      html: `Bạn có chắc muốn xóa "<strong>${name}</strong>"?<br/><small class="text-red-500">⚠️ Hành động này không thể hoàn tác!</small>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Hủy',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
       try {
         await deleteSupplier(id);
-        alert('Xóa nhà cung cấp thành công!');
+        toast.success('Xóa nhà cung cấp thành công!', {
+          position: 'bottom-right',
+          duration: 3000,
+          style: {
+            fontSize: '15px',
+            padding: '16px',
+          },
+        });
         fetchSuppliers();
       } catch (error) {
         console.error('Error deleting supplier:', error);
-        console.error('Error response:', error.response?.data);
-        alert(`Lỗi: ${error.response?.data?.message || 'Không thể xóa nhà cung cấp'}`);
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi',
+          text: error.response?.data?.message || 'Lỗi khi xóa nhà cung cấp!',
+        });
       }
     }
   };
@@ -207,7 +248,7 @@ export default function SuppliersPage() {
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(supplier._id)}
+                            onClick={() => handleDelete(supplier._id, supplier.name)}
                             className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-200"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -233,8 +274,8 @@ export default function SuppliersPage() {
 
       {/* MODAL */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+        <div className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl p-8 w-full max-w-md transform transition-all animate-slideUp border border-emerald-300 shadow-[0_0_40px_rgba(16,185,129,0.3)]">
             <h3 className="text-xl font-bold text-gray-800 mb-5 pb-3 border-b-2 border-emerald-600">
               {editingSupplier ? "Sửa nhà cung cấp" : "Thêm nhà cung cấp mới"}
             </h3>

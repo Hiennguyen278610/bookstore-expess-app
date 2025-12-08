@@ -10,6 +10,8 @@ import type { Publisher } from "@/types/publisher.type";
 import axios from "axios";
 import { baseUrl } from "@/constants/index";
 import { createBook, updateBook, deleteBook } from "@/api/bookApi";
+import Swal from "sweetalert2";
+import toast from "react-hot-toast";
 
 // Hàm tạo slug từ tên sách
 const generateSlug = (name: string): string => {
@@ -148,7 +150,11 @@ export default function BooksPage() {
   // CRUD
   const handleSubmit = async () => {
     if (!formData.name || !formData.categoryId || !formData.publisherId || formData.authorIds.length === 0) {
-      alert("Vui lòng điền đầy đủ thông tin!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Vui lòng điền đầy đủ thông tin!',
+      });
       return;
     }
 
@@ -172,34 +178,77 @@ export default function BooksPage() {
 
       if (editingBook) {
         await updateBook(editingBook._id, submitData);
-        alert('Cập nhật sách thành công!');
+        Swal.fire({
+          icon: 'success',
+          title: 'Thành công',
+          text: 'Cập nhật sách thành công!',
+          timer: 2000,
+          showConfirmButton: false,
+        });
       } else {
         if (selectedFiles.length === 0) {
-          alert('Vui lòng chọn ít nhất 1 ảnh cho sách mới!');
+          Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Vui lòng chọn ít nhất 1 ảnh cho sách mới!',
+          });
           return;
         }
         await createBook(submitData);
-        alert('Thêm sách thành công!');
+        Swal.fire({
+          icon: 'success',
+          title: 'Thành công',
+          text: 'Thêm sách thành công!',
+          timer: 2000,
+          showConfirmButton: false,
+        });
       }
       fetchBooks();
       resetForm();
     } catch (error) {
       console.error("Error saving book:", error);
       console.error("Error response:", error.response?.data);
-      alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu sách'}`);
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: error.response?.data?.message || 'Không thể lưu sách',
+      });
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Bạn có chắc muốn xóa sách này?")) {
+  const handleDelete = async (id: string, name: string) => {
+    const result = await Swal.fire({
+      title: 'Xác nhận xóa sách',
+      html: `Bạn có chắc muốn xóa "<strong>${name}</strong>"?<br/><small class="text-red-500">⚠️ Hành động này không thể hoàn tác!</small>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Hủy',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
       try {
         await deleteBook(id);
-        alert('Xóa sách thành công!');
+        toast.success('Xóa sách thành công!', {
+          position: 'bottom-right',
+          duration: 3000,
+          style: {
+            fontSize: '15px',
+            padding: '16px',
+          },
+        });
         fetchBooks();
       } catch (error) {
         console.error("Error deleting book:", error);
         console.error("Error response:", error.response?.data);
-        alert(`Lỗi: ${error.response?.data?.message || 'Không thể xóa sách'}`);
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi',
+          text: error.response?.data?.message || 'Không thể xóa sách',
+        });
       }
     }
   };
@@ -462,7 +511,7 @@ export default function BooksPage() {
                       </td>
                       <td className="px-4 py-4 text-gray-800 font-medium">{book.name}</td>
                       <td className="px-4 py-4 text-gray-600">{book.categoryId?.name || 'N/A'}</td>
-                      <td className="px-4 py-4 text-gray-600">{book.authors?.map(a => a.name).join(", ") || 'N/A'}</td>
+                      <td className="px-4 py-4 text-gray-600">{book.authors?.filter(a => a && a.name).map(a => a.name).join(", ") || 'N/A'}</td>
                       <td className="px-4 py-4 text-gray-600">{book.publisherId?.name || 'N/A'}</td>
                       <td className="px-4 py-4 text-right">
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${book.quantity > 10
@@ -492,7 +541,7 @@ export default function BooksPage() {
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(book._id)}
+                            onClick={() => handleDelete(book._id, book.name)}
                             className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-200"
                             title="Xóa"
                           >
@@ -523,8 +572,8 @@ export default function BooksPage() {
 
       {/* MODAL */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all animate-slideUp border border-emerald-300 shadow-[0_0_40px_rgba(16,185,129,0.3)]">
             <h3 className="text-xl font-bold text-gray-800 mb-5 pb-3 border-b-2 border-emerald-600">
               {editingBook ? "Sửa thông tin sách" : "Thêm sách mới"}
             </h3>
