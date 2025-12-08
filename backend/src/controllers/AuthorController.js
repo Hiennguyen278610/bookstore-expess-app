@@ -2,7 +2,8 @@ import {
   createAuthorService,
   deleteAuthorService,
   getAuthorByIdService,
-  updateAuthorService
+  updateAuthorService,
+  getAllAuthorsService
 } from '../services/AuthorService.js';
 
 export async function createAuthor(req, res) {
@@ -48,6 +49,16 @@ export async function getAuthorById(req, res) {
     }
     res.status(200).json(author);
   }catch(err){
+    res.status(400).json({ message: err.message });
+  }
+}
+
+
+export async function getAllAuthors(req, res) {
+  try {
+    const authors = await getAllAuthorsService();
+    res.status(200).json(authors);
+  } catch (err) {
     res.status(400).json({ message: err.message });
   }
 }

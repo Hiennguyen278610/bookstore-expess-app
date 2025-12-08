@@ -1,18 +1,37 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
-import { authors as fakeAuthors } from "../fakedata";
 import type { Author } from "@/types/author.type";
 import Pagination from "../components/Pagination";
+import { getAllAuthors, createAuthor, updateAuthor, deleteAuthor } from "@/api/authorApi";
 
 export default function AuthorsPage() {
-  const [authors, setAuthors] = useState<Author[]>(fakeAuthors);
+  const [authors, setAuthors] = useState<Author[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
   const [formData, setFormData] = useState<{ name: string }>({ name: "" });
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // Fetch authors from API
+  useEffect(() => {
+    fetchAuthors();
+  }, []);
+
+  const fetchAuthors = async () => {
+    try {
+      setLoading(true);
+      const data = await getAllAuthors();
+      setAuthors(data);
+    } catch (error) {
+      console.error("Error fetching authors:", error);
+      alert("Lỗi khi tải danh sách tác giả!");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredAuthors = authors.filter((a) =>
     a.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -42,32 +61,40 @@ export default function AuthorsPage() {
     setShowModal(false);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.name.trim()) {
       alert("Vui lòng nhập tên tác giả!");
       return;
     }
 
-    if (editingAuthor) {
-      setAuthors((prev) =>
-        prev.map((a) =>
-          a.id === editingAuthor.id ? { ...a, name: formData.name } : a
-        )
-      );
-    } else {
-      const newAuthor: Author = {
-        id: `a${Date.now()}`,
-        name: formData.name.trim(),
-      };
-      setAuthors((prev) => [...prev, newAuthor]);
+    try {
+      if (editingAuthor) {
+        console.log("Updating author with ID:", editingAuthor._id);
+        console.log("Data:", { name: formData.name.trim() });
+        await updateAuthor(editingAuthor._id, { name: formData.name.trim() });
+        alert('Cập nhật tác giả thành công!');
+      } else {
+        await createAuthor({ name: formData.name.trim() });
+        alert('Thêm tác giả thành công!');
+      }
+      await fetchAuthors();
+      resetForm();
+    } catch (error: any) {
+      console.error("Error saving author:", error);
+      console.error("Error response:", error.response?.data);
+      alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu tác giả'}`);
     }
-
-    resetForm();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm("Bạn có chắc muốn xóa tác giả này?")) {
-      setAuthors((prev) => prev.filter((a) => a.id !== id));
+      try {
+        await deleteAuthor(id);
+        await fetchAuthors();
+      } catch (error) {
+        console.error("Error deleting author:", error);
+        alert("Lỗi khi xóa tác giả!");
+      }
     }
   };
 
@@ -118,7 +145,16 @@ export default function AuthorsPage() {
                 </tr>
               </thead>
               <tbody>
-                {paginatedAuthors.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td
+                      colSpan={2}
+                      className="px-4 py-12 text-center text-gray-400"
+                    >
+                      Đang tải dữ liệu...
+                    </td>
+                  </tr>
+                ) : paginatedAuthors.length === 0 ? (
                   <tr>
                     <td
                       colSpan={2}
@@ -130,7 +166,7 @@ export default function AuthorsPage() {
                 ) : (
                   paginatedAuthors.map((a) => (
                     <tr
-                      key={a.id}
+                      key={a._id}
                       className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200"
                     >
                       <td className="px-4 py-4 text-gray-800 font-medium">
@@ -146,7 +182,7 @@ export default function AuthorsPage() {
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(a.id)}
+                            onClick={() => handleDelete(a._id)}
                             className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-200"
                             title="Xóa"
                           >
@@ -173,8 +209,8 @@ export default function AuthorsPage() {
 
       {/* MODAL */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+        <div className="fixed inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md border border-gray-200">
             <h3 className="text-xl font-bold text-gray-800 mb-5 pb-3 border-b-2 border-emerald-600">
               {editingAuthor ? "Sửa thông tin tác giả" : "Thêm tác giả mới"}
             </h3>

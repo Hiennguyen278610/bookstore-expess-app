@@ -1,7 +1,13 @@
 export interface User {
-  id: string;
+  _id: string;
   fullName: string;
   username: string;
+  email: string;
+  phone: string;
   password: string;
-  role: "USER" | "ADMIN";
+  role: "user" | "admin";
+  isVerified: boolean;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
 }

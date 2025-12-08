@@ -1,18 +1,37 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
-import { publishers as fakePublishers } from "../fakedata";
 import type { Publisher } from "@/types/publisher.type";
 import Pagination from "../components/Pagination";
+import { getAllPublishers, createPublisher, updatePublisher, deletePublisher } from "@/api/publisherApi";
 
 export default function PublishersPage() {
-  const [publishers, setPublishers] = useState<Publisher[]>(fakePublishers);
+  const [publishers, setPublishers] = useState<Publisher[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [editingPublisher, setEditingPublisher] = useState<Publisher | null>(null);
   const [formData, setFormData] = useState<{ name: string }>({ name: "" });
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // Fetch publishers from API
+  useEffect(() => {
+    fetchPublishers();
+  }, []);
+
+  const fetchPublishers = async () => {
+    try {
+      setLoading(true);
+      const data = await getAllPublishers();
+      setPublishers(data);
+    } catch (error) {
+      console.error("Error fetching publishers:", error);
+      alert("Lỗi khi tải danh sách nhà xuất bản!");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Lọc theo tên
   const filteredPublishers = publishers.filter((pub) =>
@@ -46,33 +65,43 @@ export default function PublishersPage() {
   };
 
   // Lưu form
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.name.trim()) {
       alert("Vui lòng nhập tên nhà xuất bản!");
       return;
     }
 
-    if (editingPublisher) {
-      setPublishers((prev) =>
-        prev.map((p) =>
-          p.id === editingPublisher.id ? { ...p, name: formData.name.trim() } : p
-        )
-      );
-    } else {
-      const newPublisher: Publisher = {
-        id: `p${Date.now()}`,
-        name: formData.name.trim(),
-      };
-      setPublishers((prev) => [...prev, newPublisher]);
+    try {
+      if (editingPublisher) {
+        console.log("Updating publisher with ID:", editingPublisher._id);
+        console.log("Data:", { name: formData.name.trim() });
+        await updatePublisher(editingPublisher._id, { name: formData.name.trim() });
+        alert('Cập nhật nhà xuất bản thành công!');
+      } else {
+        await createPublisher({ name: formData.name.trim() });
+        alert('Thêm nhà xuất bản thành công!');
+      }
+      await fetchPublishers();
+      resetForm();
+    } catch (error: any) {
+      console.error("Error saving publisher:", error);
+      console.error("Error response:", error.response?.data);
+      alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu nhà xuất bản'}`);
     }
-
-    resetForm();
   };
 
   // Xóa
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm("Bạn có chắc muốn xóa nhà xuất bản này?")) {
-      setPublishers((prev) => prev.filter((p) => p.id !== id));
+      try {
+        await deletePublisher(id);
+        alert('Xóa nhà xuất bản thành công!');
+        await fetchPublishers();
+      } catch (error: any) {
+        console.error("Error deleting publisher:", error);
+        console.error("Error response:", error.response?.data);
+        alert(`Lỗi: ${error.response?.data?.message || 'Không thể xóa nhà xuất bản'}`);
+      }
     }
   };
 
@@ -123,7 +152,16 @@ export default function PublishersPage() {
                 </tr>
               </thead>
               <tbody>
-                {paginatedPublishers.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td
+                      colSpan={2}
+                      className="px-4 py-12 text-center text-gray-400"
+                    >
+                      Đang tải dữ liệu...
+                    </td>
+                  </tr>
+                ) : paginatedPublishers.length === 0 ? (
                   <tr>
                     <td
                       colSpan={2}
@@ -135,7 +173,7 @@ export default function PublishersPage() {
                 ) : (
                   paginatedPublishers.map((pub) => (
                     <tr
-                      key={pub.id}
+                      key={pub._id}
                       className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200"
                     >
                       <td className="px-4 py-4 text-gray-800 font-medium">
@@ -151,7 +189,7 @@ export default function PublishersPage() {
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(pub.id)}
+                            onClick={() => handleDelete(pub._id)}
                             className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-200"
                             title="Xóa"
                           >
@@ -178,8 +216,8 @@ export default function PublishersPage() {
 
       {/* Modal thêm/sửa */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+        <div className="fixed inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md border border-gray-200">
             <h3 className="text-xl font-bold text-gray-800 mb-5 pb-3 border-b-2 border-emerald-600">
               {editingPublisher ? "Sửa nhà xuất bản" : "Thêm nhà xuất bản mới"}
             </h3>

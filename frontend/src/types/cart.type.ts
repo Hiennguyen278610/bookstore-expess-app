@@ -27,8 +27,4 @@ export interface CartStore {
   removeCartItem: (cartDetailId: string) => Promise<void>;
   clearCart: () => Promise<void>;
 
-  // Selectors (computed values)
-  cartCount: number;
-  cartTotal: number;
-  cartItems: CartItem[];
 }
