@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
-import { Toaster } from "react-hot-toast";
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
-import { Toaster } from "sonner";
+import { Toaster } from "react-hot-toast";
+import { Toaster as ToastSonner } from "sonner";
+
 
 export default function AdminLayout({
   children,
@@ -31,7 +32,7 @@ export default function AdminLayout({
           }`}
       >
         <Navbar toggleSidebar={() => setIsOpen(!isOpen)} isOpen={isOpen} />
-        <Toaster richColors />
+        <ToastSonner richColors />
         <main className="p-6 mt-16 transition-all duration-700 bg-gray-100">
           {children}
         </main>

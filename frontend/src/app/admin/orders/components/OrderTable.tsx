@@ -50,17 +50,7 @@ export interface OrderItem {
 
 interface OrderTableProps {
   orders: Order[];
-  loading?: boolean;
-  onViewOrder?: (order: Order) => void;
-  onChangePurchaseStatus?: (
-    orderId: string,
-    newPurchaseStatus: Order["purchaseStatus"]
-  ) => void;
-
-  onChangePaymentStatus?: (
-    orderId: string,
-    newPurchaseStatus: Order["paymentStatus"]
-  ) => void;
+  onViewOrder: (order: Order) => void;
 }
 
 // Status Badge Components

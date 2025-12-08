@@ -2,9 +2,10 @@ import {
   createOrderService,
   deleteOrderService,
   getAllOrdersByCustomerIdService,
+  getAllOrdersService,
+  getOrderDetailByIdService,
   updateOrderService,
 } from "../services/OrderService.js";
-import { getAllOrdersService } from "../services/OrderService.js";
 
 
 //Get orders by customerId
@@ -39,7 +40,8 @@ export const getAllOrders = async (req, res) => {
 // Get Order Details by order Id
 export async function getOrderDetailById(req, res) {
   try {
-    const order = getOrderByIdService(req.params.id);
+    console.log(req.params.id)
+    const order = await getOrderDetailByIdService(req.params.id);
     if (!order) {
       return res.status(400).send({ message: "Error deleting order" });
     }
