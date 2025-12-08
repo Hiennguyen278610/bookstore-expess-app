@@ -61,15 +61,19 @@ export function LoginForm({
 
   return (
     <div className={cn("grid gap-6", className)}>
-      <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
-        <ButtonLoginGoogle onSuccess={onSuccess} />
-      </GoogleOAuthProvider>
+      {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && (
+        <>
+          <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
+            <ButtonLoginGoogle onSuccess={onSuccess} />
+          </GoogleOAuthProvider>
 
-      <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
+          <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
             <span className="bg-background text-muted-foreground relative z-10 px-2">
               Hoặc
             </span>
-      </div>
+          </div>
+        </>
+      )}
 
       <form
         className="grid gap-4"
