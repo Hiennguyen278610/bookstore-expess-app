@@ -1,6 +1,6 @@
-import { publicApi } from "@/lib/axios";
 import { Book } from "@/types/book.type";
 import { ApiResponse } from "@/types/response.type";
+import api from '@/lib/axios';
 
 export const bookServices = {
   getBooks: async (
@@ -30,7 +30,7 @@ export const bookServices = {
         queryParams.publishers = publishers.join(",");
       }
 
-      const response = await publicApi.get<ApiResponse<Book[]>>(
+      const response = await api.get<ApiResponse<Book[]>>(
         `/books`,
         {
           params: queryParams,
@@ -45,7 +45,7 @@ export const bookServices = {
 
   getMaxPrice: async (): Promise<number> => {
     try {
-      const response = await publicApi.get<number>("/books/max-price");
+      const response = await api.get<number>("/books/max-price");
       return response.data;
     } catch (error) {
       console.error(error);
@@ -55,7 +55,7 @@ export const bookServices = {
 
   getBookById: async (productId: string): Promise<Book> => {
     try {
-      const response = await publicApi.get<Book>(`/books/${productId}`);
+      const response = await api.get<Book>(`/books/${productId}`);
       return response.data;
     } catch (error) {
       console.error(error);

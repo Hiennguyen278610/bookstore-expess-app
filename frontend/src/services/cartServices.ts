@@ -1,34 +1,18 @@
-import { baseUrl } from "@/constants";
-import { customerApi } from "@/lib/axios";
+import api from "@/lib/axios";
 import { Cart } from "@/types/cart.type";
 import { ApiResponse } from "@/types/response.type";
 
 export const cartServices = {
-  fetchCart: async (): Promise<ApiResponse<Cart>> => {
-    try {
-      const response = await fetch(`${baseUrl}/cart`, {
-        method: "GET",
-        credentials: "include", // để gửi cookie HttpOnly
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-
-      const data: ApiResponse<Cart> = await response.json();
-      return data;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+  fetchCart: async (): Promise<Cart> => {
+    console.log("fetching cart...");
+    const response = await api.get<Cart>("/cart");
+    console.log(response.data);
+    return response.data;
   },
 
-  addToCart: async (
-    bookId: string,
-    quantity: number = 1
-  ): Promise<ApiResponse<Cart>> => {
+  addToCart: async (bookId: string, quantity: number = 1): Promise<Cart> => {
     try {
-      const response = await customerApi.post<ApiResponse<Cart>>("/cart", {
+      const response = await api.post<Cart>("/cart", {
         bookId,
         quantity,
       });
@@ -39,17 +23,11 @@ export const cartServices = {
     }
   },
 
-  updateCart: async (
-    cartDetailId: string,
-    quantity: number
-  ): Promise<ApiResponse<Cart>> => {
+  updateCart: async (cartDetailId: string, quantity: number): Promise<Cart> => {
     try {
-      const response = await customerApi.put<ApiResponse<Cart>>(
-        `/cart/${cartDetailId}`,
-        {
-          quantity,
-        }
-      );
+      const response = await api.put<Cart>(`/cart/${cartDetailId}`, {
+        quantity,
+      });
       return response.data;
     } catch (error) {
       console.error(error);
@@ -57,11 +35,9 @@ export const cartServices = {
     }
   },
 
-  removeCartItem: async (cartDetailId: string): Promise<ApiResponse<Cart>> => {
+  removeCartItem: async (cartDetailId: string): Promise<Cart> => {
     try {
-      const response = await customerApi.delete<ApiResponse<Cart>>(
-        `/cart/${cartDetailId}`
-      );
+      const response = await api.delete<Cart>(`/cart/${cartDetailId}`);
       return response.data;
     } catch (error) {
       console.error(error);
@@ -71,7 +47,7 @@ export const cartServices = {
 
   clearCart: async () => {
     try {
-      const response = await customerApi.delete("/cart");
+      const response = await api.delete("/cart");
       return response.status;
     } catch (error) {
       console.error(error);

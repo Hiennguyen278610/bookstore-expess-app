@@ -1,18 +1,37 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
-import { categories as fakeCategories } from "../fakedata";
 import type { Category } from "@/types/category.type";
 import Pagination from "../components/Pagination";
+import { getAllCategories, createCategory, updateCategory, deleteCategory } from "@/api/categoryApi";
 
 export default function CategoriesPage() {
-  const [categories, setCategories] = useState<Category[]>(fakeCategories);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [formData, setFormData] = useState<{ name: string }>({ name: "" });
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // Fetch categories from API
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const data = await getAllCategories();
+      setCategories(data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      alert("Lỗi khi tải danh sách danh mục!");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredCategories = categories.filter((cat) =>
     cat.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -42,33 +61,43 @@ export default function CategoriesPage() {
     setShowModal(false);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.name.trim()) {
       alert("Vui lòng nhập tên danh mục!");
       return;
     }
 
-    if (editingCategory) {
-      setCategories((prev) =>
-        prev.map((c) =>
-          c._id === editingCategory._id ? { ...c, name: formData.name.trim() } : c
-        )
-      );
-    } else {
-      const newCategory: Category = {
-        _id: `c${Date.now()}`,
-        name: formData.name.trim(),
-        slug: formData.name.trim().toLowerCase().replace(/\s+/g, "-"),
-      };
-      setCategories((prev) => [...prev, newCategory]);
+    try {
+      const slug = formData.name.trim().toLowerCase().replace(/\s+/g, "-");
+      if (editingCategory) {
+        console.log("Updating category with ID:", editingCategory._id);
+        console.log("Data:", { name: formData.name.trim(), slug });
+        await updateCategory(editingCategory._id, { name: formData.name.trim(), slug });
+        alert('Cập nhật danh mục thành công!');
+      } else {
+        await createCategory({ name: formData.name.trim(), slug });
+        alert('Thêm danh mục thành công!');
+      }
+      await fetchCategories();
+      resetForm();
+    } catch (error) {
+      console.error("Error saving category:", error);
+      console.error("Error response:", error.response?.data);
+      alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu danh mục'}`);
     }
-
-    resetForm();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm("Bạn có chắc muốn xóa danh mục này?")) {
-      setCategories((prev) => prev.filter((c) => c._id !== id));
+      try {
+        await deleteCategory(id);
+        alert('Xóa danh mục thành công!');
+        await fetchCategories();
+      } catch (error) {
+        console.error("Error deleting category:", error);
+        console.error("Error response:", error.response?.data);
+        alert(`Lỗi: ${error.response?.data?.message || 'Không thể xóa danh mục'}`);
+      }
     }
   };
 
@@ -119,7 +148,16 @@ export default function CategoriesPage() {
                 </tr>
               </thead>
               <tbody>
-                {paginatedCategories.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td
+                      colSpan={2}
+                      className="px-4 py-12 text-center text-gray-400"
+                    >
+                      Đang tải dữ liệu...
+                    </td>
+                  </tr>
+                ) : paginatedCategories.length === 0 ? (
                   <tr>
                     <td
                       colSpan={2}

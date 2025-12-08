@@ -19,11 +19,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 export default function UserNavbar() {
   const { user, mutate } = useUser();
+  const router  = useRouter()
 
   const handleLogout = async () => {
+    router.push("/")
     await removeJWTfromCookie();
     await mutate(null, false);
     toast.success("Đăng xuất thành công");
@@ -46,6 +49,8 @@ export default function UserNavbar() {
                 width={100}
                 height={100}
                 className="w-24 h-auto"
+                priority
+                style={{ width: 'auto', height: 'auto' }}
               />
             </Link>
           </div>
@@ -136,8 +141,8 @@ export default function UserNavbar() {
                 <Button variant="outline" className="gap-2 rounded-full border-primary/20 hover:bg-primary/5 hover:text-primary px-4 h-10">
                   <User2 size={18} />
                   <span className="font-semibold max-w-[120px] truncate">
-                        {user.data.fullName}
-                    </span>
+                    {user.data.fullName}
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 mt-2">

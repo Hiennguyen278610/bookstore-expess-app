@@ -12,10 +12,17 @@ export async function createCategoryService(name) {
   return newCategory;
 }
 export async function updateCategoryService(_id, newName) {
-  const isExisted = await Category.findOne({ _id });
-  if (!isExisted) {
+  const category = await Category.findById(_id);
+  if (!category) {
     throw new Error("Category not found");
   }
+  
+  // Check if new name already exists (exclude current category)
+  const existingCategory = await Category.findOne({ name: newName, _id: { $ne: _id } });
+  if (existingCategory) {
+    throw new Error("Category name already exists");
+  }
+  
   const newSlug = getSlug(newName);
   return Category.findByIdAndUpdate(
     _id,

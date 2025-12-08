@@ -1,8 +1,9 @@
 import { formatPrice } from "@/lib/utils";
-import { useCart } from "../../context/CartContext";
+import { useCartStore } from "@/stores/useCartStore";
+
 
 const CartSummary = () => {
-  const { getTotalPrice } = useCart();
+  const cart = useCartStore(s => s.cart)
 
   return (
     <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 h-fit my-auto">
@@ -12,7 +13,7 @@ const CartSummary = () => {
 
       <div className="text-lg mb-4 border-b border-gray-200 pb-4 flex justify-between items-center">
         <h3 className="font-semibold text-gray-700">Tổng tiền:</h3>
-        <h3 className="text-red-600 font-bold text-xl">{formatPrice(getTotalPrice())}</h3>
+        <h3 className="text-red-600 font-bold text-xl">{cart ? formatPrice(cart.totalPrice) : 0}</h3>
       </div>
 
       <p className="text-gray-500 text-sm mb-6">Phí vận chuyển sẽ được tính ở trang thanh toán.</p>

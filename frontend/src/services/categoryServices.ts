@@ -1,11 +1,10 @@
-import { baseUrl } from "@/constants";
-import { publicApi } from "@/lib/axios";
 import { Category } from "@/types/category.type";
+import api from '@/lib/axios';
 
 export const categoryServices = {
   getAllCategories: async (): Promise<Category[]> => {
     try {
-      const response = await publicApi.get<Category[]>('/categories');
+      const response = await api.get<Category[]>('/categories');
       return response.data;
     } catch (error) {
       console.error(error);
@@ -15,7 +14,7 @@ export const categoryServices = {
 
   getCategoryBySlug: async (slug: string): Promise<Category> => {
     try {
-      const response = await publicApi.get<Category>(`/categories/${slug}`);
+      const response = await api.get<Category>(`/categories/${slug}`);
       return response.data;
     } catch (error) {
       console.error(error);
