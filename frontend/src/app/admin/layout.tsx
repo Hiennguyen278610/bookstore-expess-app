@@ -3,8 +3,13 @@ import { useState } from "react";
 import { Toaster } from "react-hot-toast";
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
+import { Toaster } from "sonner";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
@@ -26,7 +31,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           }`}
       >
         <Navbar toggleSidebar={() => setIsOpen(!isOpen)} isOpen={isOpen} />
-        <main className="p-6 mt-16 transition-all duration-700">{children}</main>
+        <Toaster richColors />
+        <main className="p-6 mt-16 transition-all duration-700 bg-gray-100">
+          {children}
+        </main>
       </div>
     </div>
   );

@@ -1,17 +1,25 @@
-
-export interface Order {
-  id: string;
-  user_id: string;
-  payment_method: "cash" | "card" | "banking";
-  purchase_date: string; // ISO string
-  purchase_status: "pending" | "processing" | "delivered" | "cancelled";
-  items: OrderItem[];
-  total_price: number;
+interface customerId {
+  _id: string;
+  fullName: string;
+  email: string;
+  phone: string
 }
 
-export interface OrderItem {
+
+export interface Order {
+  _id: string;
+  customerId : customerId;
+  purchaseStatus: 'pending' | 'processing' | 'delivery' | 'completed' | 'canceled';
+  paymentStatus: 'unpaid'| 'paid' | 'failed' | 'refunded';
+  paymentMethod : 'cash' | 'creditCard' | 'payos';
+  purchaseDate : Date;
+  totalAmount : number
+}
+
+export interface OrderDetail {
   book_id: string;
   quantity: number;
   price: number;
   sub_total: number;
 }
+
