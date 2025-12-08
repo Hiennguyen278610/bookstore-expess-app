@@ -173,7 +173,7 @@ export const CreateAddressModal = ({
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit(onSubmit, onError)}>
+          <form>
             <div className="p-5 space-y-5 overflow-y-auto">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
@@ -288,7 +288,7 @@ export const CreateAddressModal = ({
                           </SelectTrigger>
                           <SelectContent className="max-h-[240px]">
                             {districts?.map((item) => (
-                              <SelectItem key={item.id} value={item.id}>
+                              <SelectItem key={item.id} value={item.name}>
                                 {item.name}
                               </SelectItem>
                             ))}
@@ -367,15 +367,13 @@ export const CreateAddressModal = ({
             </div>
 
             <DialogFooter className="p-4 border-t bg-gray-50/50 sm:justify-end gap-2">
-              <Button variant="outline" type="button" onClick={onClose}>
-                Hủy bỏ
-              </Button>
-              <Button type="submit">
-                {isSubmitting ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  "Lưu địa chỉ"
-                )}
+              <Button variant="outline" type="button" onClick={onClose}>Hủy bỏ</Button>
+              <Button
+                type="button"
+                onClick={handleSubmit(onSubmit, onError)}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? <Loader2 className="animate-spin" /> : 'Lưu địa chỉ'}
               </Button>
             </DialogFooter>
           </form>

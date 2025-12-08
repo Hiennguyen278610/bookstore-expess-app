@@ -17,7 +17,7 @@ const router = express.Router();
 router.use(auth);
 router.use(checkEmptyBody)
 
-router.get('/:id', authorizeRoles('admin'), getOrderById);
+router.get('/:id', getOrderById);
 router.get('/status', getOrdersByStatus);
 router.post('/', createOrder);
 router.post('/me', getAllOrders);
