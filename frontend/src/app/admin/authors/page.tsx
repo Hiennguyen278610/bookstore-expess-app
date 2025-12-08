@@ -100,7 +100,7 @@ export default function AuthorsPage() {
       Swal.fire({
         icon: 'error',
         title: 'Lỗi',
-        text: error.response?.data?.message || 'Không thể lưu tác giả',
+        text: (error as any).response?.data?.message || 'Không thể lưu tác giả',
       });
     }
   };
@@ -134,8 +134,8 @@ export default function AuthorsPage() {
         console.error("Error deleting author:", error);
         Swal.fire({
           icon: 'error',
-          title: 'Lỗi',
-          text: error.response?.data?.message || 'Lỗi khi xóa tác giả!',
+          title: 'Lỗi!',
+          text: (error as any).response?.data?.message || 'Lỗi khi xóa tác giả!',
         });
       }
     }

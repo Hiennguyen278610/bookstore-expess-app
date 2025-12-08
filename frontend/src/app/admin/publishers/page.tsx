@@ -104,7 +104,7 @@ export default function PublishersPage() {
       Swal.fire({
         icon: 'error',
         title: 'Lỗi',
-        text: error.response?.data?.message || 'Không thể lưu nhà xuất bản',
+        text: (error as any).response?.data?.message || 'Không thể lưu nhà xuất bản',
       });
     }
   };
@@ -139,8 +139,8 @@ export default function PublishersPage() {
         console.error("Error deleting publisher:", error);
         Swal.fire({
           icon: 'error',
-          title: 'Lỗi',
-          text: error.response?.data?.message || 'Lỗi khi xóa nhà xuất bản!',
+          title: 'Lỗi!',
+          text: (error as any).response?.data?.message || 'Lỗi khi xóa nhà xuất bản!',
         });
       }
     }

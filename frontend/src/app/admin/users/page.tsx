@@ -104,7 +104,7 @@ export default function UsersPage() {
       Swal.fire({
         icon: 'error',
         title: 'Lỗi',
-        text: error.response?.data?.message || 'Có lỗi xảy ra khi lưu người dùng!',
+        text: (error as any).response?.data?.message || 'Có lỗi xảy ra khi lưu người dùng!',
       });
     }
   };

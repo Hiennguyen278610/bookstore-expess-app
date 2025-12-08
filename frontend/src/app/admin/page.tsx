@@ -68,8 +68,8 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchProfit = async () => {
       try {
-        let from = null;
-        let to = null;
+        let from: string | null = null;
+        let to: string | null = null;
 
         if (profitView === "day" && dateFrom && dateTo) {
           from = dateFrom;
@@ -83,7 +83,7 @@ export default function AdminDashboard() {
           to = `${filterYear}-12-31`;
         }
 
-        const response = await getProfitStats(profitView, from, to);
+        const response = await (getProfitStats as any)(profitView, from, to);
         if (response.success) {
           setProfitData(response.data);
         }
@@ -547,7 +547,7 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <p className="text-sm text-gray-600 font-medium">Sách sắp hết</p>
-                <p className="text-2xl font-bold text-gray-800">{stats.lowStock}</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.lowStockBooks}</p>
               </div>
             </div>
           </div>

@@ -104,9 +104,9 @@ export default function OrdersPage() {
 
       // Nếu chọn sách mới, tự động lấy giá từ sách
       if (field === "book_id" && value) {
-        const selectedBook = books.find((b: Book) => b.id === value);
+        const selectedBook = books.find((b: any) => b.id === value);
         if (selectedBook) {
-          updated.price = (selectedBook as any).price || 0;
+          updated.price = selectedBook.price || 0;
         }
       }
 
@@ -315,7 +315,7 @@ export default function OrdersPage() {
                   </tr>
                 ) : (
                   paginatedOrders.map((order) => {
-                    const user = users.find((u) => u.id === order.user_id);
+                    const user = users.find((u: any) => u.id === order.user_id);
                     const isExpanded = expandedOrders.has(order.id);
                     return (
                       <React.Fragment key={order.id}>
@@ -377,11 +377,11 @@ export default function OrdersPage() {
                                   </thead>
                                   <tbody>
                                     {order.items.map((item, idx) => {
-                                      const book = books.find((b: Book) => b.id === item.book_id);
+                                      const book = books.find((b: any) => b.id === item.book_id);
                                       return (
                                         <tr key={idx} className="border-t border-gray-200">
                                           <td className="px-3 py-2 text-gray-600">
-                                            {(book as any)?.title || (book as any)?.name || "Không tìm thấy sách"}
+                                            {book?.name || "Không tìm thấy sách"}
                                           </td>
                                           <td className="px-3 py-2 text-center text-gray-600">{item.quantity}</td>
                                           <td className="px-3 py-2 text-right text-gray-600">{formatVND(item.price)}</td>
@@ -435,7 +435,7 @@ export default function OrdersPage() {
                   className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 >
                   <option value="">-- Chọn khách hàng --</option>
-                  {users.filter(u => u.role === "USER").map(u => <option key={u.id} value={u.id}>{u.fullName}</option>)}
+                  {users.filter((u: any) => u.role === "user").map((u: any) => <option key={u.id} value={u.id}>{u.fullName}</option>)}
                 </select>
               </div>
 
@@ -469,7 +469,7 @@ export default function OrdersPage() {
               <label className="block text-gray-700 mb-2 font-medium text-sm">Sản phẩm *</label>
               <div className="space-y-3">
                 {formData.items.map((it, idx) => {
-                  const book = books.find((b: Book) => b.id === it.book_id);
+                  const book = books.find((b: any) => b.id === it.book_id);
                   return (
                     <div key={idx} className="flex gap-2 items-center">
                       <select
@@ -478,7 +478,7 @@ export default function OrdersPage() {
                         className="border border-gray-300 px-3 py-2.5 rounded-lg flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       >
                         <option value="">Chọn sách</option>
-                        {books.map((b: Book) => <option key={b.id} value={b.id}>{(b as any).title || (b as any).name || b.id}</option>)}
+                        {books.map((b: any) => <option key={b.id} value={b.id}>{b.name || b.id}</option>)}
                       </select>
 
                       <input

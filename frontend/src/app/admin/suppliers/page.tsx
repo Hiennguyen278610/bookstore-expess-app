@@ -122,11 +122,11 @@ export default function SuppliersPage() {
       resetForm();
       fetchSuppliers();
     } catch (error) {
-      console.error('Error saving supplier:', error);
+      console.error("Error saving supplier:", error);
       Swal.fire({
         icon: 'error',
         title: 'Lỗi',
-        text: error.response?.data?.message || 'Không thể lưu nhà cung cấp',
+        text: (error as any).response?.data?.message || 'Không thể lưu nhà cung cấp',
       });
     }
   };
@@ -161,8 +161,8 @@ export default function SuppliersPage() {
         console.error('Error deleting supplier:', error);
         Swal.fire({
           icon: 'error',
-          title: 'Lỗi',
-          text: error.response?.data?.message || 'Lỗi khi xóa nhà cung cấp!',
+          title: 'Lỗi!',
+          text: (error as any).response?.data?.message || 'Lỗi khi xóa nhà cung cấp!',
         });
       }
     }

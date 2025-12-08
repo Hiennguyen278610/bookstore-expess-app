@@ -101,7 +101,7 @@ export default function CategoriesPage() {
       Swal.fire({
         icon: 'error',
         title: 'Lỗi',
-        text: error.response?.data?.message || 'Không thể lưu danh mục',
+        text: (error as any).response?.data?.message || 'Không thể lưu danh mục',
       });
     }
   };
@@ -135,8 +135,8 @@ export default function CategoriesPage() {
         console.error("Error deleting category:", error);
         Swal.fire({
           icon: 'error',
-          title: 'Lỗi',
-          text: error.response?.data?.message || 'Lỗi khi xóa danh mục!',
+          title: 'Lỗi!',
+          text: (error as any).response?.data?.message || 'Lỗi khi xóa danh mục!',
         });
       }
     }
