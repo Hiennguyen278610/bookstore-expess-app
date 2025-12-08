@@ -164,7 +164,9 @@ export default function BooksPage() {
       submitData.append('name', formData.name);
       submitData.append('categoryId', formData.categoryId);
       submitData.append('publisherId', formData.publisherId);
-      formData.authorIds.forEach(id => submitData.append('authorIds[]', id));
+      // Backend expects authors as JSON string with authorId property
+      const authorsData = formData.authorIds.map(id => ({ authorId: id }));
+      submitData.append('authors', JSON.stringify(authorsData));
       submitData.append('quantity', formData.quantity.toString());
       submitData.append('price', formData.price.toString());
 
@@ -177,7 +179,8 @@ export default function BooksPage() {
       }
 
       if (editingBook) {
-        await updateBook(editingBook._id, submitData);
+        const response = await updateBook(editingBook._id, submitData);
+        console.log('Update response:', response);
         Swal.fire({
           icon: 'success',
           title: 'Thành công',
@@ -205,7 +208,7 @@ export default function BooksPage() {
       }
       fetchBooks();
       resetForm();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving book:", error);
       console.error("Error response:", error.response?.data);
       Swal.fire({
@@ -241,7 +244,7 @@ export default function BooksPage() {
           },
         });
         fetchBooks();
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error deleting book:", error);
         console.error("Error response:", error.response?.data);
         Swal.fire({
@@ -256,10 +259,16 @@ export default function BooksPage() {
   const openModal = (book: Book | null = null) => {
     if (book) {
       setEditingBook(book);
+      console.log('Opening edit modal with book:', book);
+      console.log('Book authors:', book.authors);
+      const authorIds = Array.isArray(book.authors)
+        ? book.authors.map(a => a._id)
+        : [];
+      console.log('Extracted authorIds:', authorIds);
       setFormData({
         name: book.name,
         categoryId: book.categoryId?._id || '',
-        authorIds: book.authors?.map(a => a._id) || [],
+        authorIds: authorIds,
         publisherId: book.publisherId?._id || '',
         imageUrl: book.imageUrl,
         quantity: book.quantity,
@@ -757,9 +766,9 @@ export default function BooksPage() {
             <div className="grid grid-cols-2 gap-6">
               {/* Ảnh nền (ảnh chính) */}
               <div className="col-span-2 md:col-span-1">
-                {(detailBook.imageUrls?.[0] || detailBook.imageUrl?.[0]) ? (
+                {(detailBook.imageUrl?.[0] || detailBook.mainImage) ? (
                   <Image
-                    src={detailBook.imageUrls?.[0] || detailBook.imageUrl[0]}
+                    src={detailBook.imageUrl?.[0] || detailBook.mainImage}
                     alt={detailBook.name}
                     width={300}
                     height={400}
@@ -776,20 +785,20 @@ export default function BooksPage() {
                 <h4 className="text-2xl font-bold text-gray-800">{detailBook.name}</h4>
 
                 <div className="space-y-2 text-sm">
-                  <p><span className="text-gray-500">Thể loại:</span> <span className="font-medium text-gray-800">{getCategoryName(detailBook.category_id)}</span></p>
-                  <p><span className="text-gray-500">Tác giả:</span> <span className="font-medium text-gray-800">{getAuthorNames(detailBook.author_ids || [])}</span></p>
-                  <p><span className="text-gray-500">NXB:</span> <span className="font-medium text-gray-800">{getPublisherName(detailBook.publisher_id)}</span></p>
+                  <p><span className="text-gray-500">Thể loại:</span> <span className="font-medium text-gray-800">{typeof detailBook.categoryId === 'object' ? detailBook.categoryId.name : getCategoryName(detailBook.categoryId as string)}</span></p>
+                  <p><span className="text-gray-500">Tác giả:</span> <span className="font-medium text-gray-800">{Array.isArray(detailBook.authors) && detailBook.authors.length > 0 ? detailBook.authors.map(a => a.name).join(', ') : 'N/A'}</span></p>
+                  <p><span className="text-gray-500">NXB:</span> <span className="font-medium text-gray-800">{typeof detailBook.publisherId === 'object' ? detailBook.publisherId.name : getPublisherName(detailBook.publisherId as string)}</span></p>
                   <p><span className="text-gray-500">Số lượng:</span> <span className="font-medium text-gray-800">{detailBook.quantity}</span></p>
                   <p><span className="text-gray-500">Giá:</span> <span className="font-bold text-emerald-600 text-lg">{formatPrice(detailBook.price)}</span></p>
                 </div>
               </div>
 
               {/* Tất cả ảnh */}
-              {detailBook.imageUrls && detailBook.imageUrls.length > 1 && (
+              {detailBook.imageUrl && detailBook.imageUrl.length > 1 && (
                 <div className="col-span-2">
-                  <h5 className="text-sm font-semibold text-gray-700 mb-3">Tất cả hình ảnh ({detailBook.imageUrls.length})</h5>
+                  <h5 className="text-sm font-semibold text-gray-700 mb-3">Tất cả hình ảnh ({detailBook.imageUrl.length})</h5>
                   <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
-                    {detailBook.imageUrls.filter(url => url).map((url, index) => (
+                    {detailBook.imageUrl.filter((url: string) => url).map((url: string, index: number) => (
                       <div key={index} className={`relative ${index === 0 ? 'ring-2 ring-emerald-500' : ''}`}>
                         <Image
                           src={url}
