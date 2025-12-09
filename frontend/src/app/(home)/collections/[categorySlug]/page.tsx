@@ -55,12 +55,11 @@ const Page = async ({ params, searchParams }: ProductsPageProps) => {
               <ChevronRight className="w-4 h-4" />
             </li>
             <li>
-              <Link
-                href="/collections"
+              <span
                 className="text-gray-600 hover:text-green-600 transition-colors"
               >
                 Danh mục
-              </Link>
+              </span>
             </li>
             <li className="text-gray-400">
               <ChevronRight className="w-4 h-4" />

@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import Swal from "sweetalert2";
+import toast from "react-hot-toast";
 import type { Category } from "@/types/category.type";
 import Pagination from "../components/Pagination";
 import { getAllCategories, createCategory, updateCategory, deleteCategory } from "@/api/categoryApi";
@@ -63,40 +65,79 @@ export default function CategoriesPage() {
 
   const handleSubmit = async () => {
     if (!formData.name.trim()) {
-      alert("Vui lòng nhập tên danh mục!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Vui lòng nhập tên danh mục!',
+      });
       return;
     }
 
     try {
       const slug = formData.name.trim().toLowerCase().replace(/\s+/g, "-");
       if (editingCategory) {
-        console.log("Updating category with ID:", editingCategory._id);
-        console.log("Data:", { name: formData.name.trim(), slug });
         await updateCategory(editingCategory._id, { name: formData.name.trim(), slug });
-        alert('Cập nhật danh mục thành công!');
+        Swal.fire({
+          icon: 'success',
+          title: 'Thành công',
+          text: 'Cập nhật danh mục thành công!',
+          timer: 2000,
+          showConfirmButton: false,
+        });
       } else {
         await createCategory({ name: formData.name.trim(), slug });
-        alert('Thêm danh mục thành công!');
+        Swal.fire({
+          icon: 'success',
+          title: 'Thành công',
+          text: 'Thêm danh mục thành công!',
+          timer: 2000,
+          showConfirmButton: false,
+        });
       }
       await fetchCategories();
       resetForm();
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error saving category:", error);
-      console.error("Error response:", error.response?.data);
-      alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu danh mục'}`);
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: (error as any).response?.data?.message || 'Không thể lưu danh mục',
+      });
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Bạn có chắc muốn xóa danh mục này?")) {
+  const handleDelete = async (id: string, name: string) => {
+    const result = await Swal.fire({
+      title: 'Xác nhận xóa danh mục',
+      html: `Bạn có chắc muốn xóa "<strong>${name}</strong>"?<br/><small class="text-red-500">⚠️ Hành động này không thể hoàn tác!</small>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Hủy',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
       try {
         await deleteCategory(id);
-        alert('Xóa danh mục thành công!');
+        toast.success('Xóa danh mục thành công!', {
+          position: 'bottom-right',
+          duration: 3000,
+          style: {
+            fontSize: '15px',
+            padding: '16px',
+          },
+        });
         await fetchCategories();
-      } catch (error: any) {
+      } catch (error) {
         console.error("Error deleting category:", error);
-        console.error("Error response:", error.response?.data);
-        alert(`Lỗi: ${error.response?.data?.message || 'Không thể xóa danh mục'}`);
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi!',
+          text: (error as any).response?.data?.message || 'Lỗi khi xóa danh mục!',
+        });
       }
     }
   };
@@ -185,7 +226,7 @@ export default function CategoriesPage() {
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(cat._id)}
+                            onClick={() => handleDelete(cat._id, cat.name)}
                             className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-200"
                             title="Xóa"
                           >
@@ -212,8 +253,8 @@ export default function CategoriesPage() {
 
       {/* Modal thêm/sửa */}
       {showModal && (
-        <div className="fixed inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md border border-gray-200">
+        <div className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl p-8 w-full max-w-md transform transition-all animate-slideUp border border-emerald-300 shadow-[0_0_40px_rgba(16,185,129,0.3)]">
             <h3 className="text-xl font-bold text-gray-800 mb-5 pb-3 border-b-2 border-emerald-600">
               {editingCategory ? "Sửa danh mục" : "Thêm danh mục mới"}
             </h3>

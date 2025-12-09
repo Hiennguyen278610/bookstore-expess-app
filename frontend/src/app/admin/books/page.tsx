@@ -10,6 +10,8 @@ import type { Publisher } from "@/types/publisher.type";
 import axios from "axios";
 import { baseUrl } from "@/constants/index";
 import { createBook, updateBook, deleteBook } from "@/api/bookApi";
+import Swal from "sweetalert2";
+import toast from "react-hot-toast";
 
 // Hàm tạo slug từ tên sách
 const generateSlug = (name: string): string => {
@@ -148,7 +150,11 @@ export default function BooksPage() {
   // CRUD
   const handleSubmit = async () => {
     if (!formData.name || !formData.categoryId || !formData.publisherId || formData.authorIds.length === 0) {
-      alert("Vui lòng điền đầy đủ thông tin!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Vui lòng điền đầy đủ thông tin!',
+      });
       return;
     }
 
@@ -158,7 +164,9 @@ export default function BooksPage() {
       submitData.append('name', formData.name);
       submitData.append('categoryId', formData.categoryId);
       submitData.append('publisherId', formData.publisherId);
-      formData.authorIds.forEach(id => submitData.append('authorIds[]', id));
+      // Backend expects authors as JSON string with authorId property
+      const authorsData = formData.authorIds.map(id => ({ authorId: id }));
+      submitData.append('authors', JSON.stringify(authorsData));
       submitData.append('quantity', formData.quantity.toString());
       submitData.append('price', formData.price.toString());
 
@@ -171,35 +179,79 @@ export default function BooksPage() {
       }
 
       if (editingBook) {
-        await updateBook(editingBook._id, submitData);
-        alert('Cập nhật sách thành công!');
+        const response = await updateBook(editingBook._id, submitData);
+        console.log('Update response:', response);
+        Swal.fire({
+          icon: 'success',
+          title: 'Thành công',
+          text: 'Cập nhật sách thành công!',
+          timer: 2000,
+          showConfirmButton: false,
+        });
       } else {
         if (selectedFiles.length === 0) {
-          alert('Vui lòng chọn ít nhất 1 ảnh cho sách mới!');
+          Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Vui lòng chọn ít nhất 1 ảnh cho sách mới!',
+          });
           return;
         }
         await createBook(submitData);
-        alert('Thêm sách thành công!');
+        Swal.fire({
+          icon: 'success',
+          title: 'Thành công',
+          text: 'Thêm sách thành công!',
+          timer: 2000,
+          showConfirmButton: false,
+        });
       }
       fetchBooks();
       resetForm();
     } catch (error: any) {
       console.error("Error saving book:", error);
       console.error("Error response:", error.response?.data);
-      alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu sách'}`);
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: error.response?.data?.message || 'Không thể lưu sách',
+      });
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Bạn có chắc muốn xóa sách này?")) {
+  const handleDelete = async (id: string, name: string) => {
+    const result = await Swal.fire({
+      title: 'Xác nhận xóa sách',
+      html: `Bạn có chắc muốn xóa "<strong>${name}</strong>"?<br/><small class="text-red-500">⚠️ Hành động này không thể hoàn tác!</small>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Hủy',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
       try {
         await deleteBook(id);
-        alert('Xóa sách thành công!');
+        toast.success('Xóa sách thành công!', {
+          position: 'bottom-right',
+          duration: 3000,
+          style: {
+            fontSize: '15px',
+            padding: '16px',
+          },
+        });
         fetchBooks();
       } catch (error: any) {
         console.error("Error deleting book:", error);
         console.error("Error response:", error.response?.data);
-        alert(`Lỗi: ${error.response?.data?.message || 'Không thể xóa sách'}`);
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi',
+          text: error.response?.data?.message || 'Không thể xóa sách',
+        });
       }
     }
   };
@@ -207,10 +259,16 @@ export default function BooksPage() {
   const openModal = (book: Book | null = null) => {
     if (book) {
       setEditingBook(book);
+      console.log('Opening edit modal with book:', book);
+      console.log('Book authors:', book.authors);
+      const authorIds = Array.isArray(book.authors)
+        ? book.authors.map(a => a._id)
+        : [];
+      console.log('Extracted authorIds:', authorIds);
       setFormData({
         name: book.name,
         categoryId: book.categoryId?._id || '',
-        authorIds: book.authors?.map(a => a._id) || [],
+        authorIds: authorIds,
         publisherId: book.publisherId?._id || '',
         imageUrl: book.imageUrl,
         quantity: book.quantity,
@@ -462,7 +520,7 @@ export default function BooksPage() {
                       </td>
                       <td className="px-4 py-4 text-gray-800 font-medium">{book.name}</td>
                       <td className="px-4 py-4 text-gray-600">{book.categoryId?.name || 'N/A'}</td>
-                      <td className="px-4 py-4 text-gray-600">{book.authors?.map(a => a.name).join(", ") || 'N/A'}</td>
+                      <td className="px-4 py-4 text-gray-600">{book.authors?.filter(a => a && a.name).map(a => a.name).join(", ") || 'N/A'}</td>
                       <td className="px-4 py-4 text-gray-600">{book.publisherId?.name || 'N/A'}</td>
                       <td className="px-4 py-4 text-right">
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${book.quantity > 10
@@ -492,7 +550,7 @@ export default function BooksPage() {
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(book._id)}
+                            onClick={() => handleDelete(book._id, book.name)}
                             className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-200"
                             title="Xóa"
                           >
@@ -523,8 +581,8 @@ export default function BooksPage() {
 
       {/* MODAL */}
       {showModal && (
-        <div className="fixed inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-200">
+        <div className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all animate-slideUp border border-emerald-300 shadow-[0_0_40px_rgba(16,185,129,0.3)]">
             <h3 className="text-xl font-bold text-gray-800 mb-5 pb-3 border-b-2 border-emerald-600">
               {editingBook ? "Sửa thông tin sách" : "Thêm sách mới"}
             </h3>
@@ -693,8 +751,8 @@ export default function BooksPage() {
 
       {/* DETAIL MODAL */}
       {showDetailModal && detailBook && (
-        <div className="fixed inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto border border-gray-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-5 pb-3 border-b-2 border-blue-600">
               <h3 className="text-xl font-bold text-gray-800">Chi tiết sách</h3>
               <button
@@ -708,9 +766,9 @@ export default function BooksPage() {
             <div className="grid grid-cols-2 gap-6">
               {/* Ảnh nền (ảnh chính) */}
               <div className="col-span-2 md:col-span-1">
-                {detailBook.imageUrl?.[0] ? (
+                {(detailBook.imageUrl?.[0] || detailBook.mainImage) ? (
                   <Image
-                    src={detailBook.imageUrl[0]}
+                    src={detailBook.imageUrl?.[0] || detailBook.mainImage}
                     alt={detailBook.name}
                     width={300}
                     height={400}
@@ -727,9 +785,9 @@ export default function BooksPage() {
                 <h4 className="text-2xl font-bold text-gray-800">{detailBook.name}</h4>
 
                 <div className="space-y-2 text-sm">
-                  <p><span className="text-gray-500">Thể loại:</span> <span className="font-medium text-gray-800">{detailBook.categoryId?.name || 'Không rõ'}</span></p>
-                  <p><span className="text-gray-500">Tác giả:</span> <span className="font-medium text-gray-800">{detailBook.authors?.map(a => a.name).join(', ') || 'Không rõ'}</span></p>
-                  <p><span className="text-gray-500">NXB:</span> <span className="font-medium text-gray-800">{detailBook.publisherId?.name || 'Không rõ'}</span></p>
+                  <p><span className="text-gray-500">Thể loại:</span> <span className="font-medium text-gray-800">{typeof detailBook.categoryId === 'object' ? detailBook.categoryId.name : getCategoryName(detailBook.categoryId as string)}</span></p>
+                  <p><span className="text-gray-500">Tác giả:</span> <span className="font-medium text-gray-800">{Array.isArray(detailBook.authors) && detailBook.authors.length > 0 ? detailBook.authors.map(a => a.name).join(', ') : 'N/A'}</span></p>
+                  <p><span className="text-gray-500">NXB:</span> <span className="font-medium text-gray-800">{typeof detailBook.publisherId === 'object' ? detailBook.publisherId.name : getPublisherName(detailBook.publisherId as string)}</span></p>
                   <p><span className="text-gray-500">Số lượng:</span> <span className="font-medium text-gray-800">{detailBook.quantity}</span></p>
                   <p><span className="text-gray-500">Giá:</span> <span className="font-bold text-emerald-600 text-lg">{formatPrice(detailBook.price)}</span></p>
                 </div>

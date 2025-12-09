@@ -15,7 +15,6 @@ export const useCartStore = create<CartStore>((set, get) => ({
       const result = await cartServices.fetchCart();
       // console.log("result : ", result);
       set({ cart: result, loading: false });
-      console.log("cart : ", get().cart);
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : "Failed to fetch cart",
