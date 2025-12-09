@@ -144,14 +144,46 @@ export async function updateOrderService(
 
 // GET - Get order detail by order id
 export async function getOrderDetailByIdService(orderId) {
-  const order = await Order.findById(orderId)
-    .populate("customerId", "fullName email")
-    .lean();
-  if (!order) {
-    throw new Error(`Order with id ${orderId} not found`);
+  try {
+    const order = await Order.findById(orderId)
+      .populate("customerId", "fullName email")
+      .populate({
+        path: "details",
+        populate: {
+          path: "bookId",
+          select: "name imageUrl"
+        }
+      })
+      .lean();
+
+    if (!order) {
+      throw new Error(`Order with id ${orderId} not found`);
+    }
+
+    // Format lại dữ liệu
+    const result = {
+      ...order,
+      _id: order._id.toString(),
+      customerId: order.customerId?._id.toString(),
+      customerName: order.customerId?.fullName,
+      customerEmail: order.customerId?.email,
+      details: order.details?.map(detail => ({
+        ...detail,
+        _id: detail._id.toString(),
+        bookId: detail.bookId?._id.toString(),
+        bookName: detail.bookId?.name,
+        bookImage: detail.bookId?.imageUrl?.[0],
+        quantity: detail.quantity,
+        price: detail.price,
+        total: detail.price * detail.quantity
+      })) || []
+    };
+
+    return result;
+  } catch (error) {
+    console.error("Error in getOrderDetailByIdService:", error);
+    throw error;
   }
-  order.details = await OrderDetail.find({ orderId: order._id });
-  return order;
 }
 
 //GET - GET orders by customer id

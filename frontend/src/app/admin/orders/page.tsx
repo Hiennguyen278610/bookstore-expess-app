@@ -18,7 +18,7 @@ const page = () => {
     limit: 10,
   });
 
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedOrderId, setselectedOrderId] = useState<string>("");
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
 
   const { data: result, isLoading } = useSWR(["/get-orders", filters], () =>
@@ -71,7 +71,7 @@ const page = () => {
   };
 
   const handleViewOrder = (order: Order) => {
-    setSelectedOrder(order);
+    setselectedOrderId(order._id);
     setIsViewDialogOpen(true);
   };
 
@@ -116,7 +116,7 @@ const page = () => {
       )}
 
       <OrderDetailDialog
-        order={selectedOrder}
+        orderId={selectedOrderId}
         open={isViewDialogOpen}
         onOpenChange={setIsViewDialogOpen}
       />
