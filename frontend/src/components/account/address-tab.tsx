@@ -38,7 +38,7 @@ export default function AddressTab() {
     }
   };
 
-  const handleSuccess = async () => {
+  const handleSuccess = async (addr: Address) => {
     setIsModalOpen(false);
     await mutate();
   };

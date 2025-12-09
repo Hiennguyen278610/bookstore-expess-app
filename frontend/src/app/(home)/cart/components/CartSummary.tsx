@@ -25,7 +25,7 @@ const CartSummary = () => {
     localStorage.setItem('checkout_session', JSON.stringify(checkoutData));
 
     setLoading(true);
-    router.push('/checkout');
+    router.push('/orders');
   };
 
   return (
