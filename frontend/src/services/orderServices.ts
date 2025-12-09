@@ -2,7 +2,7 @@ import api from "@/lib/axios";
 import { Order, OrderWithDetails } from "@/types/order.type";
 import { ApiResponse } from "@/types/response.type";
 import useSWR from "swr";
-import { ItemCart } from '@/validation/orderSchema';
+import { OrderPayload } from '@/validation/orderSchema';
 
 export const orderServices = {
   getAllOrders: async (
@@ -52,7 +52,7 @@ export const orderServices = {
     }
   },
 
-  createOrder: async (details: ItemCart[]) => {
+  createOrder: async (details: OrderPayload) => {
     return await api.post("/orders", { details }).then((res) => res.data);
   },
 

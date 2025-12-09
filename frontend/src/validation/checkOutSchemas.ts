@@ -18,5 +18,4 @@ export const checkoutSchema = z.object({
     .min(10, "Số điện thoại không hợp lệ"),
 });
 
-// ✅ EXPORT TYPE CHUẨN
 export type CheckoutFormValues = z.infer<typeof checkoutSchema>;
