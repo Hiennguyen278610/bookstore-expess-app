@@ -7,9 +7,9 @@ export const ItemCartSchema = z.object({
 });
 
 export const OrderPayloadSchema = z.object({
-  items: z.array(ItemCartSchema).nonempty("Order must have at least 1 item"),
-  addressId: z.string().trim().min(1, "addressId is required"),
-  paymentMethod: z.enum(["COD", "BANK"])
+  items: z.array(ItemCartSchema).nonempty("Đơn hàng phải có ít nhất 1 sản phẩm"),
+  addressId: z.string().min(1, "Vui lòng chọn địa chỉ nhận hàng"),
+  paymentMethod: z.enum(["COD", "PAYOS", "CARD"])
 })
 // Types inferred từ schema
 export type ItemCart = z.infer<typeof ItemCartSchema>;

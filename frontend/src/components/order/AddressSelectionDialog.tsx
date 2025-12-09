@@ -19,7 +19,6 @@ interface Props {
 export const AddressSelectionDialog = ({ open, onOpenChange, onSelect, onAddNew }: Props) => {
 
   const handleOpenCreate = (e: React.MouseEvent) => {
-    e.preventDefault();
     onOpenChange(false);
     if (onAddNew) {
       onAddNew();
