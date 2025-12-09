@@ -4,10 +4,13 @@ import Book from "../models/Book.js";
 import mongoose from "mongoose";
 
 //CREATE
-export async function createOrderService(customerId, paymentMethod, details) {
+export async function createOrderService(customerId, paymentMethod, details, receiverName, receiverPhone, receiverAddress) {
   const order = await Order.create({
     customerId: customerId,
     paymentMethod: paymentMethod,
+    receiverName: receiverName,
+    receiverPhone: receiverPhone,
+    receiverAddress: receiverAddress,
   });
   if (details && details.length > 0) {
     await Promise.all(
@@ -165,8 +168,9 @@ export async function getOrderDetailByIdService(orderId) {
       ...order,
       _id: order._id.toString(),
       customerId: order.customerId?._id.toString(),
-      customerName: order.customerId?.fullName,
-      customerEmail: order.customerId?.email,
+      receiverName: order.receiverName,
+      receiverPhone: order.receiverPhone,
+      receiverAddress: order.receiverAddress,
       details: order.details?.map(detail => ({
         ...detail,
         _id: detail._id.toString(),
