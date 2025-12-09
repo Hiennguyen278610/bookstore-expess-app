@@ -14,20 +14,19 @@ import { ArrowLeft, Banknote, CheckCircle, CreditCard, MapPin, Package, QrCode, 
 import { getAllAddress } from '@/services/addressservices';
 import { DialogCancelPayment } from '@/components/payment/DialogCancelPayment';
 import { formatPrice } from '@/lib/utils';
-import { ItemCart, OrderPayload, OrderPayloadSchema } from '@/validation/orderSchema'; // Import đúng Schema mới
+import { ItemCart, OrderPayload, OrderPayloadSchema } from '@/validation/orderSchema';
 import { Address } from '@/types/address.type';
 import { Badge } from '@/components/ui/badge';
 import { CreateAddressModal } from '@/components/address/create-address-modal';
 import { useCartStore } from '@/stores/useCartStore';
-import { toast } from 'sonner'; // Cần import toast để thông báo
+import { toast } from 'sonner';
+import { orderServices } from '@/services/orderservices';
 
 const OrderPage = () => {
   const router = useRouter();
 
-  // Data Address
+  // Data Address & Cart
   const { addresses, isLoading: addressLoading, mutate } = getAllAddress();
-
-  // Data Cart (Zustand)
   const cart = useCartStore((s) => s.cart);
   const fetchCart = useCartStore((s) => s.fetchCart);
   const cartLoading = useCartStore((s) => s.loading);
@@ -36,12 +35,12 @@ const OrderPage = () => {
   const [openAddressDialog, setOpenAddressDialog] = useState(false);
   const [openCreateAddress, setOpenCreateAddress] = useState(false);
 
-  // 1. Fetch Cart khi mount
+  // 1. Fetch Cart
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
 
-  // Setup Form
+  // Setup Form với Schema mới
   const {
     control,
     handleSubmit,
@@ -52,89 +51,83 @@ const OrderPage = () => {
   } = useForm<OrderPayload>({
     resolver: zodResolver(OrderPayloadSchema),
     defaultValues: {
-      items: [], // Ban đầu rỗng => cần sync bên dưới
-      addressId: '',
+      details: [],
+      receiverName: '',
+      receiverPhone: '',
+      receiverAddress: '',
       paymentMethod: 'COD'
     }
   });
 
-  // --- LOGIC SYNC DỮ LIỆU ĐỂ PASS VALIDATION ---
+  // Theo dõi các giá trị để hiển thị lên UI
+  const receiverName = watch('receiverName');
+  const receiverPhone = watch('receiverPhone');
+  const receiverAddress = watch('receiverAddress');
+
+  // --- LOGIC SYNC DỮ LIỆU ---
 
   // 2. Sync Cart Items vào Form
   useEffect(() => {
     if (cart && cart.items.length > 0) {
-      // Map từ CartItem (store) sang ItemCart (schema)
       const formItems: ItemCart[] = cart.items.map((item) => ({
         bookId: item.bookId,
         quantity: item.quantity,
         price: item.price
       }));
-
-      // Set giá trị và kích hoạt validate ngay lập tức
-      setValue('items', formItems, { shouldValidate: true });
+      setValue('details', formItems, { shouldValidate: true });
     } else if (cart && cart.items.length === 0) {
-      // Nếu cart rỗng sau khi fetch xong thì đẩy về trang chủ
       router.push('/');
     }
   }, [cart, setValue, router]);
 
-  // 3. Sync Default Address vào Form
+  // 3. Sync Default Address vào Form (Tự động điền nếu form đang trống)
   useEffect(() => {
-    // Chỉ set nếu đã load xong address và form chưa có giá trị addressId
-    if (addresses && addresses.length > 0 && !getValues('addressId')) {
+    // Nếu đã có danh sách địa chỉ VÀ form chưa có tên người nhận (coi như chưa điền gì)
+    if (addresses && addresses.length > 0 && !getValues('receiverName')) {
       const defaultAddr = addresses.find((addr: Address) => addr.isDefault) || addresses[0];
+
       if (defaultAddr) {
-        setValue('addressId', defaultAddr._id!, { shouldValidate: true });
+        fillAddressToForm(defaultAddr);
       }
     }
   }, [addresses, setValue, getValues]);
 
-  // ---------------------------------------------
+  // Hàm helper để điền dữ liệu vào form
+  const fillAddressToForm = (addr: Address) => {
+    // Tạo chuỗi địa chỉ đầy đủ
+    const fullAddress = `${addr.detail}, ${addr.district}, ${addr.province}`;
 
-  const selectedAddressId = watch('addressId');
+    setValue('receiverName', addr.name, { shouldValidate: true });
+    setValue('receiverPhone', addr.phone, { shouldValidate: true });
+    setValue('receiverAddress', fullAddress, { shouldValidate: true });
+  };
 
-  // Logic hiển thị Address UI
-  const selectedAddressInfo = addresses?.find(
-    (addr: Address) => addr._id === selectedAddressId
-  );
-
+  // Xử lý khi chọn từ Dialog
   const handleSelectAddress = (addr: Address) => {
-    setValue('addressId', addr._id!, { shouldValidate: true });
+    fillAddressToForm(addr);
     setOpenAddressDialog(false);
   };
 
   const handleSuccessCreateAddr = async (addr: Address) => {
     setOpenCreateAddress(false);
-    await mutate(); // reload lại list address
-    setValue('addressId', addr._id!, { shouldValidate: true });
+    await mutate();
+    fillAddressToForm(addr); // Điền luôn địa chỉ vừa tạo vào form
   };
 
   const onSubmit = async (data: OrderPayload) => {
-    // Lúc này data đã sạch và đúng chuẩn Schema
     console.log("Payload Validated:", data);
-
     try {
-      // Gọi API createOrder(data) tại đây
-      // await createOrder(data);
+      const res = await orderServices.createOrder(data);
+      if (res.data)
       toast.success("Đặt hàng thành công!");
-
-      // Xóa cart sau khi đặt thành công (tùy logic backend)
-      // useCartStore.getState().clearCart();
     } catch (error) {
       console.error(error);
       toast.error("Có lỗi xảy ra khi tạo đơn hàng");
     }
   };
 
-  // Loading state
-  if ((!cart && cartLoading) || addressLoading) {
-    return <div className="flex justify-center items-center min-h-screen text-gray-500">Đang tải dữ liệu...</div>;
-  }
-
-  // Nếu fetch xong mà không có cart (hoặc null)
-  if (!cart) {
-    return null; // useEffect sẽ redirect ở trên
-  }
+  if ((!cart && cartLoading) || addressLoading) return <div className="text-center p-10">Loading...</div>;
+  if (!cart) return null;
 
   return (
     <div className="min-h-screen bg-gray-50/50 py-8 px-4 md:px-6">
@@ -149,38 +142,41 @@ const OrderPage = () => {
           <h1 className="text-2xl font-bold text-gray-900">Thanh toán đơn hàng</h1>
         </div>
 
-        {/* Thêm log lỗi vào đây để debug nếu cần */}
-        <form onSubmit={handleSubmit(onSubmit, (err) => console.log("Form Errors:", err))} className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative">
+        <form onSubmit={handleSubmit(onSubmit, (err) => console.log(err))} className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative">
 
           <div className="lg:col-span-8 space-y-6">
 
             {/* 1. Address Section */}
-            <Card className={`border-none shadow-sm ring-1 ${errors.addressId ? 'ring-red-500' : 'ring-gray-200'}`}>
+            <Card className={`border-none shadow-sm ring-1 ${errors.receiverName ? 'ring-red-500' : 'ring-gray-200'}`}>
               <CardHeader className="flex flex-row items-center justify-between pb-4">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-red-600" /> Địa chỉ nhận hàng
                 </CardTitle>
                 <Button type="button" variant="ghost" size="sm" onClick={() => setOpenAddressDialog(true)} className="text-blue-600 h-8 font-medium">
-                  {selectedAddressId ? 'Thay đổi' : 'Chọn địa chỉ'}
+                  {receiverName ? 'Thay đổi' : 'Chọn địa chỉ'}
                 </Button>
               </CardHeader>
               <CardContent>
-                {selectedAddressInfo ? (
+                {/* Logic hiển thị: Dựa vào field watch được từ form */}
+                {receiverName ? (
                   <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
                     <div className="font-bold text-gray-900 mb-1 flex items-center gap-2">
-                      <span>{selectedAddressInfo.name}</span>
+                      <span>{receiverName}</span>
                       <span className="w-[1px] h-4 bg-gray-300"></span>
-                      <span>{selectedAddressInfo.phone}</span>
-                      {selectedAddressInfo.isDefault && <Badge variant="secondary" className="bg-blue-50 text-blue-700">Mặc định</Badge>}
+                      <span>{receiverPhone}</span>
                     </div>
-                    <p className="text-gray-700 text-sm">{selectedAddressInfo.detail}, {selectedAddressInfo.district}, {selectedAddressInfo.province}</p>
+                    <p className="text-gray-700 text-sm">{receiverAddress}</p>
                   </div>
                 ) : (
                   <div className="text-sm text-gray-500 italic p-2 border border-dashed rounded text-center">
                     Vui lòng chọn địa chỉ để giao hàng
                   </div>
                 )}
-                {errors.addressId && <p className="text-red-500 text-sm mt-2 font-medium">⚠️ {errors.addressId.message}</p>}
+
+                {/* Hiển thị lỗi nếu thiếu 1 trong các trường */}
+                {(errors.receiverName || errors.receiverAddress) && (
+                  <p className="text-red-500 text-sm mt-2 font-medium">⚠️ Vui lòng chọn địa chỉ nhận hàng đầy đủ.</p>
+                )}
               </CardContent>
             </Card>
 
@@ -192,12 +188,10 @@ const OrderPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="grid gap-4 divide-y">
-                {/* Check lỗi Items */}
-                {errors.items && <p className="text-red-500 text-sm font-medium px-2">⚠️ {errors.items.message}</p>}
+                {errors.details && <p className="text-red-500 text-sm font-medium px-2">{errors.details.message}</p>}
 
                 {cart.items.map((item) => (
                   <div key={item._id} className="pt-4 first:pt-0">
-                    {/* Render Item UI */}
                     <OrderItem bookId={item.bookId} quantity={item.quantity} price={item.price} />
                   </div>
                 ))}
@@ -205,7 +199,7 @@ const OrderPage = () => {
             </Card>
           </div>
 
-          {/* Right Column: Payment & Total */}
+          {/* Right Column */}
           <div className="lg:col-span-4">
             <div className="sticky top-6 space-y-4">
 
@@ -260,7 +254,6 @@ const OrderPage = () => {
                 <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
                 <p className="text-xs text-gray-500 leading-relaxed">Cam kết bảo mật thanh toán. <br /> Hoàn tiền nếu có lỗi giao dịch.</p>
               </div>
-
             </div>
           </div>
         </form>
@@ -272,7 +265,6 @@ const OrderPage = () => {
   );
 };
 
-// Component phụ để code gọn hơn
 const PaymentOption = ({ value, label, icon, selected }: { value: string, label: string, icon: React.ReactNode, selected: string }) => (
   <div className={`relative flex items-center justify-between space-x-2 border p-3 rounded-lg cursor-pointer transition-all ${selected === value ? 'border-blue-600 bg-blue-50 ring-1 ring-blue-600' : 'border-gray-200 hover:border-gray-300'}`}>
     <div className="flex items-center space-x-3 w-full">

@@ -4,7 +4,7 @@ const orderSchema = new mongoose.Schema({
   customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   purchaseDate: {type: Date, default: Date.now},
   purchaseStatus: {type: String, enum: ['pending', 'processing','delivery', 'completed', 'canceled'], default: 'pending'},
-  paymentMethod: {type: String, enum: ['cash', 'creditCard', 'payos'], default: 'cash'},
+  paymentMethod: {type: String, enum: ['COD', 'CARD', 'PAYOS'], default: 'COD'},
   paymentStatus: {type: String, enum: ['unpaid', 'paid', 'failed', 'refunded'], default: 'unpaid'},
   totalAmount: {type: Number},
   paymentLink: {type: String},

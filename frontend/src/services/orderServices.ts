@@ -53,7 +53,7 @@ export const orderServices = {
   },
 
   createOrder: async (details: OrderPayload) => {
-    return await api.post("/orders", { details }).then((res) => res.data);
+    return await api.post("/orders", details).then((res) => res.data);
   },
 
   getOrderById: (id: string) => {

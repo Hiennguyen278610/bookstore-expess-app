@@ -12,6 +12,9 @@ export async function createPaymentService(orderId) {
   if (!order) {
     throw new Error(`Order with id ${orderId} not found`);
   }
+  if (order.paymentMethod.toString() === "COD" && order.paymentMethod.toString() === "CARD"){
+    return
+  }
   const items = [];
   for (const detail of details) {
     const book = await Book.findById(detail.bookId);
@@ -33,8 +36,7 @@ export async function createPaymentService(orderId) {
   order.paymentLink = payment.checkoutUrl;
   order.payosOrderId = payment.orderCode;
   order.paymentLinkId = payment.paymentLinkId;
-  order.paymentMethod = 'payos';
-  order.purchaseStatus = 'processing';
+  order.paymentMethod = 'PAYOS';
   await order.save();
   return payment;
 }
@@ -46,7 +48,6 @@ export async function handlePayosWebhook(payload) {
   const order = await Order.findOne({ payosOrderId: payment.orderCode });
   if (!order) throw new Error('Order not found');
   if (payment.code === '00' && payment.desc === 'success') {
-    order.purchaseStatus = 'delivery';
     order.paymentStatus = 'paid';
     await order.save();
 
@@ -54,7 +55,6 @@ export async function handlePayosWebhook(payload) {
     const { subject, html} = await buildOrderSuccessMail(order)
     await notifyAdminAndUser(order, subject, html);
   } else {
-    order.purchaseStatus = 'canceled';
     order.paymentStatus = 'failed';
     await order.save();
 
@@ -74,7 +74,6 @@ export async function cancelPaymentService(orderId, customerId) {
     throw new Error(`You are not authorize to cancel this order`);
   }
   order.purchaseStatus = 'canceled';
-  order.paymentStatus = 'failed';
   await order.save();
   const { subject, html } = await buildOrderCanceledMail(order);
   await notifyAdminAndUser(order, subject, html);

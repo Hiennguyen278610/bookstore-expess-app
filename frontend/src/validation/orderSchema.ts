@@ -7,8 +7,10 @@ export const ItemCartSchema = z.object({
 });
 
 export const OrderPayloadSchema = z.object({
-  items: z.array(ItemCartSchema).nonempty("Đơn hàng phải có ít nhất 1 sản phẩm"),
-  addressId: z.string().min(1, "Vui lòng chọn địa chỉ nhận hàng"),
+  details: z.array(ItemCartSchema).nonempty("Đơn hàng phải có ít nhất 1 sản phẩm"),
+  receiverName: z.string().min(1, "Vui lòng điền tên người nhận hàng"),
+  receiverPhone: z.string().min(1, "Vui lòng điền số điện thoại người nhận hàng"),
+  receiverAddress: z.string().min(1, "Vui lòng điền địa chỉ nhận hàng"),
   paymentMethod: z.enum(["COD", "PAYOS", "CARD"])
 })
 // Types inferred từ schema
