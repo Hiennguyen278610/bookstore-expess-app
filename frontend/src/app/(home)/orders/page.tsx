@@ -20,7 +20,9 @@ import { Badge } from '@/components/ui/badge';
 import { CreateAddressModal } from '@/components/address/create-address-modal';
 import { useCartStore } from '@/stores/useCartStore';
 import { toast } from 'sonner';
-import { orderServices } from '@/services/orderservices';
+import { Order } from '@/types/order.type';
+import { orderServices } from '@/services/orderServices';
+import { createPayment } from '@/services/PaymentService';
 
 const OrderPage = () => {
   const router = useRouter();
@@ -34,6 +36,8 @@ const OrderPage = () => {
   const [openCancel, setOpenCancel] = useState(false);
   const [openAddressDialog, setOpenAddressDialog] = useState(false);
   const [openCreateAddress, setOpenCreateAddress] = useState(false);
+  const [count, setCount] = useState(5);
+
 
   // 1. Fetch Cart
   useEffect(() => {
@@ -117,9 +121,27 @@ const OrderPage = () => {
   const onSubmit = async (data: OrderPayload) => {
     console.log("Payload Validated:", data);
     try {
-      const res = await orderServices.createOrder(data);
-      if (res.data)
-      toast.success("Đặt hàng thành công!");
+      const res : Order = await orderServices.createOrder(data);
+      if (res.paymentMethod === "PAYOS"){
+        const payment = await createPayment(res._id);
+        console.log("Payment: ", payment);
+        toast.success(`Đang chuyển hướng sau ${count}s...`);
+
+        const interval = setInterval(() => {
+          setCount(prev => {
+            if (prev <= 1) {
+              clearInterval(interval);
+              router.push(payment.payment.checkoutUrl);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }
+      if (res.paymentMethod === "COD" || res.paymentMethod === "CARD"){
+        router.push(`/orders/${res._id}`);
+        toast.success("Đặt hàng thành công!");
+      }
     } catch (error) {
       console.error(error);
       toast.error("Có lỗi xảy ra khi tạo đơn hàng");

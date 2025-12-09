@@ -47,6 +47,9 @@ export async function handlePayosWebhook(payload) {
   const payment = payload.data;
   const order = await Order.findOne({ payosOrderId: payment.orderCode });
   if (!order) throw new Error('Order not found');
+  if (order.purchaseStatus === 'canceled' || order.paymentStatus === 'paid') {
+    return { message: 'Webhook processed successfully' };
+  }
   if (payment.code === '00' && payment.desc === 'success') {
     order.paymentStatus = 'paid';
     await order.save();
@@ -65,15 +68,19 @@ export async function handlePayosWebhook(payload) {
   return { message: 'Webhook processed successfully' };
 }
 
-export async function cancelPaymentService(orderId, customerId) {
-  const order = await Order.findById(orderId);
+export async function cancelPaymentService(orderCode, customerId) {
+  const order = await Order.findOne({ payosOrderId: orderCode });
   if (!order) {
-    throw new Error(`Order with id ${orderId} not found`);
+    throw new Error(`Order with Code ${orderCode} not found`);
   }
   if (order.customerId.toString() !== customerId.toString()) {
     throw new Error(`You are not authorize to cancel this order`);
   }
+  if (order.purchaseStatus === 'canceled') {
+    return order
+  }
   order.purchaseStatus = 'canceled';
+  order.paymentStatus = 'failed'
   await order.save();
   const { subject, html } = await buildOrderCanceledMail(order);
   await notifyAdminAndUser(order, subject, html);

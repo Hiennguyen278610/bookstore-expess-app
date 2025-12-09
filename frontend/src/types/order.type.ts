@@ -24,7 +24,7 @@ export interface Order {
 }
 
 
-interface OrderDetail {
+export interface OrderDetail {
   _id: string;
   orderId: string;
   bookId: string;
