@@ -10,6 +10,9 @@ const orderSchema = new mongoose.Schema({
   paymentLink: {type: String},
   paymentLinkId: {type: String},
   payosOrderId: {type: Number},
+  receiverName: {type: String, required: true},
+  receiverPhone: {type: String, required: true},
+  receiverAddress: {type: String, required: true},
 }, { timestamps: true });
 
 orderSchema.plugin(mongoosePaginate);

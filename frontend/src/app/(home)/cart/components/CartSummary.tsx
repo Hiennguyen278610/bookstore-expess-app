@@ -16,16 +16,8 @@ const CartSummary = () => {
       toast.error('Giỏ hàng đang trống!');
       return;
     }
-
-    const checkoutData = {
-      items: cart.items,
-      totalPrice: cart.totalPrice
-    };
-
-    localStorage.setItem('checkout_session', JSON.stringify(checkoutData));
-
     setLoading(true);
-    router.push('/checkout');
+    router.push('/orders');
   };
 
   return (
