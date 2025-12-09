@@ -2,24 +2,48 @@ interface customerId {
   _id: string;
   fullName: string;
   email: string;
-  phone: string
+  phone: string;
 }
-
 
 export interface Order {
   _id: string;
-  customerId : customerId;
-  purchaseStatus: 'pending' | 'processing' | 'delivery' | 'completed' | 'canceled';
-  paymentStatus: 'unpaid'| 'paid' | 'failed' | 'refunded';
-  paymentMethod : 'cash' | 'creditCard' | 'payos';
-  purchaseDate : Date;
-  totalAmount : number
+  customerId: customerId;
+  purchaseStatus:
+    | "pending"
+    | "processing"
+    | "delivery"
+    | "completed"
+    | "canceled";
+  paymentStatus: "unpaid" | "paid" | "failed" | "refunded";
+  paymentMethod: "cash" | "creditCard" | "payos";
+  purchaseDate: Date;
+  totalAmount: number;
 }
 
-export interface OrderDetail {
-  book_id: string;
-  quantity: number;
+
+interface OrderDetail {
+  _id: string;
+  orderId: string;
+  bookId: string;
+  bookName: string;
+  bookImage: string;
   price: number;
-  sub_total: number;
+  quantity: number;
+  total: number
 }
 
+export interface OrderWithDetails
+  extends Pick<
+    Order,
+    | "_id"
+    | "purchaseStatus"
+    | "paymentStatus"
+    | "paymentMethod"
+    | "purchaseDate"
+    | "totalAmount"
+  > {
+    details: OrderDetail[];
+    customerId: string;
+    customerName: string;
+    customerEmail: string;
+  }

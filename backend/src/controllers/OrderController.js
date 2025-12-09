@@ -40,7 +40,6 @@ export const getAllOrders = async (req, res) => {
 // Get Order Details by order Id
 export async function getOrderDetailById(req, res) {
   try {
-    console.log(req.params.id)
     const order = await getOrderDetailByIdService(req.params.id);
     if (!order) {
       return res.status(400).send({ message: "Error deleting order" });

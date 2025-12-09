@@ -298,7 +298,7 @@ export const OrderTable = ({ orders, onViewOrder }: OrderTableProps) => {
               {/* Mã đơn hàng */}
               <TableCell className="font-medium">
                 <div className="font-mono text-sm">
-                  #{order._id.slice(-5).toUpperCase()}
+                  #{order._id.slice(-8).toUpperCase()}
                 </div>
               </TableCell>
 

@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { Order } from "@/types/order.type";
+import { Order, OrderWithDetails } from "@/types/order.type";
 import { ApiResponse } from "@/types/response.type";
 import useSWR from "swr";
 
@@ -69,5 +69,15 @@ export const orderServices = {
       isLoading,
       mutate,
     };
+  },
+
+  getOrderDetailById: async (orderId: string): Promise<OrderWithDetails> => {
+    try {
+      const response = await api.get<OrderWithDetails>(`/orders/${orderId}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   },
 };
