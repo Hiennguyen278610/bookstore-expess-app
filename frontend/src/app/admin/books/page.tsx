@@ -785,10 +785,10 @@ export default function BooksPage() {
                 <h4 className="text-2xl font-bold text-gray-800">{detailBook.name}</h4>
 
                 <div className="space-y-2 text-sm">
-                  <p><span className="text-gray-500">Thể loại:</span> <span className="font-medium text-gray-800">{typeof detailBook.categoryId === 'object' ? detailBook.categoryId.name : getCategoryName(detailBook.categoryId as string)}</span></p>
-                  <p><span className="text-gray-500">Tác giả:</span> <span className="font-medium text-gray-800">{Array.isArray(detailBook.authors) && detailBook.authors.length > 0 ? detailBook.authors.map(a => a.name).join(', ') : 'N/A'}</span></p>
-                  <p><span className="text-gray-500">NXB:</span> <span className="font-medium text-gray-800">{typeof detailBook.publisherId === 'object' ? detailBook.publisherId.name : getPublisherName(detailBook.publisherId as string)}</span></p>
-                  <p><span className="text-gray-500">Số lượng:</span> <span className="font-medium text-gray-800">{detailBook.quantity}</span></p>
+                  <p><span className="text-gray-500">Thể loại:</span> <span className="font-medium text-gray-800">{detailBook.categoryId && typeof detailBook.categoryId === 'object' ? detailBook.categoryId.name : detailBook.categoryId ? getCategoryName(detailBook.categoryId as string) : 'N/A'}</span></p>
+                  <p><span className="text-gray-500">Tác giả:</span> <span className="font-medium text-gray-800">{Array.isArray(detailBook.authors) && detailBook.authors.length > 0 ? detailBook.authors.map(a => a?.name).filter(Boolean).join(', ') || 'N/A' : 'N/A'}</span></p>
+                  <p><span className="text-gray-500">NXB:</span> <span className="font-medium text-gray-800">{detailBook.publisherId && typeof detailBook.publisherId === 'object' ? detailBook.publisherId.name : detailBook.publisherId ? getPublisherName(detailBook.publisherId as string) : 'N/A'}</span></p>
+                  <p><span className="text-gray-500">Số lượng:</span> <span className="font-medium text-gray-800">{detailBook.quantity ?? 0}</span></p>
                   <p><span className="text-gray-500">Giá:</span> <span className="font-bold text-emerald-600 text-lg">{formatPrice(detailBook.price)}</span></p>
                 </div>
               </div>

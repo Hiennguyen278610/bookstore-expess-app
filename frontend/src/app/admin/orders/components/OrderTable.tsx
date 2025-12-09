@@ -87,10 +87,10 @@ const PurchaseStatusBadge = ({
     },
   };
 
-  const { label, color, icon } = config[status] || { 
-    label: status || "Chưa rõ", 
-    color: "bg-gray-100 text-gray-700", 
-    icon: null 
+  const { label, color, icon } = config[status] || {
+    label: status || "Chưa rõ",
+    color: "bg-gray-100 text-gray-700",
+    icon: null
   };
 
   return (
@@ -109,9 +109,9 @@ const PaymentStatusBadge = ({ status }: { status: Order["paymentStatus"] }) => {
     refunded: { label: "Đã hoàn tiền", color: "bg-orange-100 text-orange-800" },
   };
 
-  const { label, color } = config[status] || { 
-    label: status || "Chưa rõ", 
-    color: "bg-gray-100 text-gray-700" 
+  const { label, color } = config[status] || {
+    label: status || "Chưa rõ",
+    color: "bg-gray-100 text-gray-700"
   };
 
   return <Badge className={color}>{label}</Badge>;
@@ -136,10 +136,10 @@ const PaymentMethodBadge = ({ method }: { method: Order["paymentMethod"] }) => {
     },
   };
 
-  const { label, color, icon } = config[method] || { 
-    label: method || "Chưa rõ", 
-    color: "bg-gray-50 text-gray-700", 
-    icon: null 
+  const { label, color, icon } = config[method] || {
+    label: method || "Chưa rõ",
+    color: "bg-gray-50 text-gray-700",
+    icon: null
   };
 
   return (
