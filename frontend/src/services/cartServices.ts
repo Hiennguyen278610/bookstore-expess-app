@@ -1,6 +1,5 @@
 import api from "@/lib/axios";
 import { Cart } from "@/types/cart.type";
-import { ApiResponse } from "@/types/response.type";
 
 export const cartServices = {
   fetchCart: async (): Promise<Cart> => {

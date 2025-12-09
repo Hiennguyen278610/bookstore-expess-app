@@ -25,7 +25,7 @@ export function getProvinces() {
   };
 }
 export function getAllAddress() {
-  const { data, error, isLoading, mutate } = useSWR<[]>(
+  const { data, error, isLoading, mutate } = useSWR<Address[]>(
     `${process.env.NEXT_PUBLIC_API_URL}/address`
   );
   return {

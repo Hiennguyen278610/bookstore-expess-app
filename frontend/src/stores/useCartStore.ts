@@ -13,7 +13,6 @@ export const useCartStore = create<CartStore>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const result = await cartServices.fetchCart();
-      // console.log("result : ", result);
       set({ cart: result, loading: false });
     } catch (error) {
       set({
