@@ -14,6 +14,7 @@ export async function createPayment(req, res) {
 export async function webhookController(req, res){
   try {
     const result = await handlePayosWebhook(req.body)
+    console.log(result);
     res.status(200).json(result)
   }catch (err){
     console.log("Webhook err: " + err.message);

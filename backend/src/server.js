@@ -16,9 +16,8 @@ import authorRouter from './routes/AuthorRouters.js';
 import publisherRouter from './routes/PublisherRouters.js';
 import supplierRouter from './routes/SupplierRouters.js';
 import receiptRouter from './routes/ReceiptRouters.js';
-// import { setup } from './utils/hosting.js';
-import supplyReceiptRouter from './routes/SupplyReceiptRouters.js';
 import { setup } from './utils/hosting.js';
+import supplyReceiptRouter from './routes/SupplyReceiptRouters.js';
 import paymentRouter from './routes/PaymentRouters.js';
 import { errorHandler } from './middlewares/errorHandle.js';
 import addressRouter from './routes/AddressRouters.js';
@@ -26,7 +25,7 @@ import statisticsRouter from './routes/StatisticsRouters.js';
 
 const app = express();
 connectDB(process.env.MONGODB_URL);
-// setup(app) // Commented out to avoid ngrok conflict
+setup(app)
 
 app.use(cors());
 app.use(express.json()); // To parse JSON bodies
