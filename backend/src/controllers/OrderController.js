@@ -53,8 +53,8 @@ export async function getOrderDetailById(req, res) {
 //Create order(customer purchase)
 export async function createOrder(req, res) {
   try {
-    const { details, paymentMethod } = req.body;
-    const order = await createOrderService(req.user.id, paymentMethod, details);
+    const { details, paymentMethod, receiverName, receiverPhone, receiverAddress } = req.body;
+    const order = await createOrderService(req.user.id, paymentMethod, details, receiverName, receiverPhone, receiverAddress);
     if (!order) {
       return res.status(400).send({ message: "Error creating Order" });
     }
