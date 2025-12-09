@@ -51,6 +51,26 @@ export function AppSidebar() {
 
           <SidebarGroupContent>
             <SidebarMenu>
+              <SidebarMenuItem key="about">
+                <SidebarMenuButton asChild>
+                  <Link
+                    href={`/about`}
+                    className={`
+                          block px-4 py-5 text-md
+                          ${
+                            pathname?.includes(`/about`)
+                              ? "text-green-700 bg-green-100 font-medium"
+                              : "text-gray-700"
+                          }
+                          active:bg-gray-100
+                          border-b border-gray-100
+                        `}
+                  >
+                    {"Giới thiệu"}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
               {categories.map((item) => {
                 const isActive = isCategoryActive(item.slug);
 
