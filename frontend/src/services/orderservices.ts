@@ -1,12 +1,7 @@
 import api from "@/lib/axios";
-import { Order, OrderWithDetails } from "@/types/order.type";
+import { Order } from "@/types/order.type";
 import { ApiResponse } from "@/types/response.type";
-import useSWR from "swr";
 
-interface ItemCart {
-  bookId: string;
-  quantity: number;
-}
 export const orderServices = {
   getAllOrders: async (
     page: number = 1,
@@ -49,32 +44,6 @@ export const orderServices = {
     try {
       const result = await api.put<Order>(`/orders/${orderId}`, data);
       return result.data;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  },
-
-  createOrder: async (details: ItemCart[]) => {
-    return await api.post("/orders", { details }).then((res) => res.data);
-  },
-
-  getOrderById: (id: string) => {
-    const { data, error, isLoading, mutate } = useSWR(
-      `${process.env.NEXT_PUBLIC_API_URL}/orders/${id}`
-    );
-    return {
-      order: data,
-      error,
-      isLoading,
-      mutate,
-    };
-  },
-
-  getOrderDetailById: async (orderId: string): Promise<OrderWithDetails> => {
-    try {
-      const response = await api.get<OrderWithDetails>(`/orders/${orderId}`);
-      return response.data;
     } catch (error) {
       console.error(error);
       throw error;
