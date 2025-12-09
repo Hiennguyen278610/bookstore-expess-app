@@ -10,6 +10,7 @@ const orderSchema = new mongoose.Schema({
   paymentLink: {type: String},
   paymentLinkId: {type: String},
   payosOrderId: {type: Number},
+  addressId: {type: mongoose.Schema.Types.ObjectId, ref: 'Address'}
 }, { timestamps: true });
 
 orderSchema.plugin(mongoosePaginate);

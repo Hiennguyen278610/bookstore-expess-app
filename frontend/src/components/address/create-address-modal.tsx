@@ -46,7 +46,7 @@ interface CreateAddressModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialData?: Address | null; // <--- Dữ liệu cần sửa (nếu có)
-  onSuccess?: () => void; // <--- Hàm gọi lại khi thành công để reload list
+  onSuccess?: (addr: Address) => void; // <--- Hàm gọi lại khi thành công để reload list
 }
 
 const ADDRESS_TYPES = [
@@ -148,7 +148,7 @@ export const CreateAddressModal = ({
 
     // Gọi callback onSuccess để component cha reload lại list
     if (res && onSuccess) {
-      onSuccess();
+      onSuccess(data);
     }
 
     onClose();

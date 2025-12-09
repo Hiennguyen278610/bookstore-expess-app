@@ -11,4 +11,15 @@ const addressSchema = new mongoose.Schema({
   isDefault: { type: Boolean, default: false },
 }, {timestamps: true})
 
+addressSchema.pre("save", async function (next) {
+  if (this.isNew) {
+    const count = await this.constructor.countDocuments({ userId: this.userId });
+
+    if (count === 0) {
+      this.isDefault = true;
+    }
+  }
+  next();
+});
+
 export default mongoose.model('Address', addressSchema);
