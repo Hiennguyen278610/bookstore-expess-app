@@ -12,6 +12,7 @@ interface LocationItem {
 export interface Province {
   id: string;
   name: string;
+  full_name: string
 }
 export function getProvinces() {
   const { data, error, isLoading, mutate } = useSWR<LocationItem>(

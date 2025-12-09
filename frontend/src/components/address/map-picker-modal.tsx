@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Dispatch, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,11 +11,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { MapPin } from "lucide-react";
 import Map4DAutoSuggest from "@/components/map-picker";
+import { Province } from "@/services/addressservices";
 
 interface MapPickerModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (data: AddressComponent[]) => void;
+  setDistricts: Dispatch<Province[]>
 }
 
 export interface AddressComponent {
@@ -27,6 +29,7 @@ export const MapPickerModal = ({
   isOpen,
   onClose,
   onConfirm,
+  setDistricts,
 }: MapPickerModalProps) => {
   const [addresstName, setAddressName] = useState<AddressComponent[]>([]);
 

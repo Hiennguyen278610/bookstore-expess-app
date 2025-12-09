@@ -121,8 +121,9 @@ export const CreateAddressModal = ({
   }, [isOpen, initialData, provinces, setValue]);
 
   const handleMapConfirm = (address: AddressComponent[]) => {
-    // const province = address.find((a) => a.types[0] == "admin_level_2");
-    // setValue("province", province?.name);
+    const province = address.find((a) => a.types[0] == "admin_level_2");
+    const provinceId = provinces?.find((p) => p.full_name == province?.name)?.id;
+    setValue("province", provinceId!);  
   };
 
   const onSubmit = async (data: Address) => {
@@ -257,7 +258,7 @@ export const CreateAddressModal = ({
                           <SelectContent className="max-h-[240px]">
                             {provinces?.map((item) => (
                               <SelectItem key={item.id} value={item.id}>
-                                {item.name}
+                                {item.full_name }
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -384,6 +385,7 @@ export const CreateAddressModal = ({
         isOpen={isMapOpen}
         onClose={() => setIsMapOpen(false)}
         onConfirm={handleMapConfirm}
+        setDistricts={setDistricts}
       />
     </>
   );
