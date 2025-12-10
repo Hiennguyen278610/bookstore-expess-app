@@ -2,7 +2,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
+import Swal from "sweetalert2";
 import {
   Book,
   Users,
@@ -15,8 +17,11 @@ import {
   Home,
   LogOut,
 } from "lucide-react";
+import { removeJWTfromCookie } from "@/lib/cookies";
+
 export default function Sidebar({ isOpen }: { isOpen: boolean }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [showMyAccount, setShowMyAccount] = useState(false);
 
   const isActive = (path: string) => {
@@ -47,6 +52,31 @@ export default function Sidebar({ isOpen }: { isOpen: boolean }) {
         ? "opacity-100 delay-300 max-w-[200px]"
         : "opacity-0 max-w-0 overflow-hidden"
       } group-hover:no-underline`;
+  };
+
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: 'Xác nhận đăng xuất',
+      text: 'Bạn có chắc muốn đăng xuất khỏi tài khoản này?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Đăng xuất',
+      cancelButtonText: 'Hủy',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await removeJWTfromCookie();
+        toast.success("Đăng xuất thành công");
+        window.location.href = "/";
+      } catch (error) {
+        console.error("Logout error:", error);
+        toast.error("Lỗi khi đăng xuất");
+      }
+    }
   };
 
   return (
@@ -139,16 +169,7 @@ export default function Sidebar({ isOpen }: { isOpen: boolean }) {
 
       {/* Bottom Actions */}
       <div className="absolute bottom-0 left-0 right-0 border-t border-gray-200 bg-white px-2 py-3 space-y-1">
-        <button
-          onClick={() => setShowMyAccount(true)}
-          className={`w-full flex items-center gap-3 px-4 py-3 pl-6 transition-all duration-300 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-emerald-700 ${isOpen ? "" : "justify-center"}`}
-        >
-          <User className="w-5 h-5 flex-shrink-0 text-gray-500" />
-          <span className={`whitespace-nowrap transition-all duration-500 ${isOpen ? "opacity-100 delay-300 max-w-[200px]" : "opacity-0 max-w-0 overflow-hidden"}`}>
-            Thông tin tài khoản
-          </span>
-        </button>
-
+     
         <Link
           href="/"
           className={`flex items-center gap-3 px-4 py-3 pl-6 transition-all duration-300 rounded-lg text-orange-600 hover:bg-orange-50 hover:text-orange-700 ${isOpen ? "" : "justify-center"}`}
@@ -160,10 +181,7 @@ export default function Sidebar({ isOpen }: { isOpen: boolean }) {
         </Link>
 
         <button
-          onClick={() => {
-            // TODO: Add logout logic
-            console.log("Đăng xuất");
-          }}
+          onClick={handleLogout}
           className={`w-full flex items-center gap-3 px-4 py-3 pl-6 transition-all duration-300 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 ${isOpen ? "" : "justify-center"}`}
         >
           <LogOut className="w-5 h-5 flex-shrink-0 text-red-500" />

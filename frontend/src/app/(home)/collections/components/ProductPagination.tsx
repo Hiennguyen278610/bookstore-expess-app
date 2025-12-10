@@ -18,7 +18,7 @@ interface ProductPaginationProps {
   totalPages: number;
   hasNext: boolean;
   hasPrev: boolean;
-  categorySlug: string; // Thêm để build URL
+  categorySlug?: string; // Thêm để build URL
 }
 
 const ProductPagination = ({
@@ -36,7 +36,7 @@ const ProductPagination = ({
       top: 150,
       behavior: "smooth",
     });
-  }, [searchParams]); 
+  }, [searchParams]);
 
   /** Function to generate paginations */
   const generatePages = () => {
@@ -71,9 +71,15 @@ const ProductPagination = ({
     params.set("page", newPage.toString());
 
     // Giữ các query params khác
-    router.push(`/collections/${categorySlug}?${params.toString()}`, {
-      scroll: false,
-    });
+    if (categorySlug) {
+      router.push(`/collections/${categorySlug}?${params.toString()}`, {
+        scroll: false,
+      });
+    } else {
+      router.push(`/collections?${params.toString()}`, {
+        scroll: false,
+      });
+    }
   };
 
   /** Handle previous page */

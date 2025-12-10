@@ -50,8 +50,6 @@ export default function Pagination({
     return pages;
   };
 
-  if (totalPages <= 1) return null;
-
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t border-gray-200">
       {/* Info */}
@@ -62,86 +60,83 @@ export default function Pagination({
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex items-center gap-1">
-        {/* First Page */}
-        <button
-          onClick={() => onPageChange(1)}
-          disabled={currentPage === 1}
-          className={`p-2 rounded-lg transition-all duration-200 ${
-            currentPage === 1
-              ? "text-gray-300 cursor-not-allowed"
-              : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-600"
-          }`}
-          title="Trang đầu"
-        >
-          <ChevronsLeft className="w-4 h-4" />
-        </button>
+      {totalPages > 1 && (
+        <div className="flex items-center gap-1">
+          {/* First Page */}
+          <button
+            onClick={() => onPageChange(1)}
+            disabled={currentPage === 1}
+            className={`p-2 rounded-lg transition-all duration-200 ${currentPage === 1
+                ? "text-gray-300 cursor-not-allowed"
+                : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-600"
+              }`}
+            title="Trang đầu"
+          >
+            <ChevronsLeft className="w-4 h-4" />
+          </button>
 
-        {/* Previous Page */}
-        <button
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className={`p-2 rounded-lg transition-all duration-200 ${
-            currentPage === 1
-              ? "text-gray-300 cursor-not-allowed"
-              : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-600"
-          }`}
-          title="Trang trước"
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
+          {/* Previous Page */}
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`p-2 rounded-lg transition-all duration-200 ${currentPage === 1
+                ? "text-gray-300 cursor-not-allowed"
+                : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-600"
+              }`}
+            title="Trang trước"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
 
-        {/* Page Numbers */}
-        <div className="flex items-center gap-1 mx-2">
-          {getPageNumbers().map((page, index) =>
-            page === "..." ? (
-              <span key={`ellipsis-${index}`} className="px-2 text-gray-400">
-                ...
-              </span>
-            ) : (
-              <button
-                key={page}
-                onClick={() => onPageChange(page as number)}
-                className={`min-w-[36px] h-9 px-3 rounded-lg font-medium transition-all duration-200 ${
-                  currentPage === page
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-600"
-                }`}
-              >
-                {page}
-              </button>
-            )
-          )}
+          {/* Page Numbers */}
+          <div className="flex items-center gap-1 mx-2">
+            {getPageNumbers().map((page, index) =>
+              page === "..." ? (
+                <span key={`ellipsis-${index}`} className="px-2 text-gray-400">
+                  ...
+                </span>
+              ) : (
+                <button
+                  key={page}
+                  onClick={() => onPageChange(page as number)}
+                  className={`min-w-[36px] h-9 px-3 rounded-lg font-medium transition-all duration-200 ${currentPage === page
+                      ? "bg-emerald-600 text-white shadow-sm"
+                      : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-600"
+                    }`}
+                >
+                  {page}
+                </button>
+              )
+            )}
+          </div>
+
+          {/* Next Page */}
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`p-2 rounded-lg transition-all duration-200 ${currentPage === totalPages
+                ? "text-gray-300 cursor-not-allowed"
+                : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-600"
+              }`}
+            title="Trang sau"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+
+          {/* Last Page */}
+          <button
+            onClick={() => onPageChange(totalPages)}
+            disabled={currentPage === totalPages}
+            className={`p-2 rounded-lg transition-all duration-200 ${currentPage === totalPages
+                ? "text-gray-300 cursor-not-allowed"
+                : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-600"
+              }`}
+            title="Trang cuối"
+          >
+            <ChevronsRight className="w-4 h-4" />
+          </button>
         </div>
-
-        {/* Next Page */}
-        <button
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className={`p-2 rounded-lg transition-all duration-200 ${
-            currentPage === totalPages
-              ? "text-gray-300 cursor-not-allowed"
-              : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-600"
-          }`}
-          title="Trang sau"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
-
-        {/* Last Page */}
-        <button
-          onClick={() => onPageChange(totalPages)}
-          disabled={currentPage === totalPages}
-          className={`p-2 rounded-lg transition-all duration-200 ${
-            currentPage === totalPages
-              ? "text-gray-300 cursor-not-allowed"
-              : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-600"
-          }`}
-          title="Trang cuối"
-        >
-          <ChevronsRight className="w-4 h-4" />
-        </button>
-      </div>
+      )}
 
       {/* Items per page */}
       {onItemsPerPageChange && (

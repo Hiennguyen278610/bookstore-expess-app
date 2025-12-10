@@ -3,7 +3,10 @@ import {
     getRevenueStatsService,
     getProfitStatsService,
     getTopProductsService,
-    getOrderStatsService
+    getOrderStatsService,
+    getTopCategoriesService,
+    getPaymentMethodsStatsService,
+    getComparisonStatsService
 } from "../services/StatisticsService.js";
 
 // GET /api/v1/statistics/overview
@@ -54,6 +57,37 @@ export const getTopProducts = async (req, res) => {
 export const getOrderStats = async (req, res) => {
     try {
         const stats = await getOrderStatsService();
+        res.status(200).json(stats);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// GET /api/v1/statistics/top-categories?limit=5
+export const getTopCategories = async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 5;
+        const categories = await getTopCategoriesService(limit);
+        res.status(200).json(categories);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// GET /api/v1/statistics/payment-methods
+export const getPaymentMethodsStats = async (req, res) => {
+    try {
+        const stats = await getPaymentMethodsStatsService();
+        res.status(200).json(stats);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// GET /api/v1/statistics/comparison
+export const getComparisonStats = async (req, res) => {
+    try {
+        const stats = await getComparisonStatsService();
         res.status(200).json(stats);
     } catch (err) {
         res.status(500).json({ message: err.message });

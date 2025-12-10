@@ -4,7 +4,10 @@ import {
     getRevenueStats,
     getProfitStats,
     getTopProducts,
-    getOrderStats
+    getOrderStats,
+    getTopCategories,
+    getPaymentMethodsStats,
+    getComparisonStats
 } from "../controllers/StatisticsController.js";
 import { auth } from "../middlewares/auth.js";
 import { authorizeRoles } from "../middlewares/authorize.js";
@@ -28,5 +31,14 @@ router.get("/top-products", getTopProducts);
 
 // GET /api/v1/statistics/orders - Thống kê đơn hàng
 router.get("/orders", getOrderStats);
+
+// GET /api/v1/statistics/top-categories - Top thể loại bán chạy
+router.get("/top-categories", getTopCategories);
+
+// GET /api/v1/statistics/payment-methods - Phân tích phương thức thanh toán
+router.get("/payment-methods", getPaymentMethodsStats);
+
+// GET /api/v1/statistics/comparison - So sánh với tháng trước
+router.get("/comparison", getComparisonStats);
 
 export default router;
