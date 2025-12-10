@@ -1,9 +1,10 @@
 "use client";
+
 import { Input } from "@/components/ui/input";
 import { SearchIcon } from "lucide-react";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, Suspense } from "react";
 import { cn } from "@/lib/utils";
-import { useRouter, useSearchParams } from "next/navigation"; // Import useRouter
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface SearchInputProps {
   className?: string;
@@ -11,39 +12,33 @@ interface SearchInputProps {
   debounceDelay?: number;
 }
 
-const SearchInput = ({ 
-  className, 
-  initialValue = "",
-  debounceDelay = 500 
-}: SearchInputProps) => {
+const SearchInputContent = ({
+                              className,
+                              initialValue = "",
+                              debounceDelay = 500,
+                            }: SearchInputProps) => {
   const router = useRouter();
-  const searchParams = useSearchParams(); 
+  const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(initialValue);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-
-  // Cleanup timeout
   useEffect(() => {
     return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
+      if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, []);
 
   const handleSearch = () => {
     const trimmedTerm = searchTerm.trim();
-    
     const params = new URLSearchParams(searchParams.toString());
-    
+
     if (trimmedTerm) {
       params.set("search", trimmedTerm);
-      params.set("page", "1"); 
+      params.set("page", "1");
     } else {
       params.delete("search");
     }
-    
-    // Navigate với router
+
     router.push(`/collections?${params.toString()}`);
   };
 
@@ -51,24 +46,19 @@ const SearchInput = ({
     const value = e.target.value;
     setSearchTerm(value);
 
-    // Clear previous timeout
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
 
-    // Set new timeout for debounce
     debounceRef.current = setTimeout(() => {
       const trimmedValue = value.trim();
       const params = new URLSearchParams(searchParams.toString());
-      
+
       if (trimmedValue) {
         params.set("search", trimmedValue);
-        params.set("page", "1"); 
+        params.set("page", "1");
       } else {
         params.delete("search");
       }
-      
-      // Navigate với debounce
+
       router.push(`/collections?${params.toString()}`);
     }, debounceDelay);
   };
@@ -76,10 +66,7 @@ const SearchInput = ({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      // Clear debounce khi nhấn Enter
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
+      if (debounceRef.current) clearTimeout(debounceRef.current);
       handleSearch();
     }
   };
@@ -109,4 +96,10 @@ const SearchInput = ({
   );
 };
 
-export default SearchInput;
+export default function SearchInput(props: SearchInputProps) {
+  return (
+    <Suspense fallback={<div className="flex justify-center p-10">Đang tải...</div>}>
+      <SearchInputContent {...props} />
+    </Suspense>
+  );
+}

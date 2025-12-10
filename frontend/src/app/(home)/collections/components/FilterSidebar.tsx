@@ -1,5 +1,4 @@
 "use client";
-import { Accordion } from "@radix-ui/react-accordion";
 import { Filter, RotateCcw } from "lucide-react";
 import React, {
   useState,
@@ -8,7 +7,6 @@ import React, {
   useReducer,
   useCallback,
 } from "react";
-import MyAccordion from "./MyAccordion";
 import { Slider } from "@/components/ui/slider";
 import useSWR from "swr";
 import { bookServices } from "@/services/bookServices";

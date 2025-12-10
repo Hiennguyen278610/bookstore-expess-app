@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, ArrowLeft, RefreshCcw, Loader2 } from 'lucide-react';
 import { cancelPayment } from '@/services/PaymentService';
-import { useCartStore } from '@/stores/useCartStore';
 
 const PaymentCancelContent = () => {
   const searchParams = useSearchParams();
