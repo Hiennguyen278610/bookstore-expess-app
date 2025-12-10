@@ -59,7 +59,7 @@ const PurchaseStatusBadge = ({
 }: {
   status: Order["purchaseStatus"];
 }) => {
-  const config = {
+  const config: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
     pending: {
       label: "Chờ xử lý",
       color: "bg-yellow-100 text-yellow-800",
@@ -87,7 +87,11 @@ const PurchaseStatusBadge = ({
     },
   };
 
-  const { label, color, icon } = config[status];
+  const { label, color, icon } = config[status] || {
+    label: status || "Chưa rõ",
+    color: "bg-gray-100 text-gray-700",
+    icon: null
+  };
 
   return (
     <Badge className={`${color} gap-1 font-medium`}>
@@ -98,20 +102,38 @@ const PurchaseStatusBadge = ({
 };
 
 const PaymentStatusBadge = ({ status }: { status: Order["paymentStatus"] }) => {
-  const config = {
+  const config: Record<string, { label: string; color: string }> = {
     unpaid: { label: "Chưa thanh toán", color: "bg-gray-200 text-gray-800" },
     paid: { label: "Đã thanh toán", color: "bg-green-100 text-green-800" },
     failed: { label: "Thanh toán thất bại", color: "bg-red-100 text-red-800" },
     refunded: { label: "Đã hoàn tiền", color: "bg-orange-100 text-orange-800" },
   };
 
-  const { label, color } = config[status];
+  const { label, color } = config[status] || {
+    label: status || "Chưa rõ",
+    color: "bg-gray-100 text-gray-700"
+  };
 
   return <Badge className={color}>{label}</Badge>;
 };
 
 const PaymentMethodBadge = ({ method }: { method: Order["paymentMethod"] }) => {
-  const config = {
+  const config: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+    cash: {
+      label: "Tiền mặt",
+      color: "bg-blue-50 text-blue-700",
+      icon: <HandCoins className="w-3 h-3" />,
+    },
+    creditCard: {
+      label: "Thẻ tín dụng",
+      color: "bg-purple-50 text-purple-700",
+      icon: <CreditCard className="w-3 h-3" />,
+    },
+    payos: {
+      label: "PayOS",
+      color: "bg-indigo-50 text-indigo-700",
+      icon: <QrCode className="h-3 w-3" />,
+    },
     COD: {
       label: "Tiền mặt",
       color: "bg-blue-50 text-blue-700",
@@ -129,7 +151,11 @@ const PaymentMethodBadge = ({ method }: { method: Order["paymentMethod"] }) => {
     },
   };
 
-  const { label, color, icon } = config[method];
+  const { label, color, icon } = config[method] || {
+    label: method || "Chưa rõ",
+    color: "bg-gray-50 text-gray-700",
+    icon: null
+  };
 
   return (
     <div

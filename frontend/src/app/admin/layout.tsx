@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
+import { ClientProviders } from "@/providers/clientProvider";
 import { toast, Toaster } from 'sonner';
 import { useUser } from '@/services/authservices';
 import { useRouter } from 'next/navigation';
@@ -40,18 +41,21 @@ export default function AdminLayout({
 
 
   return (
-    <div className="flex bg-gray-100 min-h-screen">
-      <Sidebar isOpen={isOpen} />
-      <div
-        className={`flex-1 transition-all duration-700 ${isOpen ? "ml-64" : "ml-18"
+    <ClientProviders>
+      <div className="flex bg-gray-100 min-h-screen">
+        <Sidebar isOpen={isOpen} />
+        <div
+          className={`flex-1 transition-all duration-700 ${
+            isOpen ? "ml-64" : "ml-18"
           }`}
-      >
-        <Navbar toggleSidebar={() => setIsOpen(!isOpen)} isOpen={isOpen} />
-        <main className="p-6 mt-16 transition-all duration-700 bg-gray-100">
-          {children}
-        </main>
-        <Toaster />
+        >
+          <Navbar toggleSidebar={() => setIsOpen(!isOpen)} isOpen={isOpen} />
+          <main className="p-6 mt-16 transition-all duration-700 bg-gray-100">
+            {children}
+          </main>
+          <Toaster />
+        </div>
       </div>
-    </div>
+    </ClientProviders>
   );
 }
