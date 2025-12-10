@@ -10,7 +10,7 @@ import { Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface ProductGridProps {
-  categoryName: string;
+  categoryName?: string;
   products: Book[];
   totalCount: number;
 }
@@ -73,7 +73,7 @@ const ProductGrid = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
         <div className="flex items-center gap-4 mb-4 sm:mb-0">
           <h3 className="text-2xl font-bold text-gray-800 tracking-tight">
-            {categoryName}
+            {!categoryName  ? "Tất cả sách" : categoryName}
           </h3>
           <Badge className="px-3 py-1 bg-green-100 text-green-800 text-sm text-center font-medium rounded-full">
             {totalCount} sản phẩm
