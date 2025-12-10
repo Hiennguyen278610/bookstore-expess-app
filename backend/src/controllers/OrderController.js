@@ -11,6 +11,10 @@ import {
 //Get orders by customerId
 export async function getOrdersByCustomerId(req, res) {
   try {
+    // TODO: Khi deploy production, check req.user exists
+    if (!req.user || !req.user.id) {
+      return res.status(401).send({ message: "Unauthorized: User not authenticated" });
+    }
     const order = await getAllOrdersByCustomerIdService(req.user.id, req.query);
     if (!order) {
       return res.status(400).send({ message: "Error getting all orders" });
@@ -68,9 +72,11 @@ export async function createOrder(req, res) {
 export async function updateOrder(req, res) {
   try {
     const { purchaseStatus, paymentStatus } = req.body;
+    // TODO: Khi deploy production, uncomment req.user.id check
+    const userId = req.user?.id || null; // Handle khi auth bị tắt
     const order = await updateOrderService(
       req.params.id,
-      req.user.id,
+      userId,
       purchaseStatus,
       paymentStatus,
     );
