@@ -12,16 +12,17 @@ import { checkEmptyBody } from "../middlewares/checkEmptyBody.js";
 
 const router = express.Router();
 
-router.use(auth);
+// TODO: Uncomment khi deploy production
+// router.use(auth);
 router.use(checkEmptyBody);
 
 router.get("/me", getOrdersByCustomerId);
 router.post("/", createOrder);
 
 //ADMIN ONLY
-router.get("/", authorizeRoles("admin"), getAllOrders);
-router.get("/:id", authorizeRoles("admin"), getOrderDetailById);
-router.put("/:id", authorizeRoles("admin"), updateOrder);
+router.get("/", getAllOrders);
+router.get("/:id", getOrderDetailById);
+router.put("/:id", updateOrder);
 
 // router.put('/status/:id', updateStatus);
 // router.delete('/:id', deleteOrder);

@@ -24,15 +24,15 @@ export async function getOverviewStatsService() {
             Order.countDocuments(),
             Category.countDocuments(),
             Book.countDocuments({ quantity: { $lte: 10 }, isDeleted: false }),
-            Order.countDocuments({ status: "completed" }),
-            Order.countDocuments({ status: "pending" }),
-            Order.countDocuments({ status: "cancelled" })
+            Order.countDocuments({ purchaseStatus: "completed" }),
+            Order.countDocuments({ purchaseStatus: "pending" }),
+            Order.countDocuments({ purchaseStatus: "canceled" })
         ]);
 
         // Tính tổng doanh thu từ đơn hàng completed
         const revenueResult = await Order.aggregate([
-            { $match: { status: "completed" } },
-            { $group: { _id: null, total: { $sum: "$totalPrice" } } }
+            { $match: { purchaseStatus: "completed" } },
+            { $group: { _id: null, total: { $sum: "$totalAmount" } } }
         ]);
         const totalRevenue = revenueResult.length > 0 ? revenueResult[0].total : 0;
 
@@ -114,7 +114,7 @@ export async function getRevenueStatsService(period = "month", from, to) {
         }
 
         // Build match condition
-        const matchCondition = { status: "completed" };
+        const matchCondition = { purchaseStatus: "completed" };
         if (from || to) {
             matchCondition.createdAt = {};
             if (from) matchCondition.createdAt.$gte = new Date(from);
@@ -126,7 +126,7 @@ export async function getRevenueStatsService(period = "month", from, to) {
             {
                 $group: {
                     _id: groupBy,
-                    revenue: { $sum: "$totalPrice" },
+                    revenue: { $sum: "$totalAmount" },
                     orderCount: { $sum: 1 }
                 }
             },
@@ -263,7 +263,7 @@ export async function getTopProductsService(limit = 10) {
                 }
             },
             { $unwind: "$order" },
-            { $match: { "order.status": "completed" } },
+            { $match: { "order.purchaseStatus": "completed" } },
             {
                 $group: {
                     _id: "$bookId",
@@ -310,16 +310,16 @@ export async function getOrderStatsService() {
             Order.aggregate([
                 {
                     $group: {
-                        _id: "$status",
+                        _id: "$purchaseStatus",
                         count: { $sum: 1 },
-                        totalValue: { $sum: "$totalPrice" }
+                        totalValue: { $sum: "$totalAmount" }
                     }
                 }
             ]),
             Order.find()
                 .sort({ createdAt: -1 })
                 .limit(10)
-                .populate("userId", "fullName email")
+                .populate("customerId", "fullName email")
                 .lean()
         ]);
 
