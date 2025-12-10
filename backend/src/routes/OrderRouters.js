@@ -15,7 +15,7 @@ const router = express.Router();
 router.use(auth);
 router.use(checkEmptyBody);
 
-router.get("/", getOrderByOrderCode)
+router.get("/code", getOrderByOrderCode)
 router.get("/me", getOrdersByCustomerId);
 router.post("/", createOrder);
 

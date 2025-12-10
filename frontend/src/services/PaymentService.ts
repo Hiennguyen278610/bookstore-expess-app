@@ -30,5 +30,5 @@ export function getAllOrderByToken(page: number, limit: number, status : string)
 }
 
 export async function getOrderByOrderCode(orderCode: string){
-  return await api.get(`/orders?orderCode=${orderCode}`).then((res) => res.data)
+  return await api.get(`/orders/code?orderCode=${orderCode}`).then((res) => res.data)
 }
