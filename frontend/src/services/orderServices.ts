@@ -10,7 +10,10 @@ export const orderServices = {
     limit: number = 10,
     purchaseStatus?: string,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
+    customerName?: string,
+    receiverName?: string,
+    customerPhone?: string
   ): Promise<ApiResponse<Order[]>> => {
     const params = new URLSearchParams();
     params.append("page", page.toString());
@@ -23,6 +26,15 @@ export const orderServices = {
     }
     if (endDate) {
       params.append("endDate", endDate);
+    }
+    if (customerName) {
+      params.append("customerName", customerName);
+    }
+    if (receiverName) {
+      params.append("receiverName", receiverName);
+    }
+    if (customerPhone) {
+      params.append("customerPhone", customerPhone);
     }
 
     try {
