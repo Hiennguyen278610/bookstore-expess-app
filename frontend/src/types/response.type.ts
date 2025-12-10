@@ -6,11 +6,11 @@ export interface Pagination {
   totalPages: number;
   currentPage: number;
   limit: number;
-  hasNext?: boolean;
-  hasPrev?: boolean;
+  hasNext: boolean;
+  hasPrev: boolean;
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T> {
   success?: boolean; 
   message: string;
   data: T;

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const ADDRESS_TYPES = ["Nhà riêng", "Cơ quan", "Khác"] as const;
+const ADDRESS_TYPES = ["Nhà riêng", "Phòng trọ","Văn phòng", "Khác"] as const;
 
 export const addressSchema = z.object({
   _id: z.string().optional(),

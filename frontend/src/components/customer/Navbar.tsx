@@ -85,6 +85,11 @@ export default function UserNavbar() {
                   <DropdownMenuItem className="cursor-pointer">
                     Đơn mua
                   </DropdownMenuItem>
+                  {user.data.role === "admin" && (
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                      <Link href="/admin">Quản Lý</Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50">
                     <LogOut className="mr-2 h-4 w-4" />
@@ -158,6 +163,11 @@ export default function UserNavbar() {
                     Hồ sơ cá nhân
                   </Link>
                 </DropdownMenuItem>
+                {user.data.role === "admin" && (
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link href="/admin">Quản Lý</Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem className="cursor-pointer">Đơn mua</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50">

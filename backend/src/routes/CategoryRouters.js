@@ -8,16 +8,12 @@ const router = express.Router();
 
 router.get("/", getAllCategories);
 router.get("/:slug", getCategoryBySlug)
-//router.use(auth)
+router.use(auth)
 router.use(checkEmptyBody)
 
-//router.post("/",authorizeRoles("admin"), createCategory);
-//router.put("/:id",authorizeRoles("admin"), updateCategory);
-//router.delete("/:id",authorizeRoles("admin"), deleteCategory);
-
-router.post("/",createCategory);
-router.put("/:id",updateCategory);
-router.delete("/:id",deleteCategory);
+router.post("/",authorizeRoles("admin"), createCategory);
+router.put("/:id",authorizeRoles("admin"), updateCategory);
+router.delete("/:id",authorizeRoles("admin"), deleteCategory);
 
 router.get("/:id", getCategoryById);
 

@@ -8,8 +8,8 @@ export async function setJWTtoCookie(data: string) {
     cookieStore.set({
         name: "access_token",
         value: data,
-        httpOnly: true,
-        secure: true,
+        httpOnly: false,
+        secure: false,
         expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
         path: "/",
     });

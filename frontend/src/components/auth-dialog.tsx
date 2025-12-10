@@ -1,6 +1,13 @@
 'use client';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog';
 import { LoginForm } from '@/components/login-form';
 import { RegisterForm } from '@/components/register-form';
 import { useState, useRef } from 'react'; // Thêm useRef
@@ -111,6 +118,9 @@ export function AuthDialog({ children }: { children: React.ReactNode }) {
               <DialogTitle className="anim-element text-2xl font-bold tracking-tight">
                 {getTitle()}
               </DialogTitle>
+              <DialogDescription>
+                Vui lòng chọn lựa chọn của bạn
+              </DialogDescription>
               <div className="anim-element text-sm text-muted-foreground mt-1">
                 {mode === 'login' && "Chào mừng bạn quay trở lại!"}
                 {mode === 'register' && "Tạo tài khoản để bắt đầu trải nghiệm."}

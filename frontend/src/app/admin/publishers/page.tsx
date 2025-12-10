@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import Swal from "sweetalert2";
+import toast from "react-hot-toast";
 import type { Publisher } from "@/types/publisher.type";
 import Pagination from "../components/Pagination";
 import { getAllPublishers, createPublisher, updatePublisher, deletePublisher } from "@/api/publisherApi";
@@ -10,7 +12,7 @@ export default function PublishersPage() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [editingPublisher, setEditingPublisher] = useState<Publisher | null>(null);
   const [formData, setFormData] = useState<{ name: string }>({ name: "" });
   const [loading, setLoading] = useState<boolean>(true);
@@ -67,40 +69,79 @@ export default function PublishersPage() {
   // Lưu form
   const handleSubmit = async () => {
     if (!formData.name.trim()) {
-      alert("Vui lòng nhập tên nhà xuất bản!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Vui lòng nhập tên nhà xuất bản!',
+      });
       return;
     }
 
     try {
       if (editingPublisher) {
-        console.log("Updating publisher with ID:", editingPublisher._id);
-        console.log("Data:", { name: formData.name.trim() });
         await updatePublisher(editingPublisher._id, { name: formData.name.trim() });
-        alert('Cập nhật nhà xuất bản thành công!');
+        Swal.fire({
+          icon: 'success',
+          title: 'Thành công',
+          text: 'Cập nhật nhà xuất bản thành công!',
+          timer: 2000,
+          showConfirmButton: false,
+        });
       } else {
         await createPublisher({ name: formData.name.trim() });
-        alert('Thêm nhà xuất bản thành công!');
+        Swal.fire({
+          icon: 'success',
+          title: 'Thành công',
+          text: 'Thêm nhà xuất bản thành công!',
+          timer: 2000,
+          showConfirmButton: false,
+        });
       }
       await fetchPublishers();
       resetForm();
     } catch (error) {
       console.error("Error saving publisher:", error);
-      console.error("Error response:", error.response?.data);
-      alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu nhà xuất bản'}`);
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: (error as any).response?.data?.message || 'Không thể lưu nhà xuất bản',
+      });
     }
   };
 
   // Xóa
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Bạn có chắc muốn xóa nhà xuất bản này?")) {
+  const handleDelete = async (id: string, name: string) => {
+    const result = await Swal.fire({
+      title: 'Xác nhận xóa nhà xuất bản',
+      html: `Bạn có chắc muốn xóa "<strong>${name}</strong>"?<br/><small class="text-red-500">⚠️ Hành động này không thể hoàn tác!</small>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Hủy',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
       try {
         await deletePublisher(id);
-        alert('Xóa nhà xuất bản thành công!');
+        toast.success('Xóa nhà xuất bản thành công!', {
+          position: 'bottom-right',
+          duration: 3000,
+          style: {
+            fontSize: '15px',
+            padding: '16px',
+          },
+        });
         await fetchPublishers();
       } catch (error) {
         console.error("Error deleting publisher:", error);
-        console.error("Error response:", error.response?.data);
-        alert(`Lỗi: ${error.response?.data?.message || 'Không thể xóa nhà xuất bản'}`);
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi!',
+          text: (error as any).response?.data?.message || 'Lỗi khi xóa nhà xuất bản!',
+        });
       }
     }
   };
@@ -189,7 +230,7 @@ export default function PublishersPage() {
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(pub._id)}
+                            onClick={() => handleDelete(pub._id, pub.name)}
                             className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-200"
                             title="Xóa"
                           >
@@ -216,8 +257,8 @@ export default function PublishersPage() {
 
       {/* Modal thêm/sửa */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+        <div className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl p-8 w-full max-w-md transform transition-all animate-slideUp border border-emerald-300 shadow-[0_0_40px_rgba(16,185,129,0.3)]">
             <h3 className="text-xl font-bold text-gray-800 mb-5 pb-3 border-b-2 border-emerald-600">
               {editingPublisher ? "Sửa nhà xuất bản" : "Thêm nhà xuất bản mới"}
             </h3>

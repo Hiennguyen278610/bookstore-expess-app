@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Plus, Pencil, Trash2, Search, Upload, Eye, X } from "lucide-react";
 import Pagination from "../components/Pagination";
+import SearchableSelect from "@/components/SearchableSelect";
 import type { Book, BooksResponse } from "@/types/book.type";
 import type { Author } from "@/types/author.type";
 import type { Category } from "@/types/category.type";
@@ -10,6 +11,8 @@ import type { Publisher } from "@/types/publisher.type";
 import axios from "axios";
 import { baseUrl } from "@/constants/index";
 import { createBook, updateBook, deleteBook } from "@/api/bookApi";
+import Swal from "sweetalert2";
+import toast from "react-hot-toast";
 
 // Hàm tạo slug từ tên sách
 const generateSlug = (name: string): string => {
@@ -148,7 +151,11 @@ export default function BooksPage() {
   // CRUD
   const handleSubmit = async () => {
     if (!formData.name || !formData.categoryId || !formData.publisherId || formData.authorIds.length === 0) {
-      alert("Vui lòng điền đầy đủ thông tin!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Vui lòng điền đầy đủ thông tin!',
+      });
       return;
     }
 
@@ -158,7 +165,9 @@ export default function BooksPage() {
       submitData.append('name', formData.name);
       submitData.append('categoryId', formData.categoryId);
       submitData.append('publisherId', formData.publisherId);
-      formData.authorIds.forEach(id => submitData.append('authorIds[]', id));
+      // Backend expects authors as JSON string with authorId property
+      const authorsData = formData.authorIds.map(id => ({ authorId: id }));
+      submitData.append('authors', JSON.stringify(authorsData));
       submitData.append('quantity', formData.quantity.toString());
       submitData.append('price', formData.price.toString());
 
@@ -171,35 +180,79 @@ export default function BooksPage() {
       }
 
       if (editingBook) {
-        await updateBook(editingBook._id, submitData);
-        alert('Cập nhật sách thành công!');
+        const response = await updateBook(editingBook._id, submitData);
+        console.log('Update response:', response);
+        Swal.fire({
+          icon: 'success',
+          title: 'Thành công',
+          text: 'Cập nhật sách thành công!',
+          timer: 2000,
+          showConfirmButton: false,
+        });
       } else {
         if (selectedFiles.length === 0) {
-          alert('Vui lòng chọn ít nhất 1 ảnh cho sách mới!');
+          Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Vui lòng chọn ít nhất 1 ảnh cho sách mới!',
+          });
           return;
         }
         await createBook(submitData);
-        alert('Thêm sách thành công!');
+        Swal.fire({
+          icon: 'success',
+          title: 'Thành công',
+          text: 'Thêm sách thành công!',
+          timer: 2000,
+          showConfirmButton: false,
+        });
       }
       fetchBooks();
       resetForm();
-    } catch (error) {
-      console.error("Error saving book:", error);
-      console.error("Error response:", error.response?.data);
-      alert(`Lỗi: ${error.response?.data?.message || 'Không thể lưu sách'}`);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      console.error("Error saving book:", err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: err.response?.data?.message || 'Không thể lưu sách',
+      });
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Bạn có chắc muốn xóa sách này?")) {
+  const handleDelete = async (id: string, name: string) => {
+    const result = await Swal.fire({
+      title: 'Xác nhận xóa sách',
+      html: `Bạn có chắc muốn xóa "<strong>${name}</strong>"?<br/><small class="text-red-500">⚠️ Hành động này không thể hoàn tác!</small>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Hủy',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
       try {
         await deleteBook(id);
-        alert('Xóa sách thành công!');
+        toast.success('Xóa sách thành công!', {
+          position: 'bottom-right',
+          duration: 3000,
+          style: {
+            fontSize: '15px',
+            padding: '16px',
+          },
+        });
         fetchBooks();
-      } catch (error) {
-        console.error("Error deleting book:", error);
-        console.error("Error response:", error.response?.data);
-        alert(`Lỗi: ${error.response?.data?.message || 'Không thể xóa sách'}`);
+      } catch (error: unknown) {
+        const err = error as { response?: { data?: { message?: string } } };
+        console.error("Error deleting book:", err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi',
+          text: err.response?.data?.message || 'Không thể xóa sách',
+        });
       }
     }
   };
@@ -207,10 +260,16 @@ export default function BooksPage() {
   const openModal = (book: Book | null = null) => {
     if (book) {
       setEditingBook(book);
+      console.log('Opening edit modal with book:', book);
+      console.log('Book authors:', book.authors);
+      const authorIds = Array.isArray(book.authors) && book.authors
+        ? book.authors.map((a: Author) => a._id).filter(Boolean)
+        : [];
+      console.log('Extracted authorIds:', authorIds);
       setFormData({
         name: book.name,
         categoryId: book.categoryId?._id || '',
-        authorIds: book.authors?.map(a => a._id) || [],
+        authorIds: authorIds,
         publisherId: book.publisherId?._id || '',
         imageUrl: book.imageUrl,
         quantity: book.quantity,
@@ -341,40 +400,37 @@ export default function BooksPage() {
             </div>
 
             {/* Category Filter */}
-            <select
+            <SearchableSelect
               value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="border border-gray-300 bg-white px-4 py-2.5 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            >
-              <option value="all">Tất cả thể loại</option>
-              {categories.map(cat => (
-                <option key={cat._id} value={cat._id}>{cat.name}</option>
-              ))}
-            </select>
+              onChange={(value) => setCategoryFilter(value || "all")}
+              options={[
+                { _id: "all", name: "Tất cả thể loại" },
+                ...categories
+              ]}
+              placeholder="Chọn thể loại"
+            />
 
             {/* Author Filter */}
-            <select
+            <SearchableSelect
               value={authorFilter}
-              onChange={(e) => setAuthorFilter(e.target.value)}
-              className="border border-gray-300 bg-white px-4 py-2.5 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            >
-              <option value="all">Tất cả tác giả</option>
-              {authors.map(a => (
-                <option key={a._id} value={a._id}>{a.name}</option>
-              ))}
-            </select>
+              onChange={(value) => setAuthorFilter(value || "all")}
+              options={[
+                { _id: "all", name: "Tất cả tác giả" },
+                ...authors
+              ]}
+              placeholder="Chọn tác giả"
+            />
 
             {/* Publisher Filter */}
-            <select
+            <SearchableSelect
               value={publisherFilter}
-              onChange={(e) => setPublisherFilter(e.target.value)}
-              className="border border-gray-300 bg-white px-4 py-2.5 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            >
-              <option value="all">Tất cả NXB</option>
-              {publishers.map(p => (
-                <option key={p._id} value={p._id}>{p.name}</option>
-              ))}
-            </select>
+              onChange={(value) => setPublisherFilter(value || "all")}
+              options={[
+                { _id: "all", name: "Tất cả NXB" },
+                ...publishers
+              ]}
+              placeholder="Chọn NXB"
+            />
 
             {/* Price Range */}
             <div className="flex items-center gap-2">
@@ -462,7 +518,7 @@ export default function BooksPage() {
                       </td>
                       <td className="px-4 py-4 text-gray-800 font-medium">{book.name}</td>
                       <td className="px-4 py-4 text-gray-600">{book.categoryId?.name || 'N/A'}</td>
-                      <td className="px-4 py-4 text-gray-600">{book.authors?.map(a => a.name).join(", ") || 'N/A'}</td>
+                      <td className="px-4 py-4 text-gray-600">{book.authors?.filter(a => a && a.name).map(a => a.name).join(", ") || 'N/A'}</td>
                       <td className="px-4 py-4 text-gray-600">{book.publisherId?.name || 'N/A'}</td>
                       <td className="px-4 py-4 text-right">
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${book.quantity > 10
@@ -492,7 +548,7 @@ export default function BooksPage() {
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(book._id)}
+                            onClick={() => handleDelete(book._id, book.name)}
                             className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-200"
                             title="Xóa"
                           >
@@ -523,166 +579,170 @@ export default function BooksPage() {
 
       {/* MODAL */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold text-gray-800 mb-5 pb-3 border-b-2 border-emerald-600">
+        <div className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-5xl max-h-[90vh] overflow-y-auto transform transition-all animate-slideUp border border-emerald-300 shadow-[0_0_40px_rgba(16,185,129,0.3)]">
+            <h3 className="text-xl font-bold text-gray-800 mb-4 pb-3 border-b-2 border-emerald-600">
               {editingBook ? "Sửa thông tin sách" : "Thêm sách mới"}
             </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <label className="block text-gray-700 mb-2 font-medium text-sm">Tên sách *</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                  placeholder="Nhập tên sách"
-                />
-              </div>
 
-              {/* Category */}
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">Thể loại *</label>
-                <select
-                  value={formData.categoryId}
-                  onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                >
-                  <option value="">Chọn thể loại</option>
-                  {categories.map(c => (
-                    <option key={c._id} value={c._id}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
+            <div className="grid grid-cols-3 gap-6">
+              {/* Left Column - Basic Info */}
+              <div className="col-span-2 space-y-4">
+                <div>
+                  <label className="block text-gray-700 mb-1.5 font-medium text-sm">Tên sách *</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                    placeholder="Nhập tên sách"
+                  />
+                </div>
 
-              {/* Publisher */}
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">Nhà xuất bản *</label>
-                <select
-                  value={formData.publisherId}
-                  onChange={(e) => setFormData({ ...formData, publisherId: e.target.value })}
-                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                >
-                  <option value="">Chọn NXB</option>
-                  {publishers.map(p => (
-                    <option key={p._id} value={p._id}>{p.name}</option>
-                  ))}
-                </select>
-              </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Category */}
+                  <div>
+                    <label className="block text-gray-700 mb-1.5 font-medium text-sm">Thể loại *</label>
+                    <SearchableSelect
+                      value={formData.categoryId}
+                      onChange={(value) => setFormData({ ...formData, categoryId: value })}
+                      options={categories}
+                      placeholder="Chọn thể loại"
+                    />
+                  </div>
 
-              {/* Authors */}
-              <div className="col-span-2">
-                <label className="block text-gray-700 mb-2 font-medium text-sm">Tác giả *</label>
-                <div className="border border-gray-300 rounded-lg p-3 bg-gray-50 max-h-32 overflow-y-auto">
-                  {authors.map(a => (
-                    <label key={a._id} className="flex items-center gap-2 mb-2 cursor-pointer hover:bg-gray-100 p-1 rounded">
-                      <input
-                        type="checkbox"
-                        checked={formData.authorIds.includes(a._id)}
-                        onChange={() => toggleAuthor(a._id)}
-                        className="w-4 h-4 text-emerald-600 rounded focus:ring-2 focus:ring-emerald-500"
-                      />
-                      <span className="text-gray-700 text-sm">{a.name}</span>
-                    </label>
-                  ))}
+                  {/* Publisher */}
+                  <div>
+                    <label className="block text-gray-700 mb-1.5 font-medium text-sm">Nhà xuất bản *</label>
+                    <SearchableSelect
+                      value={formData.publisherId}
+                      onChange={(value) => setFormData({ ...formData, publisherId: value })}
+                      options={publishers}
+                      placeholder="Chọn NXB"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Quantity */}
+                  <div>
+                    <label className="block text-gray-700 mb-1.5 font-medium text-sm">Số lượng *</label>
+                    <input
+                      type="number"
+                      value={formData.quantity}
+                      onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
+                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                    />
+                  </div>
+                  {/* Price */}
+                  <div>
+                    <label className="block text-gray-700 mb-1.5 font-medium text-sm">Giá (VNĐ) *</label>
+                    <input
+                      type="number"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })}
+                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Authors */}
+                <div>
+                  <label className="block text-gray-700 mb-1.5 font-medium text-sm">Tác giả *</label>
+                  <div className="border border-gray-300 rounded-lg p-2 bg-gray-50 max-h-28 overflow-y-auto">
+                    <div className="grid grid-cols-2 gap-1">
+                      {authors.map(a => (
+                        <label key={a._id} className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1.5 rounded text-sm">
+                          <input
+                            type="checkbox"
+                            checked={formData.authorIds.includes(a._id)}
+                            onChange={() => toggleAuthor(a._id)}
+                            className="w-3.5 h-3.5 text-emerald-600 rounded focus:ring-2 focus:ring-emerald-500"
+                          />
+                          <span className="text-gray-700 text-xs">{a.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Quantity & Price */}
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">Số lượng *</label>
-                <input
-                  type="number"
-                  value={formData.quantity}
-                  onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
-                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">Giá (VNĐ) *</label>
-                <input
-                  type="number"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })}
-                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                />
-              </div>
-
-              {/* Image */}
-              <div className="col-span-2">
-                <label className="block text-gray-700 mb-2 font-medium text-sm">Hình ảnh (ảnh đầu tiên là ảnh nền)</label>
-
-                {/* Image Previews Grid */}
-                <div className="grid grid-cols-4 gap-3 mb-4">
-                  {imagePreviews.filter(preview => preview).map((preview, index) => (
-                    <div key={index} className={`relative group ${index === 0 ? 'ring-2 ring-emerald-500' : ''}`}>
-                      <Image
-                        src={preview}
-                        alt={`Preview ${index + 1}`}
-                        width={96}
-                        height={128}
-                        className="w-full h-32 object-cover rounded-lg border border-gray-200"
-                        unoptimized
-                      />
-                      {index === 0 && (
-                        <span className="absolute top-1 left-1 bg-emerald-600 text-white text-xs px-2 py-0.5 rounded">
-                          Ảnh nền
-                        </span>
-                      )}
-                      <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                        {index !== 0 && (
+              {/* Right Column - Images */}
+              <div className="col-span-1">
+                <label className="block text-gray-700 mb-1.5 font-medium text-sm">Hình ảnh</label>
+                <div className="space-y-2">
+                  {/* Image Previews Grid */}
+                  <div className="grid grid-cols-2 gap-2 max-h-[400px] overflow-y-auto p-1">
+                    {imagePreviews.filter(preview => preview).map((preview, index) => (
+                      <div key={index} className={`relative group aspect-[3/4] ${index === 0 ? 'ring-2 ring-emerald-500' : ''}`}>
+                        <Image
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          width={80}
+                          height={106}
+                          className="w-full h-full object-cover rounded-lg border border-gray-200"
+                          unoptimized
+                        />
+                        {index === 0 && (
+                          <span className="absolute top-0.5 left-0.5 bg-emerald-600 text-white text-[10px] px-1.5 py-0.5 rounded">
+                            Nền
+                          </span>
+                        )}
+                        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
+                          {index !== 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setAsCover(index)}
+                              className="p-1 bg-emerald-600 text-white rounded hover:bg-emerald-700 text-xs"
+                              title="Đặt làm ảnh nền"
+                            >
+                              ★
+                            </button>
+                          )}
                           <button
                             type="button"
-                            onClick={() => setAsCover(index)}
-                            className="p-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-xs"
-                            title="Đặt làm ảnh nền"
+                            onClick={() => removeImage(index)}
+                            className="p-1 bg-red-600 text-white rounded hover:bg-red-700"
+                            title="Xóa ảnh"
                           >
-                            ★
+                            <X className="w-3 h-3" />
                           </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="p-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                          title="Xóa ảnh"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
 
-                  {/* Add More Images Button */}
-                  <label className="w-full h-32 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-emerald-400 transition-colors">
-                    <Upload className="w-6 h-6 text-gray-400 mb-1" />
-                    <span className="text-gray-500 text-xs text-center">Thêm ảnh</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImageChange}
-                      className="hidden"
-                    />
-                  </label>
+                    {/* Add More Images Button */}
+                    <label className="w-full aspect-[3/4] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-emerald-400 transition-colors">
+                      <Upload className="w-5 h-5 text-gray-400 mb-1" />
+                      <span className="text-gray-500 text-[10px] text-center">Thêm</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageChange}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  <p className="text-[10px] text-gray-500 leading-tight">
+                    Ảnh đầu tiên là ảnh nền
+                  </p>
                 </div>
-
-                <p className="text-xs text-gray-500">
-                  * Ảnh sẽ được lưu tại <code className="bg-gray-100 px-1 rounded">/images/books/{generateSlug(formData.name || 'ten_sach')}.ext</code>
-                </p>
               </div>
             </div>
 
             {/* Buttons */}
-            <div className="flex gap-3 pt-6">
+            <div className="flex gap-3 pt-4 border-t mt-4">
               <button
                 onClick={handleSubmit}
-                className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2.5 rounded-lg hover:shadow-lg transition-all duration-300 font-semibold"
+                className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300 font-semibold text-sm"
               >
                 {editingBook ? "Cập nhật" : "Thêm mới"}
               </button>
               <button
                 onClick={resetForm}
-                className="flex-1 bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg hover:bg-gray-300 transition-all duration-300 font-semibold"
+                className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all duration-300 font-semibold text-sm"
               >
                 Hủy
               </button>
@@ -693,7 +753,7 @@ export default function BooksPage() {
 
       {/* DETAIL MODAL */}
       {showDetailModal && detailBook && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-5 pb-3 border-b-2 border-blue-600">
               <h3 className="text-xl font-bold text-gray-800">Chi tiết sách</h3>
@@ -708,9 +768,9 @@ export default function BooksPage() {
             <div className="grid grid-cols-2 gap-6">
               {/* Ảnh nền (ảnh chính) */}
               <div className="col-span-2 md:col-span-1">
-                {(detailBook.imageUrls?.[0] || detailBook.imageUrl?.[0]) ? (
+                {(detailBook.imageUrl?.[0] || detailBook.mainImage) ? (
                   <Image
-                    src={detailBook.imageUrls?.[0] || detailBook.imageUrl[0]}
+                    src={detailBook.imageUrl?.[0] || detailBook.mainImage}
                     alt={detailBook.name}
                     width={300}
                     height={400}
@@ -727,20 +787,20 @@ export default function BooksPage() {
                 <h4 className="text-2xl font-bold text-gray-800">{detailBook.name}</h4>
 
                 <div className="space-y-2 text-sm">
-                  <p><span className="text-gray-500">Thể loại:</span> <span className="font-medium text-gray-800">{getCategoryName(detailBook.category_id)}</span></p>
-                  <p><span className="text-gray-500">Tác giả:</span> <span className="font-medium text-gray-800">{getAuthorNames(detailBook.author_ids || [])}</span></p>
-                  <p><span className="text-gray-500">NXB:</span> <span className="font-medium text-gray-800">{getPublisherName(detailBook.publisher_id)}</span></p>
-                  <p><span className="text-gray-500">Số lượng:</span> <span className="font-medium text-gray-800">{detailBook.quantity}</span></p>
+                  <p><span className="text-gray-500">Thể loại:</span> <span className="font-medium text-gray-800">{detailBook.categoryId && typeof detailBook.categoryId === 'object' ? detailBook.categoryId.name : detailBook.categoryId ? getCategoryName(detailBook.categoryId as string) : 'N/A'}</span></p>
+                  <p><span className="text-gray-500">Tác giả:</span> <span className="font-medium text-gray-800">{Array.isArray(detailBook.authors) && detailBook.authors.length > 0 ? detailBook.authors.map(a => a?.name).filter(Boolean).join(', ') || 'N/A' : 'N/A'}</span></p>
+                  <p><span className="text-gray-500">NXB:</span> <span className="font-medium text-gray-800">{detailBook.publisherId && typeof detailBook.publisherId === 'object' ? detailBook.publisherId.name : detailBook.publisherId ? getPublisherName(detailBook.publisherId as string) : 'N/A'}</span></p>
+                  <p><span className="text-gray-500">Số lượng:</span> <span className="font-medium text-gray-800">{detailBook.quantity ?? 0}</span></p>
                   <p><span className="text-gray-500">Giá:</span> <span className="font-bold text-emerald-600 text-lg">{formatPrice(detailBook.price)}</span></p>
                 </div>
               </div>
 
               {/* Tất cả ảnh */}
-              {detailBook.imageUrls && detailBook.imageUrls.length > 1 && (
+              {detailBook.imageUrl && detailBook.imageUrl.length > 1 && (
                 <div className="col-span-2">
-                  <h5 className="text-sm font-semibold text-gray-700 mb-3">Tất cả hình ảnh ({detailBook.imageUrls.length})</h5>
+                  <h5 className="text-sm font-semibold text-gray-700 mb-3">Tất cả hình ảnh ({detailBook.imageUrl.length})</h5>
                   <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
-                    {detailBook.imageUrls.filter(url => url).map((url, index) => (
+                    {detailBook.imageUrl.filter((url: string) => url).map((url: string, index: number) => (
                       <div key={index} className={`relative ${index === 0 ? 'ring-2 ring-emerald-500' : ''}`}>
                         <Image
                           src={url}

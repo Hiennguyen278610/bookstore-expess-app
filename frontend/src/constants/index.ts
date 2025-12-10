@@ -8,3 +8,12 @@ export const sortBookOptions = [
   { value: "name_asc", label: "Tên A-Z" },
   { value: "name_desc", label: "Tên Z-A" },
 ];
+
+export const statusMap = new Map([
+  ["all", "Tất cả"],
+  ['pending', 'Chờ xử lý'],
+  ['processing', 'Đang xử lý'],
+  ['delivery', 'Đang giao hàng'],
+  ['completed', 'Đã hoàn thành'],
+  ['canceled', 'Đã hủy']
+]);

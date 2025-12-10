@@ -154,7 +154,7 @@ export const getProfileService = async (username) => {
   if (!user) {
     throw new ErrorResponse('User not found', 404);
   }
-  return { fullName: user.fullName,username: user.username, email: user.email, phone: user.phone, id: user._id };
+  return { fullName: user.fullName,username: user.username, email: user.email, phone: user.phone, id: user._id, role: user.role };
 };
 export const updateProfileService = async (userId, updateData) => {
   const user = await User.findById(userId)
@@ -217,7 +217,6 @@ export const googleLoginService = async (code) => {
       username: username,
       email: payload.email,
       isVerified: payload.email_verified,
-      phone: null,
       password: password
     });
     await user.save();

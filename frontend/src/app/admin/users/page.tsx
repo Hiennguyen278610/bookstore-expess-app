@@ -5,13 +5,15 @@ import Pagination from "../components/Pagination";
 import type { User } from "@/types/user.type";
 import axios from "axios";
 import { baseUrl } from "@/constants/index";
+import Swal from "sweetalert2";
+import toast from "react-hot-toast";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showPassword, setShowPassword] = useState<Record<string, boolean>>({});
@@ -35,9 +37,12 @@ export default function UsersPage() {
     try {
       setLoading(true);
       const response = await axios.get(`${baseUrl}/users`);
-      setUsers(response.data);
+      // API có thể trả về { data: [...] } hoặc trực tiếp array
+      const usersData = response.data?.data || response.data || [];
+      setUsers(Array.isArray(usersData) ? usersData : []);
     } catch (error) {
       console.error("Error fetching users:", error);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -74,28 +79,68 @@ export default function UsersPage() {
 
     try {
       if (editingUser) {
-        // Update user
-        await axios.put(`${baseUrl}/users/${editingUser._id}`, formData);
+        // Update user - temporarily disabled, backend API not available
+        Swal.fire({
+          icon: 'warning',
+          title: 'Chức năng chưa khả dụng',
+          text: 'Tính năng sửa người dùng đang được phát triển!',
+        });
+        return;
       } else {
-        // Create new user
-        await axios.post(`${baseUrl}/users`, formData);
+        // Create new user - use register endpoint
+        await axios.post(`${baseUrl}/auth/register`, formData);
+        Swal.fire({
+          icon: 'success',
+          title: 'Thành công',
+          text: 'Thêm người dùng thành công!',
+          timer: 2000,
+          showConfirmButton: false,
+        });
       }
       fetchUsers();
       resetForm();
     } catch (error) {
       console.error("Error saving user:", error);
-      alert("Có lỗi xảy ra khi lưu người dùng!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: (error as any).response?.data?.message || 'Có lỗi xảy ra khi lưu người dùng!',
+      });
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Bạn có chắc muốn xóa người dùng này?")) {
+  const handleDelete = async (id: string, username: string) => {
+    const result = await Swal.fire({
+      title: 'Xác nhận xóa người dùng',
+      html: `Bạn có chắc muốn xóa "<strong>${username}</strong>"?<br/><small class="text-red-500">⚠️ Hành động này không thể hoàn tác!</small>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Hủy',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
       try {
         await axios.delete(`${baseUrl}/users/${id}`);
+        toast.success('Xóa người dùng thành công!', {
+          position: 'bottom-right',
+          duration: 3000,
+          style: {
+            fontSize: '15px',
+            padding: '16px',
+          },
+        });
         fetchUsers();
       } catch (error) {
         console.error("Error deleting user:", error);
-        alert("Có lỗi xảy ra khi xóa người dùng!");
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi',
+          text: 'Có lỗi xảy ra khi xóa người dùng!',
+        });
       }
     }
   };
@@ -235,8 +280,8 @@ export default function UsersPage() {
                       </td>
                       <td className="px-4 py-4">
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${user.role === "admin"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : "bg-blue-50 text-blue-700 border border-blue-200"
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-blue-50 text-blue-700 border border-blue-200"
                           }`}>
                           {user.role === "admin" ? "Admin" : "User"}
                         </span>
@@ -250,7 +295,7 @@ export default function UsersPage() {
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(user._id)}
+                            onClick={() => handleDelete(user._id, user.username)}
                             className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-200"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -281,8 +326,8 @@ export default function UsersPage() {
 
       {/* Modal thêm/sửa */}
       {showModal && (
-        <div className="fixed inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto border border-gray-200">
+        <div className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl p-8 w-full max-w-md max-h-[90vh] overflow-y-auto border border-emerald-300 shadow-[0_0_40px_rgba(16,185,129,0.3)] transform transition-all animate-slideUp">
             <h3 className="text-xl font-bold text-gray-800 mb-5 pb-3 border-b-2 border-emerald-600">
               {editingUser ? "Sửa người dùng" : "Thêm người dùng mới"}
             </h3>

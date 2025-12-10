@@ -237,14 +237,7 @@ const FilterSidebar = () => {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-gray-800">Nhà xuất bản</h3>
-          {state.publishers.length > 0 ? (
-            <button
-              onClick={() => handlePublisherChange([])}
-              className="text-xs text-green-600 hover:text-green-700"
-            >
-              Bỏ chọn tất cả
-            </button>
-          ) : null}
+         
         </div>
         
         {publishersData && publishersData.length > 0 ? (
