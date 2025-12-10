@@ -115,7 +115,7 @@ export default function OrderOrderDetailPage() {
           </p>
           <div className="pt-2 flex justify-center gap-3">
             <Button variant="outline" onClick={() => router.push('/')}>Tiếp tục mua sắm</Button>
-            <Button variant="secondary" onClick={() => router.push('/orders')}>Xem lịch sử đơn</Button>
+            <Button variant="secondary" onClick={() => router.push('/account')}>Xem lịch sử đơn</Button>
           </div>
         </div>
 

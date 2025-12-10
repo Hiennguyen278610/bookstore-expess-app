@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import { supplyReceipts as fakeReceipts, suppliers, books, users } from "@/app/admin/fakedata";
+import { supplyReceipts as fakeReceipts, suppliers, books } from "@/app/admin/fakedata";
 import type { SupplyReceipt, SupplyItem } from "@/types/supplyreceipt.type";
 import type { Supplier } from "@/types/supplier.type";
 import type { Book } from "@/types/book.type";

@@ -71,12 +71,13 @@ const OrderPage = () => {
       router.push('/');
     }
   }, [cart, setValue, router]);
-
+  let isDefault
   useEffect(() => {
     if (addresses && addresses.length > 0 && !getValues('receiverName')) {
       const defaultAddr = addresses.find((addr: Address) => addr.isDefault) || addresses[0];
 
       if (defaultAddr) {
+        isDefault = defaultAddr.isDefault;
         fillAddressToForm(defaultAddr);
       }
     }
@@ -84,7 +85,6 @@ const OrderPage = () => {
 
   const fillAddressToForm = (addr: Address) => {
     const fullAddress = `${addr.detail}, ${addr.district}, ${addr.province}`;
-
     setValue('receiverName', addr.name, { shouldValidate: true });
     setValue('receiverPhone', addr.phone, { shouldValidate: true });
     setValue('receiverAddress', fullAddress, { shouldValidate: true });
@@ -170,6 +170,12 @@ const OrderPage = () => {
                       <span>{receiverName}</span>
                       <span className="w-[1px] h-4 bg-gray-300"></span>
                       <span>{receiverPhone}</span>
+                      {isDefault && (
+                        <>
+                        <span className="w-[1px] h-4 bg-gray-300"></span>
+                        <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-100">Mặc định</Badge>
+                        </>
+                      )}
                     </div>
                     <p className="text-gray-700 text-sm">{receiverAddress}</p>
                   </div>

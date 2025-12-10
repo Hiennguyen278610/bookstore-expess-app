@@ -12,8 +12,7 @@ import { checkEmptyBody } from "../middlewares/checkEmptyBody.js";
 
 const router = express.Router();
 
-// TODO: Uncomment khi deploy production
-// router.use(auth);
+router.use(auth);
 router.use(checkEmptyBody);
 
 router.get("/", getOrderByOrderCode)
