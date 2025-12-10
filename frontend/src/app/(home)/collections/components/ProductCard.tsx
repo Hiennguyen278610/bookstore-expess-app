@@ -35,8 +35,8 @@ const ProductCard = ({ _id, name, price, imgSrc }: ProductCardProps) => {
             src={imgSrc}
             alt={name}
             width={200}
-            height={300}
-            className="w-full h-auto max-h-[290px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
+            height={220}
+            className="w-full h-[220px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
           />
         </div>
         <div className="mt-4 flex flex-col flex-grow min-h-[95px]">
