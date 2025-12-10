@@ -29,6 +29,7 @@ const BookShowCase = ({ title, books }: BookShowCaseProps) => {
             imgSrc={book.book.imageUrl[0]}
             name={book.book.name}
             price={book.book.price}
+            stock={book.book.quantity}
           />
         ))}
       </div>

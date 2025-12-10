@@ -27,6 +27,7 @@ const BookNewest = ({title, books}: BookShowCaseProps) => {
             imgSrc={book.imageUrl[0]}
             name={book.name}
             price={book.price}
+            stock={book.quantity}
           />
         ))}
       </div>

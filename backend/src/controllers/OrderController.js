@@ -70,7 +70,7 @@ export async function getTop10BestSellingBooks(req, res) {
         $sort: { totalSold: -1 }
       },
       {
-        $limit: 10
+        $limit: 11
       },
       {
         $lookup: {

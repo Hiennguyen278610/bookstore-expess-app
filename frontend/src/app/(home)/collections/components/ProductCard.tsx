@@ -5,15 +5,17 @@ import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { toast } from "sonner";
 
 export interface ProductCardProps {
   _id: string;
   name: string;
   price: number;
   imgSrc: string;
+  stock: number;
 }
 
-const ProductCard = ({ _id, name, price, imgSrc }: ProductCardProps) => {
+const ProductCard = ({ _id, name, price, imgSrc, stock }: ProductCardProps) => {
   const { addToCart } = useCartStore();
 
   const handleAddToCart = async (e: React.MouseEvent) => {
@@ -21,6 +23,10 @@ const ProductCard = ({ _id, name, price, imgSrc }: ProductCardProps) => {
     e.stopPropagation();
 
     try {
+      if (stock === 0) {
+        toast.warning("Mặt hàng hiện tại đã hết");
+        return;
+      }
       await addToCart(_id, 1);
     } catch (error) {
       console.error(error);
