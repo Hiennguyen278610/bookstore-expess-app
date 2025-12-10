@@ -2,10 +2,10 @@
 import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import Swal from "sweetalert2";
-import toast from "react-hot-toast";
 import type { Author } from "@/types/author.type";
 import Pagination from "../components/Pagination";
 import { getAllAuthors, createAuthor, updateAuthor, deleteAuthor } from "@/api/authorApi";
+import { toast } from 'sonner';
 
 export default function AuthorsPage() {
   const [authors, setAuthors] = useState<Author[]>([]);

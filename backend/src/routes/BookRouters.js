@@ -9,16 +9,11 @@ const router = express.Router();
 
 router.get("/max-price", getMaxPrice)
 
-//router.post("/",auth, authorizeRoles("admin"),uploadImage.array("images", 10), checkEmptyBody, createBook);
-//router.put("/:id",auth, authorizeRoles("admin"),uploadImage.array("images", 10), checkEmptyBody, updateBook);
-
-router.post("/", uploadImage.array("images", 10), createBook);
-router.put("/:id", uploadImage.array("images", 10), updateBook);
-router.delete("/:id", deleteBook);
-
+router.post("/",auth, authorizeRoles("admin"),uploadImage.array("images", 10), checkEmptyBody, createBook);
+router.put("/:id",auth, authorizeRoles("admin"),uploadImage.array("images", 10), checkEmptyBody, updateBook);
+router.delete("/:id", auth, authorizeRoles("admin"), deleteBook);
 
 router.get("/:id", findBook);
 router.get("/", getBooks)
-//router.delete("/:id", auth, authorizeRoles("admin"), deleteBook);
 
 export default router;

@@ -12,11 +12,8 @@ import {
 } from '../controllers/SupplyReceiptController.js';
 
 const router = express.Router();
-
-// Middleware auth và authorize cho admin
-// TODO: Bỏ comment khi deploy production
-// router.use(auth);
-// router.use(authorizeRoles("ADMIN"));
+router.use(auth);
+router.use(authorizeRoles("admin"));
 
 // Routes
 router.get("/", getAllSupplyReceipts);                    // GET /api/v1/supply-receipts

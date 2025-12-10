@@ -27,7 +27,6 @@ import { createPayment } from '@/services/PaymentService';
 const OrderPage = () => {
   const router = useRouter();
 
-  // Data Address & Cart
   const { addresses, isLoading: addressLoading, mutate } = getAllAddress();
   const cart = useCartStore((s) => s.cart);
   const fetchCart = useCartStore((s) => s.fetchCart);
@@ -37,14 +36,9 @@ const OrderPage = () => {
   const [openAddressDialog, setOpenAddressDialog] = useState(false);
   const [openCreateAddress, setOpenCreateAddress] = useState(false);
   const [count, setCount] = useState(5);
-
-
-  // 1. Fetch Cart
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
-
-  // Setup Form với Schema mới
   const {
     control,
     handleSubmit,
@@ -62,15 +56,9 @@ const OrderPage = () => {
       paymentMethod: 'COD'
     }
   });
-
-  // Theo dõi các giá trị để hiển thị lên UI
   const receiverName = watch('receiverName');
   const receiverPhone = watch('receiverPhone');
   const receiverAddress = watch('receiverAddress');
-
-  // --- LOGIC SYNC DỮ LIỆU ---
-
-  // 2. Sync Cart Items vào Form
   useEffect(() => {
     if (cart && cart.items.length > 0) {
       const formItems: ItemCart[] = cart.items.map((item) => ({
@@ -84,9 +72,7 @@ const OrderPage = () => {
     }
   }, [cart, setValue, router]);
 
-  // 3. Sync Default Address vào Form (Tự động điền nếu form đang trống)
   useEffect(() => {
-    // Nếu đã có danh sách địa chỉ VÀ form chưa có tên người nhận (coi như chưa điền gì)
     if (addresses && addresses.length > 0 && !getValues('receiverName')) {
       const defaultAddr = addresses.find((addr: Address) => addr.isDefault) || addresses[0];
 
@@ -96,9 +82,7 @@ const OrderPage = () => {
     }
   }, [addresses, setValue, getValues]);
 
-  // Hàm helper để điền dữ liệu vào form
   const fillAddressToForm = (addr: Address) => {
-    // Tạo chuỗi địa chỉ đầy đủ
     const fullAddress = `${addr.detail}, ${addr.district}, ${addr.province}`;
 
     setValue('receiverName', addr.name, { shouldValidate: true });
@@ -106,7 +90,6 @@ const OrderPage = () => {
     setValue('receiverAddress', fullAddress, { shouldValidate: true });
   };
 
-  // Xử lý khi chọn từ Dialog
   const handleSelectAddress = (addr: Address) => {
     fillAddressToForm(addr);
     setOpenAddressDialog(false);
@@ -115,16 +98,18 @@ const OrderPage = () => {
   const handleSuccessCreateAddr = async (addr: Address) => {
     setOpenCreateAddress(false);
     await mutate();
-    fillAddressToForm(addr); // Điền luôn địa chỉ vừa tạo vào form
+    fillAddressToForm(addr);
   };
 
   const onSubmit = async (data: OrderPayload) => {
-    console.log("Payload Validated:", data);
     try {
+      if(data.paymentMethod === "CARD"){
+        toast.info("Chức năng chưa được hỗ trợ. Vui lòng chọn phương thức thanh toán khác!")
+        return;
+      }
       const res : Order = await orderServices.createOrder(data);
       if (res.paymentMethod === "PAYOS"){
         const payment = await createPayment(res._id);
-        console.log("Payment: ", payment);
         toast.success(`Đang chuyển hướng sau ${count}s...`);
 
         const interval = setInterval(() => {
@@ -137,8 +122,7 @@ const OrderPage = () => {
             return prev - 1;
           });
         }, 1000);
-      }
-      if (res.paymentMethod === "COD" || res.paymentMethod === "CARD"){
+      }else if (res.paymentMethod === "COD"){
         router.push(`/orders/${res._id}`);
         toast.success("Đặt hàng thành công!");
       }

@@ -1,5 +1,6 @@
 import api from '@/lib/axios';
 import useSWR from 'swr';
+import { Order } from '@/types/order.type';
 
 export async function createPayment(id: string){
   return await api.post(`/payment/create/${id}`).then((res) => res.data)
@@ -26,4 +27,8 @@ export function getAllOrderByToken(page: number, limit: number, status : string)
     isLoading,
     mutate,
   };
+}
+
+export async function getOrderByOrderCode(orderCode: string){
+  return await api.get(`/orders?orderCode=${orderCode}`).then((res) => res.data)
 }

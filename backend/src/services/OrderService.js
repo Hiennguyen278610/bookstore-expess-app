@@ -194,7 +194,7 @@ export async function getOrderDetailByIdService(orderId) {
 export async function getAllOrdersByCustomerIdService(customerId, query) {
   const page = parseInt(query.page) || 1;
   const limit = parseInt(query.limit) || 10;
-  const status = query.paymentStatus || "";
+  const status = query.status || "";
   const skip = (page - 1) * limit;
 
   const filter = {customerId: customerId};
@@ -318,4 +318,7 @@ export async function getOrderByStatusAndCustomerId(
   );
 
   return ordersWithDetails;
+}
+export async function getOrderByOrderCodeService(orderCode, customerId){
+  return Order.findOne({ customerId: customerId, payosOrderId: orderCode  });
 }

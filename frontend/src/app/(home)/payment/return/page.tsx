@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useEffect, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import React, { Suspense, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Home, ShoppingBag, Loader2 } from 'lucide-react';
+import { CheckCircle, Eye, Home, Loader2 } from 'lucide-react';
 import { useCartStore } from '@/stores/useCartStore';
+import { getOrderByOrderCode } from '@/services/PaymentService';
+import { Order } from '@/types/order.type';
 
 const PaymentReturnContent = () => {
   const searchParams = useSearchParams();
@@ -33,6 +35,11 @@ const PaymentReturnContent = () => {
       </Card>
     );
   }
+  const handleRouterDetails = async () => {
+    const res : Order = await getOrderByOrderCode(orderCode || '');
+    console.log(res);
+    router.push(`/orders/${res._id}`);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -64,13 +71,20 @@ const PaymentReturnContent = () => {
             Đơn hàng của bạn đang được xử lý và sẽ sớm được giao đến địa chỉ đăng ký.
           </p>
         </CardContent>
-
-        <CardFooter className="flex flex-col sm:flex-row gap-3 pt-2">
+        <CardFooter className="flex flex-col gap-3 pt-2">
           <Button
-            className="w-full bg-gray-900 hover:bg-gray-800"
+            className="w-full bg-gray-900 hover:bg-gray-600 cursor-pointer"
             onClick={() => router.push('/')}
           >
             <Home className="w-4 h-4 mr-2" /> Về trang chủ
+          </Button>
+
+          <Button
+            variant="outline"
+            className="w-full border-gray-300 hover:bg-gray-50 text-gray-700 cursor-pointer"
+            onClick={() => handleRouterDetails()}
+          >
+            <Eye className="w-4 h-4 mr-2" /> Xem Chi Tiết Đơn Hàng
           </Button>
         </CardFooter>
       </Card>
@@ -78,7 +92,6 @@ const PaymentReturnContent = () => {
   );
 };
 
-// Cần bọc Suspense vì useSearchParams gây lỗi khi build static
 const PaymentReturnPage = () => (
   <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="animate-spin w-8 h-8 text-gray-500" /></div>}>
     <PaymentReturnContent />

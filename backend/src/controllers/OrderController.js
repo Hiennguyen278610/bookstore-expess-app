@@ -5,6 +5,7 @@ import {
   getAllOrdersService,
   getOrderDetailByIdService,
   updateOrderService,
+  getOrderByOrderCodeService
 } from "../services/OrderService.js";
 
 
@@ -100,6 +101,17 @@ export async function deleteOrder(req, res) {
     return res.status(200).json(order);
   } catch (err) {
     res.status(400).send({ message: err.message });
+  }
+}
+export async function getOrderByOrderCode(req, res){
+  try {
+    const order = await getOrderByOrderCodeService(req.query.orderCode, req.user.id)
+    if (!order) {
+      return res.status(400).send({ message: "Error getting order" });
+    }
+    return res.status(200).json(order);
+  }catch (err){
+    res.status(400).send({message: err.message});
   }
 }
 
