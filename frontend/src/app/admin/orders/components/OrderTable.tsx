@@ -134,6 +134,21 @@ const PaymentMethodBadge = ({ method }: { method: Order["paymentMethod"] }) => {
       color: "bg-indigo-50 text-indigo-700",
       icon: <QrCode className="h-3 w-3" />,
     },
+    COD: {
+      label: "Tiền mặt",
+      color: "bg-blue-50 text-blue-700",
+      icon: <HandCoins className="w-3 h-3" />,
+    },
+    CARD: {
+      label: "Thẻ tín dụng",
+      color: "bg-purple-50 text-purple-700",
+      icon: <CreditCard className="w-3 h-3" />,
+    },
+    PAYOS: {
+      label: "PayOS",
+      color: "bg-indigo-50 text-indigo-700",
+      icon: <QrCode className="h-3 w-3" />,
+    },
   };
 
   const { label, color, icon } = config[method] || {
@@ -292,6 +307,7 @@ export const OrderTable = ({ orders, onViewOrder }: OrderTableProps) => {
           <TableRow className="bg-white">
             <TableHead className="font-semibold">Mã ĐH</TableHead>
             <TableHead className="font-semibold">Khách hàng</TableHead>
+            <TableHead className="font-semibold">Người nhận</TableHead>
             <TableHead className="font-semibold text-center">Ngày đặt</TableHead>
             <TableHead className="font-semibold text-center">Tổng tiền</TableHead>
             <TableHead className="font-semibold">Trạng thái</TableHead>
@@ -318,11 +334,20 @@ export const OrderTable = ({ orders, onViewOrder }: OrderTableProps) => {
                 <div className="space-y-1">
                   <div className="font-medium">{order.customerId.fullName}</div>
                   <div className="text-sm text-gray-500">
-                    {order.customerId.email}
+                    #{order.customerId._id.slice(-8).toUpperCase()}
+                  </div>
+                </div>
+              </TableCell>
+
+              <TableCell>
+                <div className="space-y-1">
+                  <div className="font-medium">{order.receiverName}</div>
+                  <div className="text-sm text-gray-500">
+                    {order.receiverPhone}
                   </div>
                   {order.customerId.phone && (
                     <div className="text-sm text-gray-500">
-                      {order.customerId.phone}
+                      {order.receiverAddress}
                     </div>
                   )}
                 </div>

@@ -15,13 +15,16 @@ export interface Order {
     | "completed"
     | "canceled";
   paymentStatus: "unpaid" | "paid" | "failed" | "refunded";
-  paymentMethod: "cash" | "creditCard" | "payos";
+  paymentMethod: "COD" | "CARD" | "PAYOS";
   purchaseDate: Date;
   totalAmount: number;
+  receiverName: string;
+  receiverPhone: string;
+  receiverAddress: string
 }
 
 
-interface OrderDetail {
+export interface OrderDetail {
   _id: string;
   orderId: string;
   bookId: string;
@@ -41,6 +44,9 @@ export interface OrderWithDetails
     | "paymentMethod"
     | "purchaseDate"
     | "totalAmount"
+    | "receiverAddress"
+    | "receiverName"
+    | "receiverPhone"
   > {
     details: OrderDetail[];
     customerId: string;

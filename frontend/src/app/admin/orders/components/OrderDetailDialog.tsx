@@ -128,11 +128,11 @@ const OrderDetailDialog = ({
   // Map payment method to Vietnamese text
   const getPaymentMethodText = (method: OrderWithDetails["paymentMethod"]) => {
     switch (method) {
-      case "cash":
+      case "COD":
         return "Tiền mặt";
-      case "creditCard":
+      case "CARD":
         return "Thẻ tín dụng";
-      case "payos":
+      case "PAYOS":
         return "PayOS";
       default:
         return method;
@@ -222,15 +222,15 @@ const OrderDetailDialog = ({
 
                 {/* Line Layout */}
                 <div className="space-y-3 bg-gray-50 rounded-lg p-4">
-                  {/* Line 1: Customer Name and Email */}
+                  {/* Line 1: Receiver Name and Phone */}
                   <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
                     <div className="flex items-center gap-3 flex-1">
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium text-gray-500 mb-0.5">
-                          Khách hàng
+                          Tên người nhận
                         </p>
                         <p className="font-semibold text-gray-900 truncate">
-                          {order.customerName}
+                          {order.receiverName}
                         </p>
                       </div>
                     </div>
@@ -238,15 +238,14 @@ const OrderDetailDialog = ({
                     <div className="flex items-center gap-3 flex-1">
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium text-gray-500 mb-0.5">
-                          Mã KH
+                          SĐT Người nhận
                         </p>
                         <p className="text-gray-900 truncate">
-                          #{order.customerId.slice(-8).toUpperCase()}
+                          {order.receiverPhone}
                         </p>
                       </div>
                     </div>
                   </div>
-
                   {/* Line 2: Order Date and Time */}
                   <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
                     <div className="flex items-center gap-3 flex-1">
@@ -287,7 +286,7 @@ const OrderDetailDialog = ({
                     </div>
                   </div>
 
-                  {/* Line 4: Payment Method and Status */}
+                  {/* Line 3: Payment Method and Status */}
                   <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
                     <div className="flex items-center gap-3 flex-1">
                       <div className="flex-1 min-w-0">
@@ -321,6 +320,19 @@ const OrderDetailDialog = ({
                             </span>
                           </div>
                         </Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-gray-500 mb-0.5">
+                          Địa chỉ giao hàng
+                        </p>
+                        <p className="font-semibold text-gray-900 truncate">
+                          {order.receiverAddress}
+                        </p>
                       </div>
                     </div>
                   </div>

@@ -194,10 +194,17 @@ export async function getOrderDetailByIdService(orderId) {
 export async function getAllOrdersByCustomerIdService(customerId, query) {
   const page = parseInt(query.page) || 1;
   const limit = parseInt(query.limit) || 10;
+  const status = query.paymentStatus || "";
   const skip = (page - 1) * limit;
 
+  const filter = {customerId: customerId};
+
+  if (status && status !== "ALL" && status !== "") {
+    filter.paymentStatus = status.toLowerCase();
+  }
+
   const [orders, total] = await Promise.all([
-    Order.find({ customerId: customerId })
+    Order.find(filter)
       .populate("customerId", "fullName email")
       .sort({ createdAt: -1 })
       .skip(skip)
