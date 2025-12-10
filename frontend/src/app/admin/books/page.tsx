@@ -38,6 +38,8 @@ export default function BooksPage() {
     currentPage: 1,
     limit: 12,
   });
+  const [currentPageClient, setCurrentPageClient] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -67,7 +69,7 @@ export default function BooksPage() {
     fetchAuthors();
     fetchCategories();
     fetchPublishers();
-  }, [pagination.currentPage]);
+  }, [pagination.currentPage, pagination.limit]);
 
   const fetchBooks = async () => {
     try {
@@ -124,6 +126,13 @@ export default function BooksPage() {
     const matchPriceTo = !priceTo || book.price <= parseInt(priceTo);
     return matchSearch && matchCategory && matchAuthor && matchPublisher && matchPriceFrom && matchPriceTo;
   });
+
+  // Client-side pagination
+  const totalPagesClient = Math.max(1, Math.ceil(filteredBooks.length / itemsPerPage));
+  const paginatedBooks = filteredBooks.slice(
+    (currentPageClient - 1) * itemsPerPage,
+    currentPageClient * itemsPerPage
+  );
 
   // Helpers
   const formatPrice = (price: number) =>
@@ -495,14 +504,14 @@ export default function BooksPage() {
                       Đang tải dữ liệu...
                     </td>
                   </tr>
-                ) : filteredBooks.length === 0 ? (
+                ) : paginatedBooks.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="px-4 py-12 text-center text-gray-400">
-                      Không tìm thấy sách nào 📚
+                      Không tìm thấy sách nào 📖
                     </td>
                   </tr>
                 ) : (
-                  filteredBooks.map(book => (
+                  paginatedBooks.map(book => (
                     <tr key={book._id} className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200">
                       <td className="px-4 py-3">
                         {book.mainImage || book.imageUrl?.[0] ? (
@@ -567,13 +576,14 @@ export default function BooksPage() {
 
           {/* Pagination */}
           <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            totalItems={pagination.totalItems}
-            itemsPerPage={pagination.limit}
-            onPageChange={(page) => setPagination(prev => ({ ...prev, currentPage: page }))}
+            currentPage={currentPageClient}
+            totalPages={totalPagesClient}
+            totalItems={filteredBooks.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPageClient}
             onItemsPerPageChange={(items) => {
-              setPagination(prev => ({ ...prev, limit: items, currentPage: 1 }));
+              setItemsPerPage(items);
+              setCurrentPageClient(1);
             }}
           />
         </div>

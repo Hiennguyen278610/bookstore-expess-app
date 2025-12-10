@@ -141,16 +141,7 @@ export default function Sidebar({ isOpen }: { isOpen: boolean }) {
 
       {/* Bottom Actions */}
       <div className="absolute bottom-0 left-0 right-0 border-t border-gray-200 bg-white px-2 py-3 space-y-1">
-        <button
-          onClick={() => setShowMyAccount(true)}
-          className={`w-full flex items-center gap-3 px-4 py-3 pl-6 transition-all duration-300 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-emerald-700 ${isOpen ? "" : "justify-center"}`}
-        >
-          <User className="w-5 h-5 flex-shrink-0 text-gray-500" />
-          <span className={`whitespace-nowrap transition-all duration-500 ${isOpen ? "opacity-100 delay-300 max-w-[200px]" : "opacity-0 max-w-0 overflow-hidden"}`}>
-            Thông tin tài khoản
-          </span>
-        </button>
-
+     
         <Link
           href="/"
           className={`flex items-center gap-3 px-4 py-3 pl-6 transition-all duration-300 rounded-lg text-orange-600 hover:bg-orange-50 hover:text-orange-700 ${isOpen ? "" : "justify-center"}`}
