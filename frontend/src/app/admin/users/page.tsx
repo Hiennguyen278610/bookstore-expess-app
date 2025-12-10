@@ -7,6 +7,7 @@ import axios from "axios";
 import { baseUrl } from "@/constants/index";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
+import api from '@/lib/axios';
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -36,7 +37,7 @@ export default function UsersPage() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${baseUrl}/users`);
+      const response = await api.get(`${baseUrl}/users`);
       // API có thể trả về { data: [...] } hoặc trực tiếp array
       const usersData = response.data?.data || response.data || [];
       setUsers(Array.isArray(usersData) ? usersData : []);
