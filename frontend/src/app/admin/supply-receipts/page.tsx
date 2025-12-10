@@ -4,6 +4,7 @@ import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 import { getAllSupplyReceipts, createSupplyReceipt, updateSupplyReceipt, deleteSupplyReceipt } from "@/api/supplreceiptApi";
 import { getAllSuppliers } from "@/api/supplierApi";
 import { getAllBooks } from "@/api/bookApi";
+import SearchableSelect from "@/components/SearchableSelect";
 import type { SupplyReceipt, SupplyItem } from "@/types/supplyreceipt.type";
 import type { Supplier } from "@/types/supplier.type";
 import type { Book } from "@/types/book.type";
@@ -425,18 +426,12 @@ export default function SupplyReceiptsPage() {
             {/* Nhà cung cấp */}
             <div className="mb-4">
               <label className="block text-gray-700 mb-2 font-medium text-sm">Nhà cung cấp *</label>
-              <select
+              <SearchableSelect
                 value={formData.supplier_id}
-                onChange={(e) => setFormData({ ...formData, supplier_id: e.target.value })}
-                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-              >
-                <option value="">-- Chọn nhà cung cấp --</option>
-                {suppliers.map((s: any) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
+                onChange={(value: string) => setFormData({ ...formData, supplier_id: value })}
+                options={suppliers.map((s: any) => ({ _id: s.id, name: s.name }))}
+                placeholder="Chọn nhà cung cấp"
+              />
             </div>
 
             {/* Ngày và trạng thái */}
@@ -479,20 +474,14 @@ export default function SupplyReceiptsPage() {
                   <div key={index} className="grid grid-cols-12 gap-2 items-center bg-gray-50 p-3 rounded-lg">
                     <div className="col-span-12 sm:col-span-4">
                       <label className="block text-xs text-gray-500 mb-1">Sách</label>
-                      <select
+                      <SearchableSelect
                         value={item.book_id}
-                        onChange={(e) =>
-                          updateItem(index, "book_id", e.target.value)
+                        onChange={(value: string) =>
+                          updateItem(index, "book_id", value)
                         }
-                        className="w-full border border-gray-300 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      >
-                        <option value="">Chọn sách</option>
-                        {books.map((b: any) => (
-                          <option key={b.id} value={b.id}>
-                            {b.name}
-                          </option>
-                        ))}
-                      </select>
+                        options={books.map((b: any) => ({ _id: b.id, name: b.name }))}
+                        placeholder="Chọn sách"
+                      />
                     </div>
                     <div className="col-span-4 sm:col-span-2">
                       <label className="block text-xs text-gray-500 mb-1">Số lượng</label>
