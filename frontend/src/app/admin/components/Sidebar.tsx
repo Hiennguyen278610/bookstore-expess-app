@@ -15,8 +15,6 @@ import {
   Home,
   LogOut,
 } from "lucide-react";
-import MyAccount from "./MyAccount";
-
 export default function Sidebar({ isOpen }: { isOpen: boolean }) {
   const pathname = usePathname();
   const [showMyAccount, setShowMyAccount] = useState(false);
