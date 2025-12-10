@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { LoginForm } from '@/components/login-form';
 import { RegisterForm } from '@/components/register-form';
-import { useState, useRef } from 'react'; // Thêm useRef
+import { useState, useRef, useEffect } from 'react'; // Thêm useRef
 import { ForgotPasswordForm } from '@/components/forgot-password-form';
 import gsap from 'gsap'; // Import GSAP
 import { useGSAP } from '@gsap/react'; // Import hook useGSAP
@@ -20,6 +20,11 @@ type Mode = 'login' | 'register' | 'reset-password';
 export function AuthDialog({ children }: { children: React.ReactNode }) {
   const [mode, setMode] = useState<Mode>('login');
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // 1. Tạo ref cho container chứa form để scope animation
   const containerRef = useRef<HTMLDivElement>(null);
@@ -67,9 +72,9 @@ export function AuthDialog({ children }: { children: React.ReactNode }) {
       case 'login':
         return <LoginForm setMode={setMode} onSuccess={handleSuccess} />;
       case 'register':
-        return <RegisterForm setMode={setMode} onSuccess={handleSuccess}/>;
+        return <RegisterForm setMode={setMode} onSuccess={handleSuccess} />;
       case 'reset-password':
-        return <ForgotPasswordForm setMode={setMode} onSuccess={handleSuccess}/>;
+        return <ForgotPasswordForm setMode={setMode} onSuccess={handleSuccess} />;
       default:
         return null;
     }
@@ -92,6 +97,10 @@ export function AuthDialog({ children }: { children: React.ReactNode }) {
     setOpen(isOpen);
     if (isOpen) setMode('login');
   };
+
+  if (!mounted) {
+    return <>{children}</>;
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
