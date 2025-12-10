@@ -55,7 +55,8 @@ function ResetPasswordFormContent() {
       toast.success("Đổi mật khẩu thành công!");
       router.push("/");
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Đổi mật khẩu thất bại");
+      const error = err as any;
+      toast.error(error?.response?.data?.message || "Đổi mật khẩu thất bại");
     }
   };
 
