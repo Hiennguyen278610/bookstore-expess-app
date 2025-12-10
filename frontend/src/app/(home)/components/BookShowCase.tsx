@@ -1,9 +1,10 @@
 import React from 'react'
 import ProductCard, { ProductCardProps } from '../collections/components/ProductCard'
+import { Book } from '@/types/book.type'
 
 interface BookShowCaseProps {
     title: string,
-    books: Array<ProductCardProps>
+    books: Array<Book>
 }  
 
 const BookShowCase = ({title, books}: BookShowCaseProps) => {
@@ -21,8 +22,11 @@ const BookShowCase = ({title, books}: BookShowCaseProps) => {
         {books.map((book, index) =>(
             <ProductCard 
                 key={index}
-                {...book}
-            />
+                _id={book._id}
+                imgSrc={book.imageUrl[0]}
+                name={book.name}
+                price={book.price}
+                />
         ))}
       </div>
     </div>

@@ -194,7 +194,7 @@ export async function getOrderDetailByIdService(orderId) {
 export async function getAllOrdersByCustomerIdService(customerId, query) {
   const page = parseInt(query.page) || 1;
   const limit = parseInt(query.limit) || 10;
-  const status = query.paymentStatus || "";
+  const status = query.status || "";
   const skip = (page - 1) * limit;
 
   const filter = {customerId: customerId};
@@ -248,6 +248,16 @@ export async function getAllOrdersService(query) {
     filter.paymentMethod = query.paymentMethod;
   }
 
+  // Lọc theo tên người nhận
+  if (query.receiverName) {
+    filter.receiverName = { $regex: query.receiverName, $options: "i" };
+  }
+
+  // Lọc theo số điện thoại người nhận
+  if (query.customerPhone) {
+    filter.receiverPhone = { $regex: query.customerPhone, $options: "i" };
+  }
+
   const startDate = query.startDate;
   const endDate = query.endDate;
 
@@ -271,18 +281,26 @@ export async function getAllOrdersService(query) {
 
   const skip = (page - 1) * limit;
 
-  // 3. Chạy song song: Lấy danh sách Order và Đếm tổng
-  const [orders, total] = await Promise.all([
-    Order.find(filter)
-      .populate("customerId", "fullName email phone") // Lấy thông tin khách hàng
-      .sort({ createdAt: -1 }) // Sắp xếp đơn mới nhất lên đầu
-      .skip(skip)
-      .limit(limit)
-      .lean(), // Chuyển sang object thường để gắn details
-    Order.countDocuments(filter),
-  ]);
+  // 3. Lấy tất cả orders trước (không limit để có thể filter theo tên khách hàng)
+  let allOrders = await Order.find(filter)
+    .populate("customerId", "fullName email phone") // Lấy thông tin khách hàng
+    .sort({ createdAt: -1 }) // Sắp xếp đơn mới nhất lên đầu
+    .lean();
 
-  // 4. Trả về kết quả
+  // 4. Filter theo tên khách hàng (fullName) nếu có
+  if (query.customerName) {
+    allOrders = allOrders.filter(order =>
+      order.customerId?.fullName?.toLowerCase().includes(query.customerName.toLowerCase())
+    );
+  }
+
+  // 5. Tính tổng sau khi filter
+  const total = allOrders.length;
+
+  // 6. Apply pagination
+  const orders = allOrders.slice(skip, skip + limit);
+
+  // 7. Trả về kết quả
   return {
     data: orders,
     pagination: {
@@ -318,4 +336,7 @@ export async function getOrderByStatusAndCustomerId(
   );
 
   return ordersWithDetails;
+}
+export async function getOrderByOrderCodeService(orderCode, customerId){
+  return Order.findOne({ customerId: customerId, payosOrderId: orderCode  });
 }

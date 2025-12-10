@@ -14,10 +14,8 @@ import { authorizeRoles } from "../middlewares/authorize.js";
 
 const router = express.Router();
 
-// Tất cả routes statistics cần auth và phải là admin
-// comment testing 
-// router.use(auth);
-// router.use(authorizeRoles("admin"));
+router.use(auth);
+router.use(authorizeRoles("admin"));
 
 // GET /api/v1/statistics/overview - Tổng quan
 router.get("/overview", getOverviewStats);

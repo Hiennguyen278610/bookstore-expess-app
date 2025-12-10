@@ -36,7 +36,7 @@ const ProductDetailPage = async ({
               <span>
                 Nhà xuất bản:{" "}
                 <strong className="text-gray-800">
-                  {book?.publisher?.name || "NXB Trẻ"}
+                  {book?.publisherId?.name || "NXB Trẻ"}
                 </strong>
               </span>
               <span className="hidden sm:inline text-green-400">•</span>

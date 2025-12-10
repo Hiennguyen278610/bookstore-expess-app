@@ -12,14 +12,6 @@ export default function HomePage() {
         <CategorySidebar />
         <BannerSlider />
       </div>
-      <BookShowCase 
-        title="Sách Bán Chạy"
-        books={testCardBooks}
-      />
-      <BookShowCase 
-        title="Sách mới"
-        books={testCardBooks}
-      />
       <BrandCarousel />
     </div>
   );

@@ -12,7 +12,7 @@ export default function PublishersPage() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [editingPublisher, setEditingPublisher] = useState<Publisher | null>(null);
   const [formData, setFormData] = useState<{ name: string }>({ name: "" });
   const [loading, setLoading] = useState<boolean>(true);

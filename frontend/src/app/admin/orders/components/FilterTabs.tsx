@@ -15,8 +15,14 @@ interface OrderFiltersProps {
   status: string;
   startDate: string;
   endDate: string;
+  customerName: string;
+  receiverName: string;
+  customerPhone: string;
   onStatusChange: (status: string) => void;
   onDateChange: (startDate: string, endDate: string) => void;
+  onCustomerNameChange: (name: string) => void;
+  onReceiverNameChange: (name: string) => void;
+  onCustomerPhoneChange: (phone: string) => void;
   onClearFilters: () => void;
 }
 
@@ -24,8 +30,14 @@ export function FilterTabs({
   status,
   startDate,
   endDate,
+  customerName,
+  receiverName,
+  customerPhone,
   onStatusChange,
   onDateChange,
+  onCustomerNameChange,
+  onReceiverNameChange,
+  onCustomerPhoneChange,
   onClearFilters,
 }: OrderFiltersProps) {
   const [dateError, setDateError] = useState<string>("");
@@ -60,7 +72,7 @@ export function FilterTabs({
     onClearFilters();
   };
 
-  const hasActiveFilters = status || startDate || endDate;
+  const hasActiveFilters = status || startDate || endDate || customerName || receiverName || customerPhone;
   const hasDateError = !!dateError;
 
   return (
@@ -87,6 +99,48 @@ export function FilterTabs({
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8 items-center lg:items-start">
+        {/* Tìm kiếm theo tên khách hàng */}
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-gray-700">
+            Tên khách hàng
+          </label>
+          <Input
+            type="text"
+            value={customerName}
+            onChange={(e) => onCustomerNameChange(e.target.value)}
+            placeholder="Nhập tên khách hàng..."
+            className="w-[200px]"
+          />
+        </div>
+
+        {/* Tìm kiếm theo tên người nhận */}
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-gray-700">
+            Tên người nhận
+          </label>
+          <Input
+            type="text"
+            value={receiverName}
+            onChange={(e) => onReceiverNameChange(e.target.value)}
+            placeholder="Nhập tên người nhận..."
+            className="w-[200px]"
+          />
+        </div>
+
+        {/* Tìm kiếm theo số điện thoại */}
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-gray-700">
+            Số điện thoại
+          </label>
+          <Input
+            type="text"
+            value={customerPhone}
+            onChange={(e) => onCustomerPhoneChange(e.target.value)}
+            placeholder="Nhập số điện thoại..."
+            className="w-[200px]"
+          />
+        </div>
+
         {/* Lọc trạng thái */}
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-gray-700">
@@ -160,6 +214,21 @@ export function FilterTabs({
         {hasActiveFilters && !hasDateError && (
           <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
             <span className="font-medium">Đang lọc:</span>
+            {customerName && (
+              <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">
+                KH: {customerName}
+              </span>
+            )}
+            {receiverName && (
+              <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">
+                Người nhận: {receiverName}
+              </span>
+            )}
+            {customerPhone && (
+              <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">
+                SĐT: {customerPhone}
+              </span>
+            )}
             {status && status !== "all" && (
               <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
                 Trạng thái: {statusMap.get(status)}

@@ -14,9 +14,9 @@ const router = express.Router();
 
 router.get("/", getAllPublishers);
 
-//router.use(auth);
-//router.use(authorizeRoles("admin"));
-//router.use(checkEmptyBody);
+router.use(auth);
+router.use(authorizeRoles("admin"));
+router.use(checkEmptyBody);
 
 router.post("/", createPublisher);
 router.put("/:id", updatePublisher);

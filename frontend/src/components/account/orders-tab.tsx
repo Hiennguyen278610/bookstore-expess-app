@@ -12,7 +12,6 @@ import { Order, OrderDetail, OrderWithDetails } from '@/types/order.type';
 import Image from "next/image";
 import useSWR from 'swr';
 
-// --- 1. Component con: Hiển thị danh sách sách ---
 const OrderDetailList = ({ orderId }: { orderId: string }) => {
   const { data: order, isLoading } = useSWR<OrderWithDetails>(
     orderId ? [`/orders/${orderId}`] : null,
@@ -124,8 +123,7 @@ export function OrdersTab() {
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
       setCurrentPage(newPage);
-      // Scroll lên đầu khi chuyển trang nếu cần
-      // window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 100, behavior: 'smooth' });
     }
   }
 

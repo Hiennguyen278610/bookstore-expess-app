@@ -14,6 +14,9 @@ const page = () => {
     status: "",
     startDate: "",
     endDate: "",
+    customerName: "",
+    receiverName: "",
+    customerPhone: "",
     page: 1,
     limit: 10,
   });
@@ -27,7 +30,10 @@ const page = () => {
       filters.limit,
       filters.status,
       filters.startDate,
-      filters.endDate
+      filters.endDate,
+      filters.customerName,
+      filters.receiverName,
+      filters.customerPhone
     )
   );
 
@@ -61,9 +67,36 @@ const page = () => {
       status: "",
       startDate: "",
       endDate: "",
+      customerName: "",
+      receiverName: "",
+      customerPhone: "",
       page: 1,
       limit: 10,
     });
+  };
+
+  const handleCustomerNameChange = (customerName: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      customerName,
+      page: 1,
+    }));
+  };
+
+  const handleReceiverNameChange = (receiverName: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      receiverName,
+      page: 1,
+    }));
+  };
+
+  const handleCustomerPhoneChange = (customerPhone: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      customerPhone,
+      page: 1,
+    }));
   };
 
   const handlePageChange = (page: number) => {
@@ -88,8 +121,14 @@ const page = () => {
         status={filters.status}
         startDate={filters.startDate}
         endDate={filters.endDate}
+        customerName={filters.customerName}
+        receiverName={filters.receiverName}
+        customerPhone={filters.customerPhone}
         onStatusChange={handleStatusFilterChange}
         onDateChange={handleDateFilterChange}
+        onCustomerNameChange={handleCustomerNameChange}
+        onReceiverNameChange={handleReceiverNameChange}
+        onCustomerPhoneChange={handleCustomerPhoneChange}
         onClearFilters={handleClearFilters}
       />
 

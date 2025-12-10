@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Plus, Pencil, Trash2, Search, Upload, Eye, X } from "lucide-react";
 import Pagination from "../components/Pagination";
+import SearchableSelect from "@/components/SearchableSelect";
 import type { Book, BooksResponse } from "@/types/book.type";
 import type { Author } from "@/types/author.type";
 import type { Category } from "@/types/category.type";
@@ -12,6 +13,7 @@ import { baseUrl } from "@/constants/index";
 import { createBook, updateBook, deleteBook } from "@/api/bookApi";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
+import api from '@/lib/axios';
 
 // Hàm tạo slug từ tên sách
 const generateSlug = (name: string): string => {
@@ -91,7 +93,7 @@ export default function BooksPage() {
 
   const fetchAuthors = async () => {
     try {
-      const response = await axios.get(`${baseUrl}/authors`);
+      const response = await api.get(`${baseUrl}/authors`);
       setAuthors(response.data);
     } catch (error) {
       console.error("Error fetching authors:", error);
@@ -100,7 +102,7 @@ export default function BooksPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(`${baseUrl}/categories`);
+      const response = await api.get(`${baseUrl}/categories`);
       setCategories(response.data);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -217,13 +219,13 @@ export default function BooksPage() {
       }
       fetchBooks();
       resetForm();
-    } catch (error: any) {
-      console.error("Error saving book:", error);
-      console.error("Error response:", error.response?.data);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      console.error("Error saving book:", err);
       Swal.fire({
         icon: 'error',
         title: 'Lỗi',
-        text: error.response?.data?.message || 'Không thể lưu sách',
+        text: err.response?.data?.message || 'Không thể lưu sách',
       });
     }
   };
@@ -253,13 +255,13 @@ export default function BooksPage() {
           },
         });
         fetchBooks();
-      } catch (error: any) {
-        console.error("Error deleting book:", error);
-        console.error("Error response:", error.response?.data);
+      } catch (error: unknown) {
+        const err = error as { response?: { data?: { message?: string } } };
+        console.error("Error deleting book:", err);
         Swal.fire({
           icon: 'error',
           title: 'Lỗi',
-          text: error.response?.data?.message || 'Không thể xóa sách',
+          text: err.response?.data?.message || 'Không thể xóa sách',
         });
       }
     }
@@ -270,8 +272,8 @@ export default function BooksPage() {
       setEditingBook(book);
       console.log('Opening edit modal with book:', book);
       console.log('Book authors:', book.authors);
-      const authorIds = Array.isArray(book.authors)
-        ? book.authors.map(a => a._id)
+      const authorIds = Array.isArray(book.authors) && book.authors
+        ? book.authors.map((a: Author) => a._id).filter(Boolean)
         : [];
       console.log('Extracted authorIds:', authorIds);
       setFormData({
@@ -408,40 +410,37 @@ export default function BooksPage() {
             </div>
 
             {/* Category Filter */}
-            <select
+            <SearchableSelect
               value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="border border-gray-300 bg-white px-4 py-2.5 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            >
-              <option value="all">Tất cả thể loại</option>
-              {categories.map(cat => (
-                <option key={cat._id} value={cat._id}>{cat.name}</option>
-              ))}
-            </select>
+              onChange={(value) => setCategoryFilter(value || "all")}
+              options={[
+                { _id: "all", name: "Tất cả thể loại" },
+                ...categories
+              ]}
+              placeholder="Chọn thể loại"
+            />
 
             {/* Author Filter */}
-            <select
+            <SearchableSelect
               value={authorFilter}
-              onChange={(e) => setAuthorFilter(e.target.value)}
-              className="border border-gray-300 bg-white px-4 py-2.5 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            >
-              <option value="all">Tất cả tác giả</option>
-              {authors.map(a => (
-                <option key={a._id} value={a._id}>{a.name}</option>
-              ))}
-            </select>
+              onChange={(value) => setAuthorFilter(value || "all")}
+              options={[
+                { _id: "all", name: "Tất cả tác giả" },
+                ...authors
+              ]}
+              placeholder="Chọn tác giả"
+            />
 
             {/* Publisher Filter */}
-            <select
+            <SearchableSelect
               value={publisherFilter}
-              onChange={(e) => setPublisherFilter(e.target.value)}
-              className="border border-gray-300 bg-white px-4 py-2.5 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            >
-              <option value="all">Tất cả NXB</option>
-              {publishers.map(p => (
-                <option key={p._id} value={p._id}>{p.name}</option>
-              ))}
-            </select>
+              onChange={(value) => setPublisherFilter(value || "all")}
+              options={[
+                { _id: "all", name: "Tất cả NXB" },
+                ...publishers
+              ]}
+              placeholder="Chọn NXB"
+            />
 
             {/* Price Range */}
             <div className="flex items-center gap-2">
@@ -615,31 +614,23 @@ export default function BooksPage() {
                   {/* Category */}
                   <div>
                     <label className="block text-gray-700 mb-1.5 font-medium text-sm">Thể loại *</label>
-                    <select
+                    <SearchableSelect
                       value={formData.categoryId}
-                      onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
-                    >
-                      <option value="">Chọn thể loại</option>
-                      {categories.map(c => (
-                        <option key={c._id} value={c._id}>{c.name}</option>
-                      ))}
-                    </select>
+                      onChange={(value) => setFormData({ ...formData, categoryId: value })}
+                      options={categories}
+                      placeholder="Chọn thể loại"
+                    />
                   </div>
 
                   {/* Publisher */}
                   <div>
                     <label className="block text-gray-700 mb-1.5 font-medium text-sm">Nhà xuất bản *</label>
-                    <select
+                    <SearchableSelect
                       value={formData.publisherId}
-                      onChange={(e) => setFormData({ ...formData, publisherId: e.target.value })}
-                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
-                    >
-                      <option value="">Chọn NXB</option>
-                      {publishers.map(p => (
-                        <option key={p._id} value={p._id}>{p.name}</option>
-                      ))}
-                    </select>
+                      onChange={(value) => setFormData({ ...formData, publisherId: value })}
+                      options={publishers}
+                      placeholder="Chọn NXB"
+                    />
                   </div>
                 </div>
 
