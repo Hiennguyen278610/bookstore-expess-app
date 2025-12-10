@@ -31,6 +31,9 @@ export default function AdminDashboard() {
   });
 
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [profitLoading, setProfitLoading] = useState(false);
+  const [topProductsLoading, setTopProductsLoading] = useState(false);
   const [profitData, setProfitData] = useState<any[]>([]);
   const [topProducts, setTopProducts] = useState<any[]>([]);
   const [profitView, setProfitView] = useState<"day" | "month" | "year">("month");
@@ -51,12 +54,16 @@ export default function AdminDashboard() {
     const fetchOverview = async () => {
       try {
         setLoading(true);
+        setError(null);
         const response = await getOverviewStats();
         if (response.success) {
           setStats(response.data);
+        } else {
+          setError("Không thể tải dữ liệu thống kê");
         }
       } catch (error) {
         console.error("Error fetching overview stats:", error);
+        setError("Lỗi khi tải dữ liệu thống kê");
       } finally {
         setLoading(false);
       }
@@ -68,6 +75,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchProfit = async () => {
       try {
+        setProfitLoading(true);
         let from: string | null = null;
         let to: string | null = null;
 
@@ -89,6 +97,8 @@ export default function AdminDashboard() {
         }
       } catch (error) {
         console.error("Error fetching profit stats:", error);
+      } finally {
+        setProfitLoading(false);
       }
     };
     fetchProfit();
@@ -98,12 +108,15 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchTop = async () => {
       try {
+        setTopProductsLoading(true);
         const response = await getTopProducts(5);
         if (response.success) {
           setTopProducts(response.data);
         }
       } catch (error) {
         console.error("Error fetching top products:", error);
+      } finally {
+        setTopProductsLoading(false);
       }
     };
     fetchTop();
@@ -148,6 +161,25 @@ export default function AdminDashboard() {
         <h2 className="text-gray-800 text-2xl font-bold">Dashboard - Tổng quan hệ thống</h2>
         <p className="text-gray-600 text-sm mt-1">Theo dõi và quản lý hoạt động cửa hàng</p>
       </div>
+
+      {/* Error Banner */}
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700 font-medium">{error}</p>
+            </div>
+            <div className="ml-auto pl-3">
+              <button onClick={() => window.location.reload()} className="text-sm text-red-700 hover:text-red-900 font-medium">Thử lại</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-6">
         {/* Stats Grid */}
@@ -363,8 +395,23 @@ export default function AdminDashboard() {
                 )}
               </div>
             )}
-            {chartData.length === 0 ? (
-              <p className="text-center text-gray-400 py-8">Chưa có dữ liệu lợi nhuận</p>
+            {profitLoading ? (
+              <div className="animate-pulse space-y-4">
+                <div className="h-80 bg-gray-200 rounded-lg"></div>
+                <div className="space-y-2">
+                  <div className="h-10 bg-gray-200 rounded"></div>
+                  <div className="h-10 bg-gray-200 rounded"></div>
+                  <div className="h-10 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            ) : chartData.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <BarChart3 className="w-12 h-12 text-gray-400" />
+                </div>
+                <p className="text-gray-500 font-medium">Chưa có dữ liệu lợi nhuận</p>
+                <p className="text-gray-400 text-sm mt-1">Dữ liệu sẽ hiển thị khi có đơn hàng hoàn thành</p>
+              </div>
             ) : (
               <div className="space-y-4">
                 {/* Recharts Bar Chart */}
@@ -463,8 +510,31 @@ export default function AdminDashboard() {
               </h3>
             </div>
             <div className="p-6">
-              {topProducts.length === 0 ? (
-                <p className="text-center text-gray-400 py-8">Chưa có dữ liệu</p>
+              {topProductsLoading ? (
+                <div className="animate-pulse space-y-3">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="flex items-center gap-4 p-3">
+                      <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                      <div className="w-10 h-14 bg-gray-200 rounded-lg"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                        <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-6 bg-gray-200 rounded w-12"></div>
+                        <div className="h-3 bg-gray-200 rounded w-16"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : topProducts.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="mx-auto w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                    <Package className="w-10 h-10 text-gray-400" />
+                  </div>
+                  <p className="text-gray-500 font-medium">Chưa có dữ liệu</p>
+                  <p className="text-gray-400 text-sm mt-1">Sản phẩm bán chạy sẽ hiển thị tại đây</p>
+                </div>
               ) : (
                 <div className="space-y-3">
                   {topProducts.map((product, idx) => (
@@ -521,45 +591,6 @@ export default function AdminDashboard() {
                   <span className="text-sm font-medium text-gray-700">Tổng đơn</span>
                   <span className="text-lg font-bold text-blue-600">{stats.totalOrders}</span>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div className="bg-white rounded-lg p-5 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300">
-            <div className="flex items-center gap-4">
-              <div className="bg-emerald-600 p-3 rounded-lg">
-                <ShoppingCart className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 font-medium">Đơn hoàn thành</p>
-                <p className="text-2xl font-bold text-gray-800">{stats.completedOrders}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg p-5 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300">
-            <div className="flex items-center gap-4">
-              <div className="bg-amber-600 p-3 rounded-lg">
-                <Package className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 font-medium">Sách sắp hết</p>
-                <p className="text-2xl font-bold text-gray-800">{stats.lowStockBooks}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg p-5 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300">
-            <div className="flex items-center gap-4">
-              <div className="bg-teal-600 p-3 rounded-lg">
-                <BookOpen className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 font-medium">Danh mục</p>
-                <p className="text-2xl font-bold text-gray-800">{stats.totalCategories}</p>
               </div>
             </div>
           </div>

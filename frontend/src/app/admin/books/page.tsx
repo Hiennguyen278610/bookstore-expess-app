@@ -582,165 +582,177 @@ export default function BooksPage() {
       {/* MODAL */}
       {showModal && (
         <div className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50 p-4 animate-fadeIn">
-          <div className="bg-white rounded-2xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all animate-slideUp border border-emerald-300 shadow-[0_0_40px_rgba(16,185,129,0.3)]">
-            <h3 className="text-xl font-bold text-gray-800 mb-5 pb-3 border-b-2 border-emerald-600">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-5xl max-h-[90vh] overflow-y-auto transform transition-all animate-slideUp border border-emerald-300 shadow-[0_0_40px_rgba(16,185,129,0.3)]">
+            <h3 className="text-xl font-bold text-gray-800 mb-4 pb-3 border-b-2 border-emerald-600">
               {editingBook ? "Sửa thông tin sách" : "Thêm sách mới"}
             </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <label className="block text-gray-700 mb-2 font-medium text-sm">Tên sách *</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                  placeholder="Nhập tên sách"
-                />
-              </div>
 
-              {/* Category */}
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">Thể loại *</label>
-                <select
-                  value={formData.categoryId}
-                  onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                >
-                  <option value="">Chọn thể loại</option>
-                  {categories.map(c => (
-                    <option key={c._id} value={c._id}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
+            <div className="grid grid-cols-3 gap-6">
+              {/* Left Column - Basic Info */}
+              <div className="col-span-2 space-y-4">
+                <div>
+                  <label className="block text-gray-700 mb-1.5 font-medium text-sm">Tên sách *</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                    placeholder="Nhập tên sách"
+                  />
+                </div>
 
-              {/* Publisher */}
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">Nhà xuất bản *</label>
-                <select
-                  value={formData.publisherId}
-                  onChange={(e) => setFormData({ ...formData, publisherId: e.target.value })}
-                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                >
-                  <option value="">Chọn NXB</option>
-                  {publishers.map(p => (
-                    <option key={p._id} value={p._id}>{p.name}</option>
-                  ))}
-                </select>
-              </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Category */}
+                  <div>
+                    <label className="block text-gray-700 mb-1.5 font-medium text-sm">Thể loại *</label>
+                    <select
+                      value={formData.categoryId}
+                      onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                    >
+                      <option value="">Chọn thể loại</option>
+                      {categories.map(c => (
+                        <option key={c._id} value={c._id}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
 
-              {/* Authors */}
-              <div className="col-span-2">
-                <label className="block text-gray-700 mb-2 font-medium text-sm">Tác giả *</label>
-                <div className="border border-gray-300 rounded-lg p-3 bg-gray-50 max-h-32 overflow-y-auto">
-                  {authors.map(a => (
-                    <label key={a._id} className="flex items-center gap-2 mb-2 cursor-pointer hover:bg-gray-100 p-1 rounded">
-                      <input
-                        type="checkbox"
-                        checked={formData.authorIds.includes(a._id)}
-                        onChange={() => toggleAuthor(a._id)}
-                        className="w-4 h-4 text-emerald-600 rounded focus:ring-2 focus:ring-emerald-500"
-                      />
-                      <span className="text-gray-700 text-sm">{a.name}</span>
-                    </label>
-                  ))}
+                  {/* Publisher */}
+                  <div>
+                    <label className="block text-gray-700 mb-1.5 font-medium text-sm">Nhà xuất bản *</label>
+                    <select
+                      value={formData.publisherId}
+                      onChange={(e) => setFormData({ ...formData, publisherId: e.target.value })}
+                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                    >
+                      <option value="">Chọn NXB</option>
+                      {publishers.map(p => (
+                        <option key={p._id} value={p._id}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Quantity */}
+                  <div>
+                    <label className="block text-gray-700 mb-1.5 font-medium text-sm">Số lượng *</label>
+                    <input
+                      type="number"
+                      value={formData.quantity}
+                      onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
+                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                    />
+                  </div>
+                  {/* Price */}
+                  <div>
+                    <label className="block text-gray-700 mb-1.5 font-medium text-sm">Giá (VNĐ) *</label>
+                    <input
+                      type="number"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })}
+                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Authors */}
+                <div>
+                  <label className="block text-gray-700 mb-1.5 font-medium text-sm">Tác giả *</label>
+                  <div className="border border-gray-300 rounded-lg p-2 bg-gray-50 max-h-28 overflow-y-auto">
+                    <div className="grid grid-cols-2 gap-1">
+                      {authors.map(a => (
+                        <label key={a._id} className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1.5 rounded text-sm">
+                          <input
+                            type="checkbox"
+                            checked={formData.authorIds.includes(a._id)}
+                            onChange={() => toggleAuthor(a._id)}
+                            className="w-3.5 h-3.5 text-emerald-600 rounded focus:ring-2 focus:ring-emerald-500"
+                          />
+                          <span className="text-gray-700 text-xs">{a.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Quantity & Price */}
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">Số lượng *</label>
-                <input
-                  type="number"
-                  value={formData.quantity}
-                  onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
-                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">Giá (VNĐ) *</label>
-                <input
-                  type="number"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })}
-                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                />
-              </div>
-
-              {/* Image */}
-              <div className="col-span-2">
-                <label className="block text-gray-700 mb-2 font-medium text-sm">Hình ảnh (ảnh đầu tiên là ảnh nền)</label>
-
-                {/* Image Previews Grid */}
-                <div className="grid grid-cols-4 gap-3 mb-4">
-                  {imagePreviews.filter(preview => preview).map((preview, index) => (
-                    <div key={index} className={`relative group ${index === 0 ? 'ring-2 ring-emerald-500' : ''}`}>
-                      <Image
-                        src={preview}
-                        alt={`Preview ${index + 1}`}
-                        width={96}
-                        height={128}
-                        className="w-full h-32 object-cover rounded-lg border border-gray-200"
-                        unoptimized
-                      />
-                      {index === 0 && (
-                        <span className="absolute top-1 left-1 bg-emerald-600 text-white text-xs px-2 py-0.5 rounded">
-                          Ảnh nền
-                        </span>
-                      )}
-                      <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                        {index !== 0 && (
+              {/* Right Column - Images */}
+              <div className="col-span-1">
+                <label className="block text-gray-700 mb-1.5 font-medium text-sm">Hình ảnh</label>
+                <div className="space-y-2">
+                  {/* Image Previews Grid */}
+                  <div className="grid grid-cols-2 gap-2 max-h-[400px] overflow-y-auto p-1">
+                    {imagePreviews.filter(preview => preview).map((preview, index) => (
+                      <div key={index} className={`relative group aspect-[3/4] ${index === 0 ? 'ring-2 ring-emerald-500' : ''}`}>
+                        <Image
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          width={80}
+                          height={106}
+                          className="w-full h-full object-cover rounded-lg border border-gray-200"
+                          unoptimized
+                        />
+                        {index === 0 && (
+                          <span className="absolute top-0.5 left-0.5 bg-emerald-600 text-white text-[10px] px-1.5 py-0.5 rounded">
+                            Nền
+                          </span>
+                        )}
+                        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
+                          {index !== 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setAsCover(index)}
+                              className="p-1 bg-emerald-600 text-white rounded hover:bg-emerald-700 text-xs"
+                              title="Đặt làm ảnh nền"
+                            >
+                              ★
+                            </button>
+                          )}
                           <button
                             type="button"
-                            onClick={() => setAsCover(index)}
-                            className="p-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-xs"
-                            title="Đặt làm ảnh nền"
+                            onClick={() => removeImage(index)}
+                            className="p-1 bg-red-600 text-white rounded hover:bg-red-700"
+                            title="Xóa ảnh"
                           >
-                            ★
+                            <X className="w-3 h-3" />
                           </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="p-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                          title="Xóa ảnh"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
 
-                  {/* Add More Images Button */}
-                  <label className="w-full h-32 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-emerald-400 transition-colors">
-                    <Upload className="w-6 h-6 text-gray-400 mb-1" />
-                    <span className="text-gray-500 text-xs text-center">Thêm ảnh</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImageChange}
-                      className="hidden"
-                    />
-                  </label>
+                    {/* Add More Images Button */}
+                    <label className="w-full aspect-[3/4] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-emerald-400 transition-colors">
+                      <Upload className="w-5 h-5 text-gray-400 mb-1" />
+                      <span className="text-gray-500 text-[10px] text-center">Thêm</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageChange}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  <p className="text-[10px] text-gray-500 leading-tight">
+                    Ảnh đầu tiên là ảnh nền
+                  </p>
                 </div>
-
-                <p className="text-xs text-gray-500">
-                  * Ảnh sẽ được lưu tại <code className="bg-gray-100 px-1 rounded">/images/books/{generateSlug(formData.name || 'ten_sach')}.ext</code>
-                </p>
               </div>
             </div>
 
             {/* Buttons */}
-            <div className="flex gap-3 pt-6">
+            <div className="flex gap-3 pt-4 border-t mt-4">
               <button
                 onClick={handleSubmit}
-                className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2.5 rounded-lg hover:shadow-lg transition-all duration-300 font-semibold"
+                className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300 font-semibold text-sm"
               >
                 {editingBook ? "Cập nhật" : "Thêm mới"}
               </button>
               <button
                 onClick={resetForm}
-                className="flex-1 bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg hover:bg-gray-300 transition-all duration-300 font-semibold"
+                className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all duration-300 font-semibold text-sm"
               >
                 Hủy
               </button>
@@ -751,7 +763,7 @@ export default function BooksPage() {
 
       {/* DETAIL MODAL */}
       {showDetailModal && detailBook && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 backdrop-blur-[2px] flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-5 pb-3 border-b-2 border-blue-600">
               <h3 className="text-xl font-bold text-gray-800">Chi tiết sách</h3>
