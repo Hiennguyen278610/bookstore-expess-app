@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -121,15 +121,27 @@ export const CreateAddressModal = ({
   }, [isOpen, initialData, provinces, setValue]);
 
   const handleMapConfirm = async (address: AddressComponent[]) => {
-    
     const province = address.find((a) => a.types[0] == "admin_level_2");
-    const provinceId = provinces?.find((p) => p.full_name == province?.name)?.id;
+    const provinceId = provinces?.find(
+      (p) => p.full_name == province?.name
+    )?.id;
     setValue("province", provinceId!);
     const districts = await getDistricts(provinceId!);
     setDistricts(districts);
     const district = address.find((d) => d.types[0] == "admin_level_4");
-    const districtId = districts?.find((d) => d.full_name == district?.name)?.id;
-    setValue("district", districtId!)
+    const districtId = districts?.find(
+      (d) => d.full_name == district?.name
+    )?.id;
+    setValue("district", districtId!);
+
+    const addressDetails = address.filter(
+      (d) =>
+        d.types[0] !== "admin_level_1" &&
+        d.types[0] !== "admin_level_2" &&
+        d.types[0] !== "admin_level_4"
+    );
+    const addressDetail = addressDetails.map((a) => a.name).join(", ");
+    setValue("detail", addressDetail);
   };
 
   const onSubmit = async (data: Address) => {
@@ -264,7 +276,7 @@ export const CreateAddressModal = ({
                           <SelectContent className="max-h-[240px]">
                             {provinces?.map((item) => (
                               <SelectItem key={item.id} value={item.id}>
-                                {item.full_name }
+                                {item.full_name}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -374,13 +386,19 @@ export const CreateAddressModal = ({
             </div>
 
             <DialogFooter className="p-4 border-t bg-gray-50/50 sm:justify-end gap-2">
-              <Button variant="outline" type="button" onClick={onClose}>Hủy bỏ</Button>
+              <Button variant="outline" type="button" onClick={onClose}>
+                Hủy bỏ
+              </Button>
               <Button
                 type="button"
                 onClick={handleSubmit(onSubmit, onError)}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? <Loader2 className="animate-spin" /> : 'Lưu địa chỉ'}
+                {isSubmitting ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  "Lưu địa chỉ"
+                )}
               </Button>
             </DialogFooter>
           </form>

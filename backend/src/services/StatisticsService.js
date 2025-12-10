@@ -335,3 +335,175 @@ export async function getOrderStatsService() {
         throw error;
     }
 }
+
+// Top categories by revenue
+export async function getTopCategoriesService(limit = 5) {
+    try {
+        const topCategories = await OrderDetail.aggregate([
+            // Lookup order info
+            {
+                $lookup: {
+                    from: "orders",
+                    localField: "orderId",
+                    foreignField: "_id",
+                    as: "order"
+                }
+            },
+            { $unwind: "$order" },
+            // Only completed orders
+            { $match: { "order.purchaseStatus": "completed" } },
+            // Lookup book info
+            {
+                $lookup: {
+                    from: "books",
+                    localField: "bookId",
+                    foreignField: "_id",
+                    as: "book"
+                }
+            },
+            { $unwind: "$book" },
+            // Lookup category
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "book.categoryId",
+                    foreignField: "_id",
+                    as: "category"
+                }
+            },
+            { $unwind: "$category" },
+            // Group by category
+            {
+                $group: {
+                    _id: "$category._id",
+                    categoryName: { $first: "$category.name" },
+                    totalRevenue: { $sum: { $multiply: ["$quantity", "$price"] } },
+                    totalQuantity: { $sum: "$quantity" }
+                }
+            },
+            { $sort: { totalRevenue: -1 } },
+            { $limit: parseInt(limit) }
+        ]);
+
+        // Calculate total revenue for percentage
+        const totalRevenue = topCategories.reduce((sum, cat) => sum + cat.totalRevenue, 0);
+
+        const categoriesWithPercentage = topCategories.map(cat => ({
+            categoryId: cat._id,
+            name: cat.categoryName,
+            revenue: cat.totalRevenue,
+            quantity: cat.totalQuantity,
+            percentage: totalRevenue > 0 ? Math.round((cat.totalRevenue / totalRevenue) * 100) : 0
+        }));
+
+        return {
+            success: true,
+            data: categoriesWithPercentage
+        };
+    } catch (error) {
+        console.error("Error in getTopCategoriesService:", error);
+        throw error;
+    }
+}
+
+// Payment methods breakdown
+export async function getPaymentMethodsStatsService() {
+    try {
+        const paymentStats = await Order.aggregate([
+            // Group by payment method
+            {
+                $group: {
+                    _id: "$paymentMethod",
+                    count: { $sum: 1 },
+                    totalAmount: { $sum: "$totalAmount" }
+                }
+            },
+            { $sort: { count: -1 } }
+        ]);
+
+        // Calculate total orders for percentage
+        const totalOrders = paymentStats.reduce((sum, stat) => sum + stat.count, 0);
+
+        const methodsWithPercentage = paymentStats.map(stat => ({
+            method: stat._id,
+            count: stat.count,
+            totalAmount: stat.totalAmount,
+            percentage: totalOrders > 0 ? Math.round((stat.count / totalOrders) * 100) : 0
+        }));
+
+        return {
+            success: true,
+            data: {
+                methods: methodsWithPercentage,
+                totalOrders
+            }
+        };
+    } catch (error) {
+        console.error("Error in getPaymentMethodsStatsService:", error);
+        throw error;
+    }
+}
+
+// Comparison stats with previous period
+export async function getComparisonStatsService() {
+    try {
+        const now = new Date();
+        const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+
+        // Current month stats
+        const [
+            currentRevenue,
+            currentOrders,
+            currentUsers
+        ] = await Promise.all([
+            Order.aggregate([
+                { $match: { purchaseStatus: "completed", createdAt: { $gte: currentMonthStart } } },
+                { $group: { _id: null, total: { $sum: "$totalAmount" } } }
+            ]),
+            Order.countDocuments({ createdAt: { $gte: currentMonthStart } }),
+            User.countDocuments({ role: "user", createdAt: { $gte: currentMonthStart } })
+        ]);
+
+        // Last month stats
+        const [
+            lastRevenue,
+            lastOrders,
+            lastUsers
+        ] = await Promise.all([
+            Order.aggregate([
+                { $match: { purchaseStatus: "completed", createdAt: { $gte: lastMonthStart, $lte: lastMonthEnd } } },
+                { $group: { _id: null, total: { $sum: "$totalAmount" } } }
+            ]),
+            Order.countDocuments({ createdAt: { $gte: lastMonthStart, $lte: lastMonthEnd } }),
+            User.countDocuments({ role: "user", createdAt: { $gte: lastMonthStart, $lte: lastMonthEnd } })
+        ]);
+
+        const currentRevenueVal = currentRevenue.length > 0 ? currentRevenue[0].total : 0;
+        const lastRevenueVal = lastRevenue.length > 0 ? lastRevenue[0].total : 0;
+
+        // Calculate percentage changes
+        const calculateChange = (current, last) => {
+            if (last === 0) return current > 0 ? 100 : 0;
+            return ((current - last) / last) * 100;
+        };
+
+        // Calculate profit change (simplified: revenue - estimated cost)
+        const currentProfit = currentRevenueVal * 0.3; // Assume 30% margin
+        const lastProfit = lastRevenueVal * 0.3;
+
+        return {
+            success: true,
+            data: {
+                revenueChange: calculateChange(currentRevenueVal, lastRevenueVal),
+                ordersChange: calculateChange(currentOrders, lastOrders),
+                profitChange: calculateChange(currentProfit, lastProfit),
+                usersChange: calculateChange(currentUsers, lastUsers)
+            }
+        };
+    } catch (error) {
+        console.error("Error in getComparisonStatsService:", error);
+        throw error;
+    }
+}

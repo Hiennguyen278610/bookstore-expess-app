@@ -7,7 +7,7 @@ import axios from "axios";
 import { baseUrl } from "@/constants/index";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
-import api from '@/lib/axios';
+import { getAllUsers, updateUser, deleteUser, createUser } from "@/api/userApi";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -20,6 +20,8 @@ export default function UsersPage() {
   const [showPassword, setShowPassword] = useState<Record<string, boolean>>({});
   const [showFormPassword, setShowFormPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [emailError, setEmailError] = useState<string>("");
+  const [phoneError, setPhoneError] = useState<string>("");
   const [formData, setFormData] = useState({
     fullName: "",
     username: "",
@@ -29,6 +31,36 @@ export default function UsersPage() {
     role: "user" as "user" | "admin",
   });
 
+  // Email validation
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      setEmailError("Email kh\u00f4ng \u0111\u01b0\u1ee3c \u0111\u1ec3 tr\u1ed1ng");
+      return false;
+    }
+    if (!emailRegex.test(email)) {
+      setEmailError("Email kh\u00f4ng \u0111\u00fang \u0111\u1ecbnh d\u1ea1ng (v\u00ed d\u1ee5: example@gmail.com)");
+      return false;
+    }
+    setEmailError("");
+    return true;
+  };
+
+  // Phone validation (Vietnam phone number format)
+  const validatePhone = (phone: string): boolean => {
+    const phoneRegex = /^(0|\+84)(\s?\.?\d){9,10}$/;
+    if (!phone) {
+      setPhoneError("S\u1ed1 \u0111i\u1ec7n tho\u1ea1i kh\u00f4ng \u0111\u01b0\u1ee3c \u0111\u1ec3 tr\u1ed1ng");
+      return false;
+    }
+    if (!phoneRegex.test(phone)) {
+      setPhoneError("S\u1ed1 \u0111i\u1ec7n tho\u1ea1i kh\u00f4ng \u0111\u00fang \u0111\u1ecbnh d\u1ea1ng (v\u00ed d\u1ee5: 0912345678)");
+      return false;
+    }
+    setPhoneError("");
+    return true;
+  };
+
   // Fetch users from API
   useEffect(() => {
     fetchUsers();
@@ -37,9 +69,9 @@ export default function UsersPage() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`${baseUrl}/users`);
+      const response = await getAllUsers();
       // API có thể trả về { data: [...] } hoặc trực tiếp array
-      const usersData = response.data?.data || response.data || [];
+      const usersData = response.data || response || [];
       setUsers(Array.isArray(usersData) ? usersData : []);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -71,25 +103,56 @@ export default function UsersPage() {
       !formData.fullName ||
       !formData.username ||
       !formData.email ||
-      !formData.phone ||
-      !formData.password
+      !formData.phone
     ) {
-      alert("Vui lòng điền đầy đủ thông tin!");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Thiếu thông tin',
+        text: 'Vui lòng điền đầy đủ thông tin!',
+      });
+      return;
+    }
+
+    // Validate email and phone
+    const isEmailValid = validateEmail(formData.email);
+    const isPhoneValid = validatePhone(formData.phone);
+
+    if (!isEmailValid || !isPhoneValid) {
+      return;
+    }
+
+    // When creating, password is required
+    if (!editingUser && !formData.password) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Thiếu thông tin',
+        text: 'Vui lòng nhập mật khẩu!',
+      });
       return;
     }
 
     try {
       if (editingUser) {
-        // Update user - temporarily disabled, backend API not available
+        // Update user - only send password if it's changed
+        const updateData = {
+          fullName: formData.fullName,
+          username: formData.username,
+          email: formData.email,
+          phone: formData.phone,
+          role: formData.role,
+          ...(formData.password && { password: formData.password }) // Only include password if provided
+        };
+        await updateUser(editingUser._id, updateData);
         Swal.fire({
-          icon: 'warning',
-          title: 'Chức năng chưa khả dụng',
-          text: 'Tính năng sửa người dùng đang được phát triển!',
+          icon: 'success',
+          title: 'Thành công',
+          text: 'Cập nhật người dùng thành công!',
+          timer: 2000,
+          showConfirmButton: false,
         });
-        return;
       } else {
-        // Create new user - use register endpoint
-        await axios.post(`${baseUrl}/auth/register`, formData);
+        // Create new user
+        await createUser(formData);
         Swal.fire({
           icon: 'success',
           title: 'Thành công',
@@ -125,7 +188,7 @@ export default function UsersPage() {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`${baseUrl}/users/${id}`);
+        await deleteUser(id);
         toast.success('Xóa người dùng thành công!', {
           position: 'bottom-right',
           duration: 3000,
@@ -140,13 +203,17 @@ export default function UsersPage() {
         Swal.fire({
           icon: 'error',
           title: 'Lỗi',
-          text: 'Có lỗi xảy ra khi xóa người dùng!',
+          text: (error as any).response?.data?.message || 'Có lỗi xảy ra khi xóa người dùng!',
         });
       }
     }
   };
 
   const openModal = (user: User | null = null) => {
+    // Reset validation errors
+    setEmailError("");
+    setPhoneError("");
+
     if (user) {
       setEditingUser(user);
       setFormData({
@@ -154,7 +221,7 @@ export default function UsersPage() {
         username: user.username,
         email: user.email,
         phone: user.phone,
-        password: user.password,
+        password: "", // Don't populate password when editing
         role: user.role,
       });
     } else {
@@ -175,6 +242,8 @@ export default function UsersPage() {
   const resetForm = () => {
     setEditingUser(null);
     setShowFormPassword(false);
+    setEmailError("");
+    setPhoneError("");
     setFormData({
       fullName: "",
       username: "",
@@ -362,9 +431,22 @@ export default function UsersPage() {
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  onChange={(e) => {
+                    setFormData({ ...formData, email: e.target.value });
+                    setEmailError("");
+                  }}
+                  onBlur={(e) => validateEmail(e.target.value)}
+                  className={`w-full border px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${emailError
+                    ? 'border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 focus:ring-emerald-500'
+                    }`}
+                  placeholder="example@gmail.com"
                 />
+                {emailError && (
+                  <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                    <span>⚠️</span> {emailError}
+                  </p>
+                )}
               </div>
 
               {/* Phone */}
@@ -373,9 +455,22 @@ export default function UsersPage() {
                 <input
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  onChange={(e) => {
+                    setFormData({ ...formData, phone: e.target.value });
+                    setPhoneError("");
+                  }}
+                  onBlur={(e) => validatePhone(e.target.value)}
+                  className={`w-full border px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${phoneError
+                    ? 'border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 focus:ring-emerald-500'
+                    }`}
+                  placeholder="0912345678"
                 />
+                {phoneError && (
+                  <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                    <span>⚠️</span> {phoneError}
+                  </p>
+                )}
               </div>
 
               {/* Mật khẩu */}
