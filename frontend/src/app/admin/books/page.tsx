@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Plus, Pencil, Trash2, Search, Upload, Eye, X } from "lucide-react";
 import Pagination from "../components/Pagination";
+import SearchableSelect from "@/components/SearchableSelect";
 import type { Book, BooksResponse } from "@/types/book.type";
 import type { Author } from "@/types/author.type";
 import type { Category } from "@/types/category.type";
@@ -261,8 +262,8 @@ export default function BooksPage() {
       setEditingBook(book);
       console.log('Opening edit modal with book:', book);
       console.log('Book authors:', book.authors);
-      const authorIds = Array.isArray(book.authors)
-        ? book.authors.map(a => a._id)
+      const authorIds = Array.isArray(book.authors) && book.authors
+        ? book.authors.map((a: any) => a._id).filter(Boolean)
         : [];
       console.log('Extracted authorIds:', authorIds);
       setFormData({
@@ -399,40 +400,37 @@ export default function BooksPage() {
             </div>
 
             {/* Category Filter */}
-            <select
+            <SearchableSelect
               value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="border border-gray-300 bg-white px-4 py-2.5 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            >
-              <option value="all">Tất cả thể loại</option>
-              {categories.map(cat => (
-                <option key={cat._id} value={cat._id}>{cat.name}</option>
-              ))}
-            </select>
+              onChange={(value) => setCategoryFilter(value || "all")}
+              options={[
+                { _id: "all", name: "Tất cả thể loại" },
+                ...categories
+              ]}
+              placeholder="Chọn thể loại"
+            />
 
             {/* Author Filter */}
-            <select
+            <SearchableSelect
               value={authorFilter}
-              onChange={(e) => setAuthorFilter(e.target.value)}
-              className="border border-gray-300 bg-white px-4 py-2.5 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            >
-              <option value="all">Tất cả tác giả</option>
-              {authors.map(a => (
-                <option key={a._id} value={a._id}>{a.name}</option>
-              ))}
-            </select>
+              onChange={(value) => setAuthorFilter(value || "all")}
+              options={[
+                { _id: "all", name: "Tất cả tác giả" },
+                ...authors
+              ]}
+              placeholder="Chọn tác giả"
+            />
 
             {/* Publisher Filter */}
-            <select
+            <SearchableSelect
               value={publisherFilter}
-              onChange={(e) => setPublisherFilter(e.target.value)}
-              className="border border-gray-300 bg-white px-4 py-2.5 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            >
-              <option value="all">Tất cả NXB</option>
-              {publishers.map(p => (
-                <option key={p._id} value={p._id}>{p.name}</option>
-              ))}
-            </select>
+              onChange={(value) => setPublisherFilter(value || "all")}
+              options={[
+                { _id: "all", name: "Tất cả NXB" },
+                ...publishers
+              ]}
+              placeholder="Chọn NXB"
+            />
 
             {/* Price Range */}
             <div className="flex items-center gap-2">
@@ -605,31 +603,23 @@ export default function BooksPage() {
                   {/* Category */}
                   <div>
                     <label className="block text-gray-700 mb-1.5 font-medium text-sm">Thể loại *</label>
-                    <select
+                    <SearchableSelect
                       value={formData.categoryId}
-                      onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
-                    >
-                      <option value="">Chọn thể loại</option>
-                      {categories.map(c => (
-                        <option key={c._id} value={c._id}>{c.name}</option>
-                      ))}
-                    </select>
+                      onChange={(value) => setFormData({ ...formData, categoryId: value })}
+                      options={categories}
+                      placeholder="Chọn thể loại"
+                    />
                   </div>
 
                   {/* Publisher */}
                   <div>
                     <label className="block text-gray-700 mb-1.5 font-medium text-sm">Nhà xuất bản *</label>
-                    <select
+                    <SearchableSelect
                       value={formData.publisherId}
-                      onChange={(e) => setFormData({ ...formData, publisherId: e.target.value })}
-                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
-                    >
-                      <option value="">Chọn NXB</option>
-                      {publishers.map(p => (
-                        <option key={p._id} value={p._id}>{p.name}</option>
-                      ))}
-                    </select>
+                      onChange={(value) => setFormData({ ...formData, publisherId: value })}
+                      options={publishers}
+                      placeholder="Chọn NXB"
+                    />
                   </div>
                 </div>
 

@@ -12,7 +12,7 @@ export default function SuppliersPage() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [formData, setFormData] = useState<Omit<Supplier, "_id">>({

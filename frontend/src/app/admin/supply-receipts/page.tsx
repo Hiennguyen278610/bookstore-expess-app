@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { supplyReceipts as fakeReceipts, suppliers, books, users } from "@/app/admin/fakedata";
+import SearchableSelect from "@/components/SearchableSelect";
 import type { SupplyReceipt, SupplyItem } from "@/types/supplyreceipt.type";
 import type { Supplier } from "@/types/supplier.type";
 import type { Book } from "@/types/book.type";
@@ -15,7 +16,7 @@ export default function SupplyReceiptsPage() {
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<SupplyReceipt | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
   // Filter và Pagination logic
@@ -348,18 +349,12 @@ export default function SupplyReceiptsPage() {
             {/* Nhà cung cấp */}
             <div className="mb-4">
               <label className="block text-gray-700 mb-2 font-medium text-sm">Nhà cung cấp *</label>
-              <select
+              <SearchableSelect
                 value={formData.supplier_id}
-                onChange={(e) => setFormData({ ...formData, supplier_id: e.target.value })}
-                className="w-full border border-gray-300 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-              >
-                <option value="">-- Chọn nhà cung cấp --</option>
-                {suppliers.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => setFormData({ ...formData, supplier_id: value })}
+                options={suppliers.map(s => ({ _id: s.id, name: s.name }))}
+                placeholder="Chọn nhà cung cấp"
+              />
             </div>
 
             {/* Ngày và trạng thái */}
@@ -400,20 +395,14 @@ export default function SupplyReceiptsPage() {
               <div className="space-y-3">
                 {formData.items.map((item, index) => (
                   <div key={index} className="flex gap-2 items-center">
-                    <select
+                    <SearchableSelect
                       value={item.book_id}
-                      onChange={(e) =>
-                        updateItem(index, "book_id", e.target.value)
+                      onChange={(value) =>
+                        updateItem(index, "book_id", value)
                       }
-                      className="border border-gray-300 px-3 py-2.5 rounded-lg flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    >
-                      <option value="">Chọn sách</option>
-                      {books.map((b) => (
-                        <option key={b.id} value={b.id}>
-                          {b.name}
-                        </option>
-                      ))}
-                    </select>
+                      options={books.map(b => ({ _id: b.id, name: b.name }))}
+                      placeholder="Chọn sách"
+                    />
                     <input
                       type="number"
                       min="1"
