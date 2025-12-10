@@ -13,6 +13,7 @@ import { baseUrl } from "@/constants/index";
 import { createBook, updateBook, deleteBook } from "@/api/bookApi";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
+import api from '@/lib/axios';
 
 // Hàm tạo slug từ tên sách
 const generateSlug = (name: string): string => {
@@ -90,7 +91,7 @@ export default function BooksPage() {
 
   const fetchAuthors = async () => {
     try {
-      const response = await axios.get(`${baseUrl}/authors`);
+      const response = await api.get(`${baseUrl}/authors`);
       setAuthors(response.data);
     } catch (error) {
       console.error("Error fetching authors:", error);
@@ -99,7 +100,7 @@ export default function BooksPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(`${baseUrl}/categories`);
+      const response = await api.get(`${baseUrl}/categories`);
       setCategories(response.data);
     } catch (error) {
       console.error("Error fetching categories:", error);
