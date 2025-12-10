@@ -63,3 +63,21 @@ export const getOrderStats = async () => {
     const response = await api.get('/statistics/orders');
     return response.data;
 };
+
+// Get top categories
+export const getTopCategories = async (limit = 5) => {
+    const response = await api.get('/statistics/top-categories', { params: { limit } });
+    return response.data;
+};
+
+// Get payment methods stats
+export const getPaymentMethodsStats = async () => {
+    const response = await api.get('/statistics/payment-methods');
+    return response.data;
+};
+
+// Get comparison stats with previous period
+export const getComparisonStats = async () => {
+    const response = await api.get('/statistics/comparison');
+    return response.data;
+};
