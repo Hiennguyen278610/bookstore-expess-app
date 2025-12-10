@@ -120,10 +120,16 @@ export const CreateAddressModal = ({
     }
   }, [isOpen, initialData, provinces, setValue]);
 
-  const handleMapConfirm = (address: AddressComponent[]) => {
+  const handleMapConfirm = async (address: AddressComponent[]) => {
+    
     const province = address.find((a) => a.types[0] == "admin_level_2");
     const provinceId = provinces?.find((p) => p.full_name == province?.name)?.id;
-    setValue("province", provinceId!);  
+    setValue("province", provinceId!);
+    const districts = await getDistricts(provinceId!);
+    setDistricts(districts);
+    const district = address.find((d) => d.types[0] == "admin_level_4");
+    const districtId = districts?.find((d) => d.full_name == district?.name)?.id;
+    setValue("district", districtId!)
   };
 
   const onSubmit = async (data: Address) => {
@@ -289,7 +295,7 @@ export const CreateAddressModal = ({
                           </SelectTrigger>
                           <SelectContent className="max-h-[240px]">
                             {districts?.map((item) => (
-                              <SelectItem key={item.id} value={item.name}>
+                              <SelectItem key={item.id} value={item.id}>
                                 {item.name}
                               </SelectItem>
                             ))}

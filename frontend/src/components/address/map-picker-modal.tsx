@@ -58,7 +58,7 @@ export const MapPickerModal = ({
         </DialogHeader>
 
         <div className="flex-1 relative bg-gray-100 overflow-hidden">
-          <Map4DAutoSuggest setAddressName={setAddressName} />
+          <Map4DAutoSuggest setAddressName={setAddressName} setDistricts={setDistricts} />
         </div>
 
         <div className="p-4 bg-white border-t z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
