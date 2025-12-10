@@ -23,7 +23,6 @@ const CartProduct = ({
   onInputQuantity,
   onRemove,
 }: CartItemComponentProps) => {
-
   // Fetch book info
   const { data: book, isLoading } = useSWR(
     bookId ? `/books/${bookId}` : null,
@@ -34,15 +33,32 @@ const CartProduct = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const num = Number(e.target.value);
-    if (!isNaN(num)) {
+    if (!isNaN(num) && num >= 1 && num <= maxQuantity) {
       onInputQuantity(num);
     }
   };
 
   const handleBlur = () => {
-    if (quantity < 1) onInputQuantity(1);
-    else if (quantity > maxQuantity) onInputQuantity(maxQuantity);
+    if (quantity < 1) {
+      onInputQuantity(1);
+    } else if (quantity > maxQuantity) {
+      onInputQuantity(maxQuantity);
+    }
   };
+
+  // Các hàm xử lý nút + và - với validation
+  const handleIncrease = () => {
+    if (quantity < maxQuantity) {
+      onIncrease();
+    }
+  };
+
+  const handleDecrease = () => {
+    if (quantity > 1) {
+      onDecrease();
+    }
+  };
+
 
   /** Loading fallback */
   if (isLoading || !book) {
@@ -77,6 +93,13 @@ const CartProduct = ({
           <p className="text-gray-500 text-sm mt-1">
             Còn lại: {maxQuantity} sản phẩm
           </p>
+          
+          {/* Hiển thị cảnh báo nếu đã đạt giới hạn */}
+          {quantity >= maxQuantity && (
+            <p className="text-red-500 text-sm font-medium mt-1">
+              Đã đạt giới hạn mua tối đa
+            </p>
+          )}
         </div>
       </div>
 
@@ -89,8 +112,8 @@ const CartProduct = ({
             <div className="bg-white border border-gray-300 rounded-lg shadow-sm">
               <QuantityInput
                 value={quantity}
-                onIncrease={onIncrease}
-                onDecrease={onDecrease}
+                onIncrease={handleIncrease}  
+                onDecrease={handleDecrease}  
                 onChange={handleChange}
                 onBlur={handleBlur}
                 size="sm"
@@ -112,7 +135,7 @@ const CartProduct = ({
               {formatPrice(book.price * quantity)}
             </h2>
             <p className="text-gray-500 text-sm whitespace-nowrap">
-              {formatPrice(book.price)}
+              {formatPrice(book.price)} × {quantity}
             </p>
           </div>
         </div>

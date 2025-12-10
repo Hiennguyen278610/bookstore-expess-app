@@ -12,13 +12,14 @@ import { checkEmptyBody } from "../middlewares/checkEmptyBody.js";
 
 const router = express.Router();
 
+router.get("/best-selling/", getTop10BestSellingBooks)
+router.get("/newest/", getTop10NewestBooks)
+
 router.use(auth);
 router.use(checkEmptyBody);
 
 router.get("/code", getOrderByOrderCode)
 router.get("/me", getOrdersByCustomerId);
-router.get("/best-selling/", getTop10BestSellingBooks)
-router.get("/newest/", getTop10NewestBooks)
 router.post("/", createOrder);
 
 //ADMIN ONLY
