@@ -40,6 +40,8 @@ export default function BooksPage() {
     currentPage: 1,
     limit: 12,
   });
+  const [currentPageClient, setCurrentPageClient] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -53,6 +55,7 @@ export default function BooksPage() {
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [formData, setFormData] = useState({
     name: "",
     categoryId: "",
@@ -69,7 +72,7 @@ export default function BooksPage() {
     fetchAuthors();
     fetchCategories();
     fetchPublishers();
-  }, [pagination.currentPage]);
+  }, [pagination.currentPage, pagination.limit]);
 
   const fetchBooks = async () => {
     try {
@@ -127,6 +130,13 @@ export default function BooksPage() {
     return matchSearch && matchCategory && matchAuthor && matchPublisher && matchPriceFrom && matchPriceTo;
   });
 
+  // Client-side pagination
+  const totalPagesClient = Math.max(1, Math.ceil(filteredBooks.length / itemsPerPage));
+  const paginatedBooks = filteredBooks.slice(
+    (currentPageClient - 1) * itemsPerPage,
+    currentPageClient * itemsPerPage
+  );
+
   // Helpers
   const formatPrice = (price: number) =>
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
@@ -151,6 +161,8 @@ export default function BooksPage() {
 
   // CRUD
   const handleSubmit = async () => {
+    if (isSubmitting) return; // Prevent double submission
+
     if (!formData.name || !formData.categoryId || !formData.publisherId || formData.authorIds.length === 0) {
       Swal.fire({
         icon: 'error',
@@ -160,6 +172,7 @@ export default function BooksPage() {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       // Create FormData for multipart/form-data
       const submitData = new FormData();
@@ -218,6 +231,8 @@ export default function BooksPage() {
         title: 'Lỗi',
         text: err.response?.data?.message || 'Không thể lưu sách',
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -494,14 +509,14 @@ export default function BooksPage() {
                       Đang tải dữ liệu...
                     </td>
                   </tr>
-                ) : filteredBooks.length === 0 ? (
+                ) : paginatedBooks.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="px-4 py-12 text-center text-gray-400">
-                      Không tìm thấy sách nào 📚
+                      Không tìm thấy sách nào 📖
                     </td>
                   </tr>
                 ) : (
-                  filteredBooks.map(book => (
+                  paginatedBooks.map(book => (
                     <tr key={book._id} className="border-t border-gray-200 hover:bg-gray-50 transition-all duration-200">
                       <td className="px-4 py-3">
                         {book.mainImage || book.imageUrl?.[0] ? (
@@ -566,13 +581,14 @@ export default function BooksPage() {
 
           {/* Pagination */}
           <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            totalItems={pagination.totalItems}
-            itemsPerPage={pagination.limit}
-            onPageChange={(page) => setPagination(prev => ({ ...prev, currentPage: page }))}
+            currentPage={currentPageClient}
+            totalPages={totalPagesClient}
+            totalItems={filteredBooks.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPageClient}
             onItemsPerPageChange={(items) => {
-              setPagination(prev => ({ ...prev, limit: items, currentPage: 1 }));
+              setItemsPerPage(items);
+              setCurrentPageClient(1);
             }}
           />
         </div>
@@ -630,9 +646,11 @@ export default function BooksPage() {
                     <label className="block text-gray-700 mb-1.5 font-medium text-sm">Số lượng *</label>
                     <input
                       type="number"
-                      value={formData.quantity}
-                      onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
-                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                      min="0"
+                      value={0}
+                      readOnly
+                      disabled
+                      className="w-full border border-gray-300 px-3 py-2 rounded-lg bg-gray-100 cursor-not-allowed text-sm text-gray-500"
                     />
                   </div>
                   {/* Price */}
@@ -640,8 +658,9 @@ export default function BooksPage() {
                     <label className="block text-gray-700 mb-1.5 font-medium text-sm">Giá (VNĐ) *</label>
                     <input
                       type="number"
+                      min="0"
                       value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })}
+                      onChange={(e) => setFormData({ ...formData, price: Math.max(0, parseInt(e.target.value) || 0) })}
                       className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
                     />
                   </div>
@@ -737,9 +756,10 @@ export default function BooksPage() {
             <div className="flex gap-3 pt-4 border-t mt-4">
               <button
                 onClick={handleSubmit}
-                className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300 font-semibold text-sm"
+                disabled={isSubmitting}
+                className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300 font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {editingBook ? "Cập nhật" : "Thêm mới"}
+                {isSubmitting ? "Đang xử lý..." : (editingBook ? "Cập nhật" : "Thêm mới")}
               </button>
               <button
                 onClick={resetForm}

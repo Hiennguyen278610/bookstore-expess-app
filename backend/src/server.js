@@ -25,7 +25,7 @@ import statisticsRouter from './routes/StatisticsRouters.js';
 
 const app = express();
 connectDB(process.env.MONGODB_URL);
-// setup(app)
+// setup(app) // TODO: Uncomment khi deploy production
 
 app.use(cors());
 app.use(express.json()); // To parse JSON bodies

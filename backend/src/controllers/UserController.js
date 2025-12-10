@@ -13,7 +13,7 @@ export async function createUser(req, res) {
       message: 'Create User successful',
       data: result
     });
-    } catch (err) {
+  } catch (err) {
     res.status(400).json({
       success: false,
       message: err.message
@@ -22,7 +22,9 @@ export async function createUser(req, res) {
 }
 export async function updateUser(req, res) {
   try {
-    const result = await updateUserService(req.params.id,req.body,req.user.id)
+    // For testing without auth, use a dummy ID
+    const currentUserId = req.user?.id || '000000000000000000000000';
+    const result = await updateUserService(req.params.id, req.body, currentUserId)
     res.status(200).json({
       success: true,
       message: 'Update User successful',
@@ -37,13 +39,15 @@ export async function updateUser(req, res) {
 }
 export async function deleteUser(req, res) {
   try {
-    const result = await deleteUserService(req.params.id, req.user.id)
+    // For testing without auth, use a dummy ID
+    const currentUserId = req.user?.id || '000000000000000000000000';
+    const result = await deleteUserService(req.params.id, currentUserId)
     res.status(200).json({
       success: true,
       message: 'Delete User successful',
       data: result
     });
-  }catch (err){
+  } catch (err) {
     res.status(400).json({
       success: false,
       message: err.message
@@ -58,7 +62,7 @@ export async function getUserById(req, res) {
       message: 'Get User successful',
       data: result
     });
-  }catch (err){
+  } catch (err) {
     res.status(400).json({
       success: false,
       message: err.message
@@ -73,7 +77,7 @@ export async function getAllUsers(req, res) {
       message: 'Get All User successful',
       data: result
     });
-  }catch (err){
+  } catch (err) {
     res.status(400).json({
       success: false,
       message: err.message
