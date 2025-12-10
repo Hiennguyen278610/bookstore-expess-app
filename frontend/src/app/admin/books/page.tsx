@@ -209,13 +209,13 @@ export default function BooksPage() {
       }
       fetchBooks();
       resetForm();
-    } catch (error: any) {
-      console.error("Error saving book:", error);
-      console.error("Error response:", error.response?.data);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      console.error("Error saving book:", err);
       Swal.fire({
         icon: 'error',
         title: 'Lỗi',
-        text: error.response?.data?.message || 'Không thể lưu sách',
+        text: err.response?.data?.message || 'Không thể lưu sách',
       });
     }
   };
@@ -245,13 +245,13 @@ export default function BooksPage() {
           },
         });
         fetchBooks();
-      } catch (error: any) {
-        console.error("Error deleting book:", error);
-        console.error("Error response:", error.response?.data);
+      } catch (error: unknown) {
+        const err = error as { response?: { data?: { message?: string } } };
+        console.error("Error deleting book:", err);
         Swal.fire({
           icon: 'error',
           title: 'Lỗi',
-          text: error.response?.data?.message || 'Không thể xóa sách',
+          text: err.response?.data?.message || 'Không thể xóa sách',
         });
       }
     }
@@ -263,7 +263,7 @@ export default function BooksPage() {
       console.log('Opening edit modal with book:', book);
       console.log('Book authors:', book.authors);
       const authorIds = Array.isArray(book.authors) && book.authors
-        ? book.authors.map((a: any) => a._id).filter(Boolean)
+        ? book.authors.map((a: Author) => a._id).filter(Boolean)
         : [];
       console.log('Extracted authorIds:', authorIds);
       setFormData({

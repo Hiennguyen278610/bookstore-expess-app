@@ -217,7 +217,6 @@ export const googleLoginService = async (code) => {
       username: username,
       email: payload.email,
       isVerified: payload.email_verified,
-      phone: null,
       password: password
     });
     await user.save();
