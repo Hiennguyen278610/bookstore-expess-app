@@ -36,22 +36,23 @@ export async function getOverviewStatsService() {
         ]);
         const totalRevenue = revenueResult.length > 0 ? revenueResult[0].total : 0;
 
-        // Tính tổng chi phí nhập hàng
-        const costResult = await SupplyDetail.aggregate([
+        // Tính tổng chi phí nhập hàng - CHỈ từ phiếu đã hoàn tất
+        const costResult = await SupplyReceipt.aggregate([
+            { $match: { purchaseStatus: "completed" } }, // Chỉ lấy phiếu hoàn tất
             {
                 $lookup: {
-                    from: "supplyreceipts",
-                    localField: "receiptId",
-                    foreignField: "_id",
-                    as: "receipt"
+                    from: "supplydetails",
+                    localField: "_id",
+                    foreignField: "receiptId",
+                    as: "details"
                 }
             },
-            { $unwind: "$receipt" },
+            { $unwind: "$details" },
             {
                 $group: {
                     _id: null,
                     total: {
-                        $sum: { $multiply: ["$quantity", "$unitPrice"] }
+                        $sum: { $multiply: ["$details.quantity", "$details.importPrice"] }
                     }
                 }
             }
@@ -188,7 +189,7 @@ export async function getProfitStatsService(period = "month", from, to) {
                 };
         }
 
-        const matchCondition = {};
+        const matchCondition = { purchaseStatus: "completed" }; // Chỉ lấy phiếu hoàn tất
         if (from || to) {
             matchCondition.createdAt = {};
             if (from) matchCondition.createdAt.$gte = new Date(from);
@@ -210,7 +211,7 @@ export async function getProfitStatsService(period = "month", from, to) {
                 $group: {
                     _id: groupBy,
                     cost: {
-                        $sum: { $multiply: ["$details.quantity", "$details.unitPrice"] }
+                        $sum: { $multiply: ["$details.quantity", "$details.importPrice"] }
                     }
                 }
             },
