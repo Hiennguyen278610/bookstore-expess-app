@@ -12,7 +12,7 @@ export default function CategoriesPage() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [formData, setFormData] = useState<{ name: string }>({ name: "" });
   const [loading, setLoading] = useState<boolean>(true);
