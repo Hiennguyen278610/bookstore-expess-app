@@ -255,6 +255,7 @@ const PAYMENT_WORKFLOW: Record<
 };
 
 export const OrderTable = ({ orders, onViewOrder }: OrderTableProps) => {
+  console.log("Order: ", orders);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   // Handle actions
@@ -318,6 +319,7 @@ export const OrderTable = ({ orders, onViewOrder }: OrderTableProps) => {
         </TableHeader>
         <TableBody>
           {orders.map((order) => (
+            console.log("Order: ", order),
             <TableRow
               key={order._id}
               className="hover:bg-gray-50 transition-colors"

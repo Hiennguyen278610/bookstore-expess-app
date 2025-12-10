@@ -1,14 +1,14 @@
 
 import React from 'react'
-import ProductCard, from '../collections/components/ProductCard'
-import { BookBanner } from '@/types/book.type';
+import ProductCard, { ProductCardProps } from '../collections/components/ProductCard'
+import { Book } from '@/types/book.type';
 
 interface BookShowCaseProps {
   title: string;
-  books: BookBanner[];
+  books: Book[];
 }
 
-const BookShowCase = ({title, books}: BookShowCaseProps) => {
+const BookNewest = ({title, books}: BookShowCaseProps) => {
   return (
     <div className='w-full mt-12 mb-20'>
       {/* Centered Title */}
@@ -21,17 +21,17 @@ const BookShowCase = ({title, books}: BookShowCaseProps) => {
       {/* Book Grid */}
       <div className='grid lg:grid-cols-5 grid-cols-2 md:grid-cols-4 gap-1 px-2'>
         {books.map((book) =>(
-            <ProductCard 
-                key={book.book._id}
-                _id={book.book._id}
-                imgSrc={book.book.imageUrl[0]}
-                name={book.book.name}
-                price={book.book.price}
-                />
+          <ProductCard
+            key={book._id}
+            _id={book._id}
+            imgSrc={book.imageUrl[0]}
+            name={book.name}
+            price={book.price}
+          />
         ))}
       </div>
     </div>
   )
 }
 
-export default BookShowCase
+export default BookNewest

@@ -340,3 +340,8 @@ export async function getOrderByStatusAndCustomerId(
 export async function getOrderByOrderCodeService(orderCode, customerId){
   return Order.findOne({ customerId: customerId, payosOrderId: orderCode  });
 }
+export async function getTop10BookSoldService(){
+  const order = await Order.find().createdAt({})
+
+
+}

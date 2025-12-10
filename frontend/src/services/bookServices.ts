@@ -1,6 +1,8 @@
+"use client"
 import { Book } from "@/types/book.type";
 import { ApiResponse } from "@/types/response.type";
 import api from '@/lib/axios';
+import useSWR from 'swr';
 
 export const bookServices = {
   getBooks: async (
@@ -63,3 +65,5 @@ export const bookServices = {
     }
   },
 };
+
+

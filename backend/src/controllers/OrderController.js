@@ -7,6 +7,8 @@ import {
   updateOrderService,
   getOrderByOrderCodeService
 } from "../services/OrderService.js";
+import OrderDetail from '../models/OrderDetail.js';
+import Book from '../models/Book.js';
 
 
 //Get orders by customerId
@@ -54,6 +56,55 @@ export async function getOrderDetailById(req, res) {
     res.status(400).send({ message: err.message });
   }
 }
+
+export async function getTop10BestSellingBooks(req, res) {
+  try {
+    const result = await OrderDetail.aggregate([
+      {
+        $group: {
+          _id: "$bookId",
+          totalSold: { $sum: "$quantity" }
+        }
+      },
+      {
+        $sort: { totalSold: -1 }
+      },
+      {
+        $limit: 10
+      },
+      {
+        $lookup: {
+          from: "books",
+          localField: "_id",
+          foreignField: "_id",
+          as: "book"
+        }
+      },
+      {
+        $unwind: "$book"
+      }
+    ]);
+
+    return res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+export async function getTop10NewestBooks(req, res) {
+  try {
+    const books = await Book.find({ isDeleted: false })
+      .sort({ createdAt: -1 })   // mới nhất → cũ nhất
+      .limit(10)
+      .populate("authors")       // nếu muốn lấy authors luôn
+      .populate("categoryId")    // lấy category info
+      .populate("publisherId");  // lấy publisher info
+
+    return res.status(200).json(books);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
 
 //Create order(customer purchase)
 export async function createOrder(req, res) {
