@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useDebounce, useGeolocation } from "react-haiku";
 import { MapPin } from "./svg/map-pin";
-import { getAddressFromLatLog } from "@/services/addressservices";
+import { getAddressFromLatLog, getDistricts, getProvinces, Province } from "@/services/addressservices";
 import { AddressComponent } from "./address/map-picker-modal";
 interface Position {
   lat: number | null;
@@ -42,8 +42,10 @@ const Map = memo(
 
 function Map4DAutoSuggest({
   setAddressName,
+  setDistricts
 }: {
-  setAddressName: React.Dispatch<React.SetStateAction<AddressComponent[]>>;
+  setAddressName: React.Dispatch<React.SetStateAction<AddressComponent[]>>,
+  setDistricts: React.Dispatch<Province[]>;
 }) {
   const { latitude, longitude, error, loading } = useGeolocation({
     enableHighAccuracy: true,
@@ -51,10 +53,9 @@ function Map4DAutoSuggest({
   });
   const [position, setPosition] = useState<Position>({ lat: null, lng: null });
   const debouncedPosition = useDebounce(position, 1000);
-
+  const { provinces } = getProvinces();
   const handleCameraChanging = useCallback((event: any) => {
     const target = event.camera.target;
-    console.log("chạy hàm này");
     setPosition({ lat: target.lat, lng: target.lng });
   }, []);
 
@@ -66,7 +67,12 @@ function Map4DAutoSuggest({
           debouncedPosition.lat,
           debouncedPosition.lng
         );
-        setAddressName(position.addressComponents);
+        const address : AddressComponent[] = position.addressComponents;
+        setAddressName(address);
+        const province = address.find((a) => a.types[0] == "admin_level_2");
+        const provinceId = provinces?.find((p) => p.full_name == province?.name)?.id;
+        const district = await getDistricts(provinceId!)
+        setDistricts(district);
       } catch (err) {
         console.error("Error fetching address:", err);
       }
