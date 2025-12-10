@@ -1,6 +1,7 @@
-import React from "react";
-import ProductCard from "../collections/components/ProductCard";
-import { BookBanner } from "@/types/book.type";
+
+import React from 'react'
+import ProductCard from '../collections/components/ProductCard'
+import { BookBanner } from '@/types/book.type';
 
 interface BookShowCaseProps {
   title: string;
@@ -32,7 +33,6 @@ const BookShowCase = ({ title, books }: BookShowCaseProps) => {
         ))}
       </div>
     </div>
-  );
-};
-
-export default BookShowCase;
+  )
+}
+export default BookShowCase
