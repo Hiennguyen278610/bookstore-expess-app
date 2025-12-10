@@ -437,8 +437,8 @@ export default function UsersPage() {
                   }}
                   onBlur={(e) => validateEmail(e.target.value)}
                   className={`w-full border px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${emailError
-                      ? 'border-red-500 focus:ring-red-500'
-                      : 'border-gray-300 focus:ring-emerald-500'
+                    ? 'border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 focus:ring-emerald-500'
                     }`}
                   placeholder="example@gmail.com"
                 />
@@ -461,8 +461,8 @@ export default function UsersPage() {
                   }}
                   onBlur={(e) => validatePhone(e.target.value)}
                   className={`w-full border px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${phoneError
-                      ? 'border-red-500 focus:ring-red-500'
-                      : 'border-gray-300 focus:ring-emerald-500'
+                    ? 'border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 focus:ring-emerald-500'
                     }`}
                   placeholder="0912345678"
                 />

@@ -55,6 +55,7 @@ export default function BooksPage() {
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [formData, setFormData] = useState({
     name: "",
     categoryId: "",
@@ -160,6 +161,8 @@ export default function BooksPage() {
 
   // CRUD
   const handleSubmit = async () => {
+    if (isSubmitting) return; // Prevent double submission
+
     if (!formData.name || !formData.categoryId || !formData.publisherId || formData.authorIds.length === 0) {
       Swal.fire({
         icon: 'error',
@@ -169,6 +172,7 @@ export default function BooksPage() {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       // Create FormData for multipart/form-data
       const submitData = new FormData();
@@ -227,6 +231,8 @@ export default function BooksPage() {
         title: 'Lỗi',
         text: err.response?.data?.message || 'Không thể lưu sách',
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -640,9 +646,11 @@ export default function BooksPage() {
                     <label className="block text-gray-700 mb-1.5 font-medium text-sm">Số lượng *</label>
                     <input
                       type="number"
-                      value={formData.quantity}
-                      onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
-                      className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                      min="0"
+                      value={0}
+                      readOnly
+                      disabled
+                      className="w-full border border-gray-300 px-3 py-2 rounded-lg bg-gray-100 cursor-not-allowed text-sm text-gray-500"
                     />
                   </div>
                   {/* Price */}
@@ -650,8 +658,9 @@ export default function BooksPage() {
                     <label className="block text-gray-700 mb-1.5 font-medium text-sm">Giá (VNĐ) *</label>
                     <input
                       type="number"
+                      min="0"
                       value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })}
+                      onChange={(e) => setFormData({ ...formData, price: Math.max(0, parseInt(e.target.value) || 0) })}
                       className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
                     />
                   </div>
@@ -747,9 +756,10 @@ export default function BooksPage() {
             <div className="flex gap-3 pt-4 border-t mt-4">
               <button
                 onClick={handleSubmit}
-                className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300 font-semibold text-sm"
+                disabled={isSubmitting}
+                className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300 font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {editingBook ? "Cập nhật" : "Thêm mới"}
+                {isSubmitting ? "Đang xử lý..." : (editingBook ? "Cập nhật" : "Thêm mới")}
               </button>
               <button
                 onClick={resetForm}
