@@ -1,6 +1,6 @@
 
 import React from 'react'
-import ProductCard, from '../collections/components/ProductCard'
+import ProductCard from '../collections/components/ProductCard'
 import { BookBanner } from '@/types/book.type';
 
 interface BookShowCaseProps {
@@ -33,5 +33,4 @@ const BookShowCase = ({title, books}: BookShowCaseProps) => {
     </div>
   )
 }
-
 export default BookShowCase
