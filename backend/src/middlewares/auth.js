@@ -1,20 +1,42 @@
-import User from '../models/User.js';
+// Auth Middleware - Xác minh JWT token
+
 import { verifyToken } from '../utils/jwt.js';
-import { toUserResponse } from '../mappers/UserMapper.js';
-export async function auth(req, res, next){
-  const token = req.header('Authorization')?.replace('Bearer ', '');
-  if (!token) {
-    return res.status(401).json({ message: 'Missing token' });
-  }
-  try {
-    const data = verifyToken(token);
-    const user = await User.findOne({ username: data.username });
-    if (!user) {
-      return res.status(401).json({ message: 'User not found' });
+import User from '../models/User.js';
+
+// Middleware xác thực token (cho tất cả protected routes)
+export const authenticate = async (req, res, next) => {
+    console.log('authenticate middleware called, req.headers.authorization:', req.headers.authorization);
+    try {
+        // Lấy token từ header Authorization: "Bearer <token>"
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+        if (!token) {
+            return res.status(401).json({ error: 'Truy cập bị từ chối. Không có token.' });
+        }
+
+        // Xác minh token
+        const decoded = verifyToken(token);
+        console.log('Decoded token:', decoded);
+
+        // Tìm user trong DB
+        const user = await User.findById(decoded.id);
+        if (!user) {
+            return res.status(401).json({ error: 'Token không hợp lệ.' });
+        }
+
+        // Gắn user vào req để dùng trong controller
+        req.user = user;
+        console.log('req.user set:', req.user);
+        next(); // Tiếp tục
+    } catch (error) {
+        console.error('Error in authenticate:', error);
+        res.status(401).json({ error: 'Token không hợp lệ.' });
     }
-    req.user = toUserResponse(user);
+};
+
+// Middleware kiểm tra quyền admin
+export const authorizeAdmin = (req, res, next) => {
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Truy cập bị từ chối. Cần quyền admin.' });
+    }
     next();
-  } catch (err) {
-    res.status(401).json({ message: 'Not authorized to access this resource' });
-  }
-}
+};
