@@ -10,7 +10,8 @@ import {
     deleteUser,
     getUserProfile
 } from '../controllers/UserController.js';
-import { authenticate, authorizeAdmin } from '../middlewares/auth.js';
+import { authenticate } from '../middlewares/authMiddleware.js';
+import { authorizeAdmin  } from '../middlewares/rolemiddleware.js';
 
 const router = express.Router();
 
