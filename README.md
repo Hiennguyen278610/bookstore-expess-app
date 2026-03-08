@@ -11,15 +11,6 @@ Dự án xây dựng hệ thống quản lý cửa hàng sách trực tuyến v�
 - **Database**: MongoDB + Mongoose
 - **Frontend**: React.js (upcoming)
 
-## 👥 Thành viên nhóm (Cho có thôi)
-
-| Thành viên | Vai trò | Trách nhiệm |
-|------------|---------|-------------|
-| **Thanh Hiền** | Team Lead / Backend Lead | Quản lý dự án, Backend chính |
-| **Quý** | Backend Developer | Hỗ trợ Backend |
-| **Dũng** | Backend Developer | Hỗ trợ Backend |
-| **Long** | Frontend Lead | Phát triển Frontend |
-| **Phong** | Frontend Developer | Hỗ trợ Frontend |
 
 ## 📁 Cấu trúc dự án
 

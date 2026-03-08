@@ -972,7 +972,7 @@ export default function AdminDashboard() {
               <div className="text-center py-8 text-gray-400">Chưa có dữ liệu</div>
             ) : (
               <div className="space-y-4">
-                {paymentMethods.methods?.map((payment: any, idx: number) => {
+                {paymentMethods.methods?.map((payment: { method: string }, idx: number) => {
                   const methodConfig: Record<string, { label: string; icon: string; color: string }> = {
                     "COD": { label: "COD (Tiền mặt)", icon: "💵", color: "bg-emerald-600" },
                     "cash": { label: "COD (Tiền mặt)", icon: "💵", color: "bg-emerald-600" },
